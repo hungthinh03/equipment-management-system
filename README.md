@@ -39,7 +39,7 @@ Each service will use its own database for storing and managing data related to 
 <img src="assets/auth.jpg" style="width:50%;"/>
 
 - **Device Service DB** - manages all device records, status, and assignment information.
-- <img src="assets/device.jpg" style="width:50%;"/>
+<img src="assets/device.jpg" style="width:50%;"/>
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.  
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
