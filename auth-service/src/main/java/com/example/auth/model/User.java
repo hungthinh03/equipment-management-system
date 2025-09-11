@@ -1,5 +1,6 @@
 package com.example.auth.model;
 
+import com.example.auth.common.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +24,5 @@ public class User {
     private String password;
 
     @Column("role")
-    private String role;
+    private UserRole role;
 }
