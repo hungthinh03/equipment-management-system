@@ -56,8 +56,8 @@ The project will be composed of the following microservices:
     }
      ```
 
-## 4. Milestones and Time Frames
-- **Time Frame:** 4 weeks  
+## 4. Milestones & Time Frames
+- **Time Frame:** 4 Weeks  
 - **Start Date:** 8 September, 2025  
 
 | Date Range | Milestone | Description |
@@ -77,10 +77,15 @@ The project will be composed of the following microservices:
 Each service will use its own database for storing and managing data related to its responsibilities.  
 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
-<img src="assets/auth.jpg" style="width:50%;"/>
+    - user_role: enum('ADMIN', 'EMPLOYEE', 'IT')
+<img src="assets/device.jpg" style="width:50%;"/>
+
 
 - **Device Service DB** - manages all device records, status, and assignment information.
+    - device_status: enum('AVAILABLE', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED')
+    - device_category: enum('GENERAL', 'NETWORK')
 <img src="assets/device.jpg" style="width:50%;"/>
+
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.  
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
