@@ -14,9 +14,50 @@ The project will be composed of the following microservices:
 
 > All services will communicate via REST APIs.
 
+## 3. API Endpoints
 
-## 3. Milestones & Time Frames
-- **Time Frame:** 4 Weeks  
+1. **Auth Service**
+
+- **Login**
+    - **Endpoint:** `/auth/login`  
+    - **Method:** `POST`  
+    - **Description:** Authenticates a user and returns a JWT token on success.  
+    - **Request Body:**
+    ```json
+    {
+        "email": "admin@example.com",
+        "password": "12345678"
+    }
+    ```
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "token": "eyJhbGciOiJIUzI1NiJ9..."
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid input** - Returned when email or password is null 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1001,
+        "message": "Email and password are required"
+    }
+     ```
+
+    - **Invalid info** - Returned when the input email or password is incorrect
+     ```json
+    { 
+        "status": "error",
+        "statusCode": 1002,
+        "message": "Email or password is incorrect"
+    }
+     ```
+
+## 4. Milestones and Time Frames
+- **Time Frame:** 4 weeks  
 - **Start Date:** 8 September, 2025  
 
 | Date Range | Milestone | Description |
@@ -32,11 +73,11 @@ The project will be composed of the following microservices:
 | 04/10 - 05/10 | Deployment and Review | Deploy multi-service system with Docker Compose. |
 
 
-## 4. Database Design
+## 5. Database Design
 Each service will use its own database for storing and managing data related to its responsibilities.  
 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
-<img src="assets/device.jpg" style="width:50%;"/>
+<img src="assets/auth.jpg" style="width:50%;"/>
 
 - **Device Service DB** - manages all device records, status, and assignment information.
 <img src="assets/device.jpg" style="width:50%;"/>
@@ -45,7 +86,7 @@ Each service will use its own database for storing and managing data related to 
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
 
 
-## 5. Technical Specifications
+## 6. Technical Specifications
 - **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
 - **Service Communication:** REST APIs (optionally with an API Gateway).  
 - **Containerization:** Each service runs in its own Docker container.  
