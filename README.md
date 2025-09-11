@@ -36,7 +36,7 @@ The project will be composed of the following microservices:
 Each service will use its own database for storing and managing data related to its responsibilities.  
 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
-<img src="assets/auth.jpg" style="width:50%;"/>
+<img src="assets/device.jpg" style="width:50%;"/>
 
 - **Device Service DB** - manages all device records, status, and assignment information.
 <img src="assets/device.jpg" style="width:50%;"/>
