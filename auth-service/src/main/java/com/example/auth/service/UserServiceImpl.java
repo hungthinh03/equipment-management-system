@@ -4,13 +4,16 @@ import com.example.auth.common.enums.ErrorCode;
 import com.example.auth.common.exception.AppException;
 import com.example.auth.dto.ApiResponseDTO;
 import com.example.auth.dto.LoginRequestDTO;
+import com.example.auth.model.User;
 import com.example.auth.repository.UserRepository;
 import com.example.auth.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -19,6 +22,12 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepo;
     @Autowired
     private JwtUtil jwtUtil;
+
+    public Mono<List<String>> getAllUserEmails() {
+        return userRepo.findAll()
+                .map(User::getEmail).collectList(); //user -> user.getEmail()
+    }
+    //
 
     public Mono<ApiResponseDTO> login(LoginRequestDTO request) {
         return Mono.justOrEmpty(request)
