@@ -1,5 +1,6 @@
 package com.example.device.model;
 
+import com.example.device.dto.DeviceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,4 +31,11 @@ public class Device {
 
     @Column("category")
     private String category;
+
+    public Device(DeviceDTO dto)
+    {
+        this.name = dto.getName();
+        this.type = dto.getType();
+        this.category = dto.getCategory();
+    }
 }

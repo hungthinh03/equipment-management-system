@@ -15,7 +15,7 @@ public class DeviceController {
 
     //
     @PostMapping("/add")
-    public Mono<ApiResponseDTO> login(@RequestBody DeviceDTO request) {
-        return deviceService.login(request);
+    public Mono<ApiResponseDTO> addDevice(@RequestBody DeviceDTO request) {
+        return deviceService.addDevice(request);
     }
 }
