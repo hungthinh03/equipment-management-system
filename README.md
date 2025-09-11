@@ -77,15 +77,14 @@ The project will be composed of the following microservices:
 Each service will use its own database for storing and managing data related to its responsibilities.  
 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
-    - user_role: enum('ADMIN', 'EMPLOYEE', 'IT')
 <img src="assets/device.jpg" style="width:50%;"/>
+    - user_role: enum('ADMIN', 'EMPLOYEE', 'IT')
 
 
 - **Device Service DB** - manages all device records, status, and assignment information.
+<img src="assets/device.jpg" style="width:50%;"/>
     - device_status: enum('AVAILABLE', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED')
     - device_category: enum('GENERAL', 'NETWORK')
-<img src="assets/device.jpg" style="width:50%;"/>
-
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.  
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
