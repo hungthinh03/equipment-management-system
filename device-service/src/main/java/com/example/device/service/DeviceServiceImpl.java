@@ -19,16 +19,17 @@ public class DeviceServiceImpl implements DeviceService {
     private Mono<DeviceDTO> validateDeviceDTO(DeviceDTO dto) {
         return Mono.justOrEmpty(dto)
                 .filter(d -> d.getName() != null && d.getType() != null && d.getCategory() != null)
+                .filter(d -> !d.getName().isBlank() && !d.getType().isBlank())
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_INPUT)));
     }
 
 
     public Mono<ApiResponseDTO> addDevice(DeviceDTO dto) {
         return validateDeviceDTO(dto)
-                .flatMap(device -> deviceRepo.save(new Device(device))
+                .flatMap(device -> deviceRepo.save(new Device(device)))
                 .map(savedDevice -> new ApiResponseDTO(savedDevice.getId()))
                 .onErrorResume(AppException.class, e ->
-                        Mono.just(new ApiResponseDTO(e.getErrorCode())))
+                        Mono.just(new ApiResponseDTO(e.getErrorCode()))
                 );
     }
 

@@ -1,5 +1,7 @@
 package com.example.device.model;
 
+import com.example.device.common.enums.DeviceCategory;
+import com.example.device.common.enums.DeviceStatus;
 import com.example.device.dto.DeviceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,13 +26,13 @@ public class Device {
     private String type;
 
     @Column("status")
-    private String status;
+    private DeviceStatus status;
 
     @Column("assigned_to")
     private Integer assignedTo;
 
     @Column("category")
-    private String category;
+    private DeviceCategory category;
 
     public Device(DeviceDTO dto)
     {
