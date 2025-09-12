@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 
 @Service
 public class DeviceServiceImpl implements DeviceService {
@@ -17,9 +20,9 @@ public class DeviceServiceImpl implements DeviceService {
     private DeviceRepository deviceRepo;
 
     private Mono<DeviceDTO> validateDeviceDTO(DeviceDTO dto) {
-        return Mono.justOrEmpty(dto)
-                .filter(d -> d.getName() != null && d.getType() != null && d.getCategory() != null)
-                .filter(d -> !d.getName().isBlank() && !d.getType().isBlank())
+        return Mono.justOrEmpty(dto) // stream of elements ["a", "b", "c"]
+                .filter(d -> Stream.of(d.getName(), d.getType(), d.getCategory()).allMatch(Objects::nonNull))
+                .filter(d -> Stream.of(d.getName(), d.getType()).noneMatch(String::isBlank))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_INPUT)));
     }
 

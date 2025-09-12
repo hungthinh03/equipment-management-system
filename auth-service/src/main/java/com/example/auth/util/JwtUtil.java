@@ -16,12 +16,13 @@ public class JwtUtil {
     private final long expirationMs = 3600000; // 1 hour
 
     // Generate token
-    public String generateToken(String subject) {
+    public String generateToken(String subject, String role) {
         return Jwts.builder()
                 .setSubject(subject)
+                .claim("role", role)    // for role-based control
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(secretKey, SignatureAlgorithm.HS256) // specify algorithm
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
