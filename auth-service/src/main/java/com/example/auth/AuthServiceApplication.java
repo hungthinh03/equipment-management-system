@@ -16,6 +16,7 @@ public class AuthServiceApplication {
         System.out.println(hashed);
 
          */
+
 	}
 
 }
