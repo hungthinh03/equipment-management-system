@@ -3,6 +3,7 @@ package com.example.auth.util;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -12,11 +13,16 @@ import java.util.Date;
 public class JwtUtil {
 
     // Secret key for signing JWTs
-    private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long expirationMs = 3600000; // 1 hour
+    private final Key secretKey;
+
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     // Generate token
     public String generateToken(String subject, String role) {
+        // 1 hour
+        long expirationMs = 3600000; // 1 hour
         return Jwts.builder()
                 .setSubject(subject)
                 .claim("role", role)    // for role-based control
@@ -26,28 +32,4 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Extract the subject (email/username) from a JWT
-    public String extractSubject(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    public boolean validateToken(String token, String subject) {
-        String extractedSubject = extractSubject(token);
-        return (extractedSubject.equals(subject) && !isTokenExpired(token));
-    }
-
-    private boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-        return expiration.before(new Date());
-    }
 }
