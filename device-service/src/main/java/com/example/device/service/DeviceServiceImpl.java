@@ -1,5 +1,6 @@
 package com.example.device.service;
 
+import com.example.device.common.enums.DeviceCategory;
 import com.example.device.common.enums.ErrorCode;
 import com.example.device.common.exception.AppException;
 import com.example.device.dto.ApiResponseDTO;
@@ -26,9 +27,20 @@ public class DeviceServiceImpl implements DeviceService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_INPUT)));
     }
 
+    private boolean isRoleAllowed(DeviceDTO d, String role) {
+        return ("ADMIN".equals(role) && d.getCategory() == DeviceCategory.GENERAL)
+                || ("IT".equals(role)    && d.getCategory() == DeviceCategory.NETWORK);
+    }
 
-    public Mono<ApiResponseDTO> addDevice(DeviceDTO dto) {
+    private Mono<DeviceDTO> validateRole(DeviceDTO dto, String role) {
+        return Mono.just(dto)
+                .filter(d -> isRoleAllowed(d, role))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)));
+    }
+
+    public Mono<ApiResponseDTO> addDevice(DeviceDTO dto, String role) {
         return validateDeviceDTO(dto)
+                .flatMap(d -> validateRole(d, role)) // role check
                 .flatMap(device -> deviceRepo.save(new Device(device)))
                 .map(savedDevice -> new ApiResponseDTO(savedDevice.getId()))
                 .onErrorResume(AppException.class, e ->

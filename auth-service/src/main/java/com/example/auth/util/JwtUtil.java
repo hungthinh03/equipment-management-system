@@ -21,7 +21,6 @@ public class JwtUtil {
 
     // Generate token
     public String generateToken(String subject, String role) {
-        // 1 hour
         long expirationMs = 3600000; // 1 hour
         return Jwts.builder()
                 .setSubject(subject)

@@ -6,7 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-    INVALID_INPUT(1001, "Missing required fields");
+    INVALID_INPUT(1003, "Missing required fields"),
+    UNAUTHORIZED(1005, "Insufficient permissions");
 
     private final int code;
     private final String message;

@@ -15,7 +15,7 @@ public class DeviceController {
 
     //
     @PostMapping("/add")
-    public Mono<ApiResponseDTO> addDevice(@RequestBody DeviceDTO request) {
-        return deviceService.addDevice(request);
+    public Mono<ApiResponseDTO> addDevice(@RequestBody DeviceDTO request, @RequestHeader("X-User-Role") String role) {
+        return deviceService.addDevice(request, role);
     }
 }
