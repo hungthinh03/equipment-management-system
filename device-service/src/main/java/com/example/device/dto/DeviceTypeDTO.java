@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeviceDTO {
+public class DeviceTypeDTO {
+    private Integer id;
     private String name;
-    private String type;
 }

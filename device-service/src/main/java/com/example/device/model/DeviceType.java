@@ -1,6 +1,6 @@
 package com.example.device.model;
 
-import com.example.device.dto.DeviceDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,8 +11,8 @@ import org.springframework.data.relational.core.mapping.Table;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("devices")
-public class Device {
+@Table("device_types")
+public class DeviceType {
     @Id
     @Column("id")
     private Integer id;
@@ -20,18 +20,7 @@ public class Device {
     @Column("name")
     private String name;
 
-    @Column("type_id")
-    private Integer typeId;
+    @Column("category")
+    private String category;
 
-    @Column("status")
-    private String status;
-
-    @Column("assigned_to")
-    private Integer assignedTo;
-
-
-    public Device(DeviceDTO dto, Integer typeId) {
-        this.name = dto.getName();
-        this.typeId = typeId;
-    }
 }
