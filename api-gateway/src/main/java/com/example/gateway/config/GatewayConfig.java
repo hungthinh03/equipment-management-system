@@ -16,7 +16,10 @@ public class GatewayConfig {
                 .route("auth-service", r -> r.path("/auth/**")
                         .uri("http://localhost:8082"))  // no JWT needed
                 .route("device-service", r -> r.path("/device/**")
-                        .filters(f -> f.filter(jwtAuthFilter.apply(new JwtAuthFilter.Config())))
+                        .filters(f -> f
+                                .removeRequestHeader("X-*") // strip client's potential custom headers
+                                .filter(jwtAuthFilter.apply(new JwtAuthFilter.Config())) // inject safe headers
+                        )
                         .uri("http://localhost:8083")) // JWT required
                 .build();
     }
