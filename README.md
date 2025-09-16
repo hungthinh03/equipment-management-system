@@ -99,8 +99,26 @@ The project will be composed of the following microservices:
     }
      ```
 
+     - **Invalid category** - Returned when the input category does not match any supported enum values
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1006,
+        "message": "Unsupported category"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ```
+
 ## 4. Milestones & Time Frames
-- **Time Frame:** 4 Weeks  
+- **Time Frame:** 4 weeks  
 - **Start Date:** 8 September, 2025  
 
 | Date Range | Milestone | Description |
