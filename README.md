@@ -19,6 +19,7 @@ The project will be composed of the following microservices:
 1. **Auth Service**
 
 - **Login**
+    - **Name:** `/login`  
     - **Endpoint:** `/auth/login`  
     - **Method:** `POST`  
     - **Description:** Authenticates a user and returns a JWT token on success.  
@@ -56,6 +57,48 @@ The project will be composed of the following microservices:
     }
      ```
 
+2. **Device Service**
+
+- **Add Device**
+    - **Name:** `/addDevice`  
+    - **Endpoint:** `/device/add`  
+    - **Method:** `POST`  
+    - **Description:** Adds a new device to the system. Requires a valid JWT token. 
+    - **Request Body:**
+    ```json
+    {
+        "name": "Laptop Dell XPS 15",
+        "type": "Laptop",
+        "category": "GENERAL"
+    }
+    ```
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "id": 16
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Invalid input** - Returned when one or more fields of request body are blank or null
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1003,
+        "message": "Missing required fields"
+    }
+     ```
+
 ## 4. Milestones & Time Frames
 - **Time Frame:** 4 Weeks  
 - **Start Date:** 8 September, 2025  
@@ -77,7 +120,7 @@ The project will be composed of the following microservices:
 Each service will use its own database for storing and managing data related to its responsibilities.  
 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
-<img src="assets/device.jpg" style="width:50%;"/>
+<img src="assets/auth.jpg" style="width:50%;"/>
 
 > user_role: enum('ADMIN', 'EMPLOYEE', 'IT')
 
