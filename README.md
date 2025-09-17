@@ -90,6 +90,15 @@ The project will be composed of the following microservices:
     }
      ```
 
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
     - **Invalid input** - Returned when one or more fields of request body are blank or null
      ```json
     {
@@ -99,23 +108,16 @@ The project will be composed of the following microservices:
     }
      ```
 
-     - **Invalid category** - Returned when the input category does not match any supported enum values
+     - **Invalid type** - Returned when the input type is not found or inaccessible
      ```json
     {
         "status": "error",
         "statusCode": 1006,
-        "message": "Unsupported category"
+        "message": "Device type not found or inaccessible"
     }
      ```
 
-    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
-     ```json
-    {
-        "status": "error",
-        "statusCode": 1005,
-        "message": "Insufficient permissions"
-    }
-     ```
+    
 
 ## 4. Milestones & Time Frames
 - **Time Frame:** 4 weeks  
