@@ -21,6 +21,6 @@ public class DeviceType {
     private String name;
 
     @Column("category")
-    private String category;
+    private Integer category;
 
 }
