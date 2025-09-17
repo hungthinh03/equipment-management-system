@@ -142,14 +142,14 @@ Each service will use its own database for storing and managing data related to 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
 <img src="assets/auth.jpg" style="width:50%;"/>
 
-> user_role: enum('ADMIN', 'EMPLOYEE', 'IT')
+> user_role: ('ADMIN', 'EMPLOYEE', 'IT')
 
 - **Device Service DB** - manages all device records, status, and assignment information.
 <img src="assets/device.jpg" style="width:100%;"/>
 
-  > device_status: enum('AVAILABLE', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED')
+  > device_status: ('AVAILABLE', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED')
 
-  > device_category: enum('GENERAL', 'NETWORK')
+  > device_category: ('GENERAL', 'NETWORK')
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.  
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
