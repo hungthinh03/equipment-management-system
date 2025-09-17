@@ -7,7 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
     INVALID_INPUT(1003, "Missing required fields"),
-    INVALID_TYPE(1005, "Device type not found or inaccessible");
+    UNAUTHORIZED(1005, "Insufficient permissions"),
+    INVALID_TYPE(1006, "Device type not found or inaccessible"),
+    NOT_FOUND(1007, "Device not found");
 
     private final int code;
     private final String message;

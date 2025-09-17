@@ -43,7 +43,24 @@ public class DeviceServiceImpl implements DeviceService {
                 );
     }
 
-
+    public Mono<ApiResponseDTO> updateDevice(DeviceDTO dto, String role, Integer id) {
+        return deviceRepo.findById(id) //check NOT_FOUND first since only used by ADMIN/IT
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .flatMap(existing -> validateDevice(dto)
+                        .flatMap(d -> deviceTypeRepo.findByNameAndManagedBy(d.getType(), role)
+                                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_TYPE)))
+                                .flatMap(deviceType -> {
+                                    existing.setName(d.getName());
+                                    existing.setTypeId(deviceType.getId());
+                                    return deviceRepo.save(existing);
+                                })
+                        )
+                )
+                .map(updated -> new ApiResponseDTO(updated.getId()))
+                .onErrorResume(AppException.class,
+                        e -> Mono.just(new ApiResponseDTO(e.getErrorCode()))
+                );
+    }
 
 
 }

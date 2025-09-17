@@ -12,7 +12,7 @@ public interface DeviceTypeRepository extends ReactiveCrudRepository<DeviceType,
     @Query("""
     SELECT dt.* FROM device_types dt
     JOIN device_categories dc ON dt.category_id = dc.id
-    WHERE dt.name = :name AND dc.allowed_role = :role
+    WHERE dt.name = :name AND dc.managed_by = :role
     """)
     Mono<DeviceType> findByNameAndManagedBy(String name, String role);
 }

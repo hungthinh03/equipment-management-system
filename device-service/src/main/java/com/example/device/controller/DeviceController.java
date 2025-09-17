@@ -1,5 +1,7 @@
 package com.example.device.controller;
 
+import com.example.device.common.enums.ErrorCode;
+import com.example.device.common.exception.AppException;
 import com.example.device.dto.ApiResponseDTO;
 import com.example.device.dto.DeviceDTO;
 import com.example.device.service.DeviceService;
@@ -13,9 +15,25 @@ public class DeviceController {
     @Autowired
     private DeviceService deviceService;
 
-    //
-    @PostMapping("/add")
-    public Mono<ApiResponseDTO> addDevice(@RequestBody DeviceDTO request, @RequestHeader("X-User-Role") String role) {
-        return deviceService.addDevice(request, role);
+    private Mono<String> validateRole(String role) {
+        return Mono.just(role)
+                .filter(r -> "ADMIN".equals(r) || "IT".equals(r))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)));
     }
+
+    @PostMapping
+    public Mono<ApiResponseDTO> addDevice(@RequestBody DeviceDTO request,
+                                          @RequestHeader("X-User-Role") String role) {
+        return validateRole(role)
+                .flatMap(r -> deviceService.addDevice(request, r));
+    }
+
+    @PutMapping("/{id}")
+    public Mono<ApiResponseDTO> updateDevice(@RequestBody DeviceDTO request,
+                                             @RequestHeader("X-User-Role") String role,
+                                             @PathVariable Integer id) {
+        return validateRole(role)
+                .flatMap(r -> deviceService.updateDevice(request, r, id));
+    }
+
 }
