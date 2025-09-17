@@ -61,7 +61,7 @@ The project will be composed of the following microservices:
 
 - **Add Device**
     - **Name:** `/addDevice`  
-    - **Endpoint:** `/device/add`  
+    - **Endpoint:** `/device`  
     - **Method:** `POST`  
     - **Description:** Adds a new device to the system. Requires a valid JWT token. 
     - **Request Body:**
