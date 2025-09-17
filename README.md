@@ -145,7 +145,7 @@ Each service will use its own database for storing and managing data related to 
 > user_role: enum('ADMIN', 'EMPLOYEE', 'IT')
 
 - **Device Service DB** - manages all device records, status, and assignment information.
-<img src="assets/device.jpg" style="width:50%;"/>
+<img src="assets/device.jpg" style="width:100%;"/>
 
   > device_status: enum('AVAILABLE', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED')
 
