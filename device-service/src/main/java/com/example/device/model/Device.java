@@ -1,6 +1,6 @@
 package com.example.device.model;
 
-import com.example.device.dto.DeviceDTO;
+import com.example.device.dto.AddDeviceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ public class Device {
     private Integer assignedTo;
 
 
-    public Device(DeviceDTO dto, Integer typeId) {
+    public Device(AddDeviceDTO dto, Integer typeId) {
         this.name = dto.getName();
         this.typeId = typeId;
     }

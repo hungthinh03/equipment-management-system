@@ -2,11 +2,16 @@ package com.example.device.service;
 
 
 import com.example.device.dto.ApiResponseDTO;
-import com.example.device.dto.DeviceDTO;
+import com.example.device.dto.AddDeviceDTO;
+import com.example.device.dto.DeviceResponseDTO;
 import reactor.core.publisher.Mono;
 
 public interface DeviceService {
-    Mono<ApiResponseDTO> addDevice(DeviceDTO dto, String role);
+    Mono<ApiResponseDTO> addDevice(AddDeviceDTO dto, String role);
 
-    Mono<ApiResponseDTO> updateDevice(DeviceDTO request, String r, Integer id);
+    Mono<ApiResponseDTO> updateDevice(AddDeviceDTO request, String role, Integer id);
+
+    Mono<DeviceResponseDTO> viewDevice(String role, Integer id);
+
+    Mono<DeviceResponseDTO> viewAllDevices(String role);
 }
