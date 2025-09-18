@@ -5,6 +5,7 @@ import com.example.device.common.exception.AppException;
 import com.example.device.dto.ApiResponseDTO;
 import com.example.device.dto.AddDeviceDTO;
 import com.example.device.dto.DeviceResponseDTO;
+import com.example.device.dto.SearchResponseDTO;
 import com.example.device.model.Device;
 import com.example.device.repository.DeviceRepository;
 import com.example.device.repository.DeviceTypeRepository;
@@ -68,6 +69,13 @@ public class DeviceServiceImpl implements DeviceService {
                 .collectList()
                 .map(DeviceResponseDTO::new); // Only return list of devices managed by current user
     }
+
+    public Mono<SearchResponseDTO> searchDevices(String name, String type) {
+        return deviceRepo.searchByParameter(name, type)
+                .collectList()
+                .map(SearchResponseDTO::new);
+    }
+
 
 
 }

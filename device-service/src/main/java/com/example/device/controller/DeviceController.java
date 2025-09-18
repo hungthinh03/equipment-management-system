@@ -5,6 +5,7 @@ import com.example.device.common.exception.AppException;
 import com.example.device.dto.ApiResponseDTO;
 import com.example.device.dto.AddDeviceDTO;
 import com.example.device.dto.DeviceResponseDTO;
+import com.example.device.dto.SearchResponseDTO;
 import com.example.device.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +49,13 @@ public class DeviceController {
     public Mono<DeviceResponseDTO> viewAllDevices(@RequestHeader("X-User-Role") String role) {
         return validateRole(role)
                 .flatMap(r -> deviceService.viewAllDevices(r));
+    }
+
+
+    @GetMapping("/search")
+    public Mono<SearchResponseDTO> searchDevices(@RequestParam(required = false) String name,
+                                                 @RequestParam(required = false) String type) {
+        return deviceService.searchDevices(name, type);
     }
 
 }
