@@ -1,6 +1,6 @@
 package com.example.device.common.exception;
 
-import com.example.device.dto.ApiResponseDTO;
+import com.example.device.dto.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -10,11 +10,11 @@ import reactor.core.publisher.Mono;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
-    public Mono<ResponseEntity<ApiResponseDTO>> handleAppException(AppException ex) {
+    public Mono<ResponseEntity<ApiResponse>> handleAppException(AppException ex) {
         return Mono.just(
                 ResponseEntity
                         .status(ex.getErrorCode().getHttpStatus())
-                        .body(new ApiResponseDTO(ex.getErrorCode()))
+                        .body(new ApiResponse(ex.getErrorCode()))
         );
     }
 }

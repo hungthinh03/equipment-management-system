@@ -6,18 +6,18 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponseDTO {
+public class ApiResponse {
     private String status;
     private Integer id;
     private Integer statusCode;
     private String message;
 
-    public ApiResponseDTO(Integer id) {
+    public ApiResponse(Integer id) {
         this.status = "success";
         this.id = id;
     }
 
-    public ApiResponseDTO(ErrorCode errorCode) {
+    public ApiResponse(ErrorCode errorCode) {
         this.status = "error";
         this.statusCode = errorCode.getCode();
         this.message = errorCode.getMessage();

@@ -26,7 +26,7 @@ public class JwtUtil {
                 .setSubject(subject)
                 .claim("role", role)    // for role-based control
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs)) //renew
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }

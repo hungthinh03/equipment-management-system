@@ -2,10 +2,10 @@ package com.example.device.service;
 
 import com.example.device.common.enums.ErrorCode;
 import com.example.device.common.exception.AppException;
-import com.example.device.dto.ApiResponseDTO;
+import com.example.device.dto.ApiResponse;
 import com.example.device.dto.AddDeviceDTO;
-import com.example.device.dto.DeviceResponseDTO;
-import com.example.device.dto.SearchResponseDTO;
+import com.example.device.dto.DeviceResponse;
+import com.example.device.dto.SearchResponse;
 import com.example.device.model.Device;
 import com.example.device.repository.DeviceRepository;
 import com.example.device.repository.DeviceTypeRepository;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -33,16 +34,16 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     //
-    public Mono<ApiResponseDTO> addDevice(AddDeviceDTO dto, String role) {
+    public Mono<ApiResponse> addDevice(AddDeviceDTO dto, String role) {
         return validateDevice(dto)
                 .flatMap(d -> deviceTypeRepo.findByNameAndManagedBy(d.getType(), role)
                         .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_TYPE)))
                 )
                 .flatMap(deviceType -> deviceRepo.save(new Device(dto, deviceType.getId())))
-                .map(savedDevice -> new ApiResponseDTO(savedDevice.getId()));
+                .map(savedDevice -> new ApiResponse(savedDevice.getId()));
     }
 
-    public Mono<ApiResponseDTO> updateDevice(AddDeviceDTO dto, String role, Integer id) {
+    public Mono<ApiResponse> updateDevice(AddDeviceDTO dto, String role, Integer id) {
         return deviceRepo.findById(id) //can check NOT_FOUND first since only used by ADMIN/IT
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .flatMap(existing -> validateDevice(dto)
@@ -55,25 +56,34 @@ public class DeviceServiceImpl implements DeviceService {
                                 })
                         )
                 )
-                .map(updated -> new ApiResponseDTO(updated.getId()));
+                .map(updated -> new ApiResponse(updated.getId()));
     }
 
-    public Mono<DeviceResponseDTO> viewDevice(String role, Integer id) {
+    public Mono<DeviceResponse> viewDevice(String role, Integer id) {
         return deviceRepo.findByIdAndManagedBy(id, role)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE)))
-                .map(DeviceResponseDTO::new);
+                .map(DeviceResponse::new);
     }
 
-    public Mono<DeviceResponseDTO> viewAllDevices(String role) {
+    public Mono<DeviceResponse> viewAllDevices(String role) {
         return deviceRepo.findAllByManagedBy(role)
                 .collectList()
-                .map(DeviceResponseDTO::new); // Only return list of devices managed by current user
+                .map(DeviceResponse::new); // Only return list of devices managed by current user
     }
 
-    public Mono<SearchResponseDTO> searchDevices(String name, String type) {
-        return deviceRepo.searchByParameter(name, type)
-                .collectList()
-                .map(SearchResponseDTO::new);
+    private boolean isBlankParams(String name, String type) {
+        return (name == null || name.isBlank()) &&
+                (type == null || type.isBlank());
+    }
+
+    public Mono<SearchResponse> searchDevices(String name, String type) {
+        return Mono.defer(() ->
+                isBlankParams(name, type)
+                        ? Mono.just(new SearchResponse(List.of()))
+                        : deviceRepo.searchByParameter(name, type)
+                        .collectList()
+                        .map(SearchResponse::new)
+        );
     }
 
 

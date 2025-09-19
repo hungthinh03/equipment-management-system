@@ -9,11 +9,11 @@ import java.util.List;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "status", "results" })
-public class SearchResponseDTO {
+public class SearchResponse {
     private String status;
     private List<SearchResultDTO> results;
 
-    public SearchResponseDTO(List<SearchResultDTO> results) {
+    public SearchResponse(List<SearchResultDTO> results) {
         this.status = "success";
         this.results = results;
     }

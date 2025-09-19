@@ -34,7 +34,7 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
             "WHERE (:name IS NULL OR d.name ILIKE CONCAT('%', :name, '%')) " +
-            "AND (:type IS NULL OR dt.name ILIKE CONCAT('%', :type, '%'))")
+            "AND (:type IS NULL OR dt.name ILIKE :type)")
     Flux<SearchResultDTO> searchByParameter(@Param("name") String name,
                                             @Param("type") String type);
 }

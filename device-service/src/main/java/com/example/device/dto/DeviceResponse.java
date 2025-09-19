@@ -7,18 +7,18 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DeviceResponseDTO {
+public class DeviceResponse {
     private String status;
     private ViewDeviceDTO device;
     private List<ViewDeviceDTO> deviceList;
 
 
-    public DeviceResponseDTO(ViewDeviceDTO device) {
+    public DeviceResponse(ViewDeviceDTO device) {
         this.status = "success";
         this.device = device;
     }
 
-    public DeviceResponseDTO(List<ViewDeviceDTO> deviceList) {
+    public DeviceResponse(List<ViewDeviceDTO> deviceList) {
         this.status = "success";
         this.deviceList = deviceList;
     }
