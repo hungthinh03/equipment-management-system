@@ -63,13 +63,12 @@ The project will be composed of the following microservices:
     - **Name:** `/addDevice`  
     - **Endpoint:** `/device`  
     - **Method:** `POST`  
-    - **Description:** Adds a new device to the system. Requires a valid JWT token. 
+    - **Description:** Adds a new device to the system (admin/IT only).
     - **Request Body:**
     ```json
     {
         "name": "Laptop Dell XPS 15",
-        "type": "Laptop",
-        "category": "GENERAL"
+        "type": "Laptop"
     }
     ```
     - **Responses**:  
@@ -90,7 +89,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+    - **Unauthorized** - Returned when the user's role does not have permission to perform the requested operation
      ```json
     {
         "status": "error",
@@ -117,8 +116,210 @@ The project will be composed of the following microservices:
     }
      ```
 
-    
+- **Update Device**
+    - **Name:** `/updateDevice`  
+    - **Endpoint:** `/device/{id}`  
+    - **Method:** `PUT`  
+    - **Description:** Update a device in the system (admin/IT only).
+    - **Request Body:**
+    ```json
+    {
+        "name": "Laptop Dell XPS 15",
+        "type": "Laptop"
+    }
+    ```
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "id": 16
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
 
+    - **Unauthorized** - Returned when the user's role does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Not found** - Returned when device ID is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1007,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Invalid input** - Returned when one or more fields of request body are blank or null
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1003,
+        "message": "Missing required fields"
+    }
+     ```
+
+     - **Invalid type** - Returned when the input type is not found or inaccessible
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1006,
+        "message": "Device type not found or inaccessible"
+    }
+     ```
+
+- **View Device**
+    - **Name:** `/viewDevice`  
+    - **Endpoint:** `/device/{id}`  
+    - **Method:** `GET`  
+    - **Description:** View a device in the system (admin/IT only).
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "device": {
+            "id": 16,
+            "uuid": "d1e8f080-9bfc-4b9b-a65f-2c5a04a5616d",
+            "name": "Laptop Dell XPS 15",
+            "type": "Laptop",
+            "status": "AVAILABLE",
+            "assignedTo": null
+        }
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user's role does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Not found** - Returned when device ID is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1007,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Inaccessible** - Returned when the user does not have permission to access the specified device
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1008,
+        "message": "Device inaccessible"
+    }
+     ```
+
+- **Search devices**
+    - **Name:** `/searchDevices`  
+    - **Endpoint:** `/device/search`  
+    - **Method:** `GET`  
+    - **Description:** Search devices based on device name or type.
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "results": [
+
+            {
+                "uuid": "745571f6-d52b-49ef-88cb-db0607853107",
+                "name": "Laptop Dell XPS 30",
+                "type": "Laptop",
+                "status": "AVAILABLE"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+- **Decommission device**
+    - **Name:** `/decommissionDevice`  
+    - **Endpoint:** `/device/{id}`  
+    - **Method:** `DELETE`  
+    - **Description:** Update a device's status to be 'DECOMMISSION' in the system (admin/IT only).
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "id": 16
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user's role does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Not found** - Returned when device ID is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1007,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Inaccessible** - Returned when the user does not have permission to access the specified device
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1008,
+        "message": "Device inaccessible"
+    }
+     ```
+     
 ## 4. Milestones & Time Frames
 - **Time Frame:** 4 weeks  
 - **Start Date:** 8 September, 2025  
