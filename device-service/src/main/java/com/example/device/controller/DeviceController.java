@@ -58,4 +58,11 @@ public class DeviceController {
         return deviceService.searchDevices(name, type);
     }
 
+    @DeleteMapping("/{id}")
+    public Mono<ApiResponse> decommissionDevice(@RequestHeader("X-User-Role") String role,
+                                                @PathVariable Integer id) {
+        return validateRole(role)
+                .flatMap(r -> deviceService.decommissionDevice(r, id));
+    }
+
 }

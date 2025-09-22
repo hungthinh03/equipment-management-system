@@ -60,8 +60,10 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     public Mono<DeviceResponse> viewDevice(String role, Integer id) {
-        return deviceRepo.findByIdAndManagedBy(id, role)
-                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE)))
+        return deviceRepo.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .then(deviceRepo.findViewByIdAndManagedBy(id, role)
+                        .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE))))
                 .map(DeviceResponse::new);
     }
 
@@ -86,6 +88,16 @@ public class DeviceServiceImpl implements DeviceService {
         );
     }
 
-
+    public Mono<ApiResponse> decommissionDevice(String role, Integer id) {
+        return deviceRepo.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .then(deviceRepo.findDeviceByIdAndManagedBy(id, role)
+                        .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE))))
+                .flatMap(device -> {
+                    device.setStatus("DECOMMISSIONED");
+                    return deviceRepo.save(device);
+                })
+                .map(updated -> new ApiResponse(updated.getId()));
+    }
 
 }

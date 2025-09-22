@@ -14,14 +14,21 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer>{
 
-    @Query("SELECT d.id, d.name, dt.name AS type, d.status, d.assigned_to " +
+    @Query("SELECT d.id, d.uuid, d.name, dt.name AS type, d.status, d.assigned_to " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
             "WHERE d.id = :id AND dc.managed_by = :role")
-    Mono<ViewDeviceDTO> findByIdAndManagedBy(Integer id, String role);
+    Mono<ViewDeviceDTO> findViewByIdAndManagedBy(Integer id, String role);
 
-    @Query("SELECT d.id, d.name, dt.name AS type, d.status, d.assigned_to " +
+    @Query("SELECT d.* " +
+            "FROM devices d " +
+            "JOIN device_types dt ON d.type_id = dt.id " +
+            "JOIN device_categories dc ON dt.category_id = dc.id " +
+            "WHERE d.id = :id AND dc.managed_by = :role")
+    Mono<Device> findDeviceByIdAndManagedBy(Integer id, String role);
+
+    @Query("SELECT d.id, d.uuid, d.name, dt.name AS type, d.status, d.assigned_to " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
@@ -29,7 +36,7 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
     Flux<ViewDeviceDTO> findAllByManagedBy(String role);
 
 
-    @Query("SELECT d.id, d.name, dt.name AS type, d.status, d.assigned_to " +
+    @Query("SELECT d.uuid, d.name, dt.name AS type, d.status " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
@@ -38,3 +45,4 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
     Flux<SearchResultDTO> searchByParameter(@Param("name") String name,
                                             @Param("type") String type);
 }
+

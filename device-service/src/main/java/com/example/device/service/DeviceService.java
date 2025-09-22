@@ -17,4 +17,6 @@ public interface DeviceService {
     Mono<DeviceResponse> viewAllDevices(String role);
 
     Mono<SearchResponse> searchDevices(String name, String type);
+
+    Mono<ApiResponse> decommissionDevice(String role, Integer id);
 }

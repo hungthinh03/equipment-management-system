@@ -17,6 +17,9 @@ public class Device {
     @Column("id")
     private Integer id;
 
+    @Column("uuid")
+    private String uuid;
+
     @Column("name")
     private String name;
 
@@ -34,4 +37,5 @@ public class Device {
         this.name = dto.getName();
         this.typeId = typeId;
     }
+
 }
