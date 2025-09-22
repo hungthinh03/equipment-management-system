@@ -89,7 +89,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Unauthorized** - Returned when the user's role does not have permission to perform the requested operation
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
      ```json
     {
         "status": "error",
@@ -146,7 +146,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Unauthorized** - Returned when the user's role does not have permission to perform the requested operation
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
      ```json
     {
         "status": "error",
@@ -212,7 +212,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Unauthorized** - Returned when the user's role does not have permission to perform the requested operation
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
      ```json
     {
         "status": "error",
@@ -293,7 +293,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Unauthorized** - Returned when the user's role does not have permission to perform the requested operation
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
      ```json
     {
         "status": "error",
