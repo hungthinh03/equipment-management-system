@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/device")
 public class DeviceController {
@@ -51,11 +53,15 @@ public class DeviceController {
                 .flatMap(r -> deviceService.viewAllDevices(r));
     }
 
-
     @GetMapping("/search")
     public Mono<SearchResponse> searchDevices(@RequestParam(required = false) String name,
                                               @RequestParam(required = false) String type) {
         return deviceService.searchDevices(name, type);
+    }
+
+    @GetMapping("/by-uuid/{uuid}")
+    public Mono<SearchResponse> viewDeviceByUuid(@PathVariable UUID uuid) {
+        return deviceService.viewDeviceByUuid(uuid);
     }
 
     @DeleteMapping("/{id}")

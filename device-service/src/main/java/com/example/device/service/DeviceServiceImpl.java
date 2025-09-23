@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 
@@ -86,6 +87,12 @@ public class DeviceServiceImpl implements DeviceService {
                         .collectList()
                         .map(SearchResponse::new)
         );
+    }
+
+    public Mono<SearchResponse> viewDeviceByUuid(UUID uuid) {
+        return deviceRepo.findSearchResultByUuid(uuid)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .map(SearchResponse::new);
     }
 
     public Mono<ApiResponse> decommissionDevice(String role, Integer id) {

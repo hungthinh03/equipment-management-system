@@ -7,6 +7,8 @@ import com.example.device.dto.DeviceResponse;
 import com.example.device.dto.SearchResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 public interface DeviceService {
     Mono<ApiResponse> addDevice(AddDeviceDTO dto, String role);
 
@@ -18,5 +20,8 @@ public interface DeviceService {
 
     Mono<SearchResponse> searchDevices(String name, String type);
 
+    Mono<SearchResponse> viewDeviceByUuid(UUID uuid);
+
     Mono<ApiResponse> decommissionDevice(String role, Integer id);
+
 }

@@ -11,10 +11,16 @@ import java.util.List;
 @JsonPropertyOrder({ "status", "results" })
 public class SearchResponse {
     private String status;
+    private SearchResultDTO result;
     private List<SearchResultDTO> results;
 
     public SearchResponse(List<SearchResultDTO> results) {
         this.status = "success";
         this.results = results;
+    }
+
+    public SearchResponse(SearchResultDTO result) {
+        this.status = "success";
+        this.result = result;
     }
 }
