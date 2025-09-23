@@ -20,10 +20,10 @@ public class JwtUtil {
     }
 
     // Generate token
-    public String generateToken(String subject, String role) {
+    public String generateToken(Integer id, String role) {
         long expirationMs = 3600000; // 1 hour
         return Jwts.builder()
-                .setSubject(subject)
+                .setSubject(String.valueOf(id))
                 .claim("role", role)    // for role-based control
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs)) //renew

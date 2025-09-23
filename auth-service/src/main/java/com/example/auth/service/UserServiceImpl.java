@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
                         .filter(user -> passwordMatches(req.getPassword(), user.getPassword()))
                         .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_INFO)))
                         .map(user -> {
-                            String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toString());
+                            String token = jwtUtil.generateToken(user.getId(), user.getRole().toString());
                             return new ApiResponseDTO(token);
                         })
                 )
