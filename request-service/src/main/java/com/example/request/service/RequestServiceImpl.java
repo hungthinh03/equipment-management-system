@@ -1,23 +1,43 @@
 package com.example.request.service;
 
+import com.example.request.common.enums.ErrorCode;
+import com.example.request.common.exception.AppException;
 import com.example.request.dto.ApiResponse;
 import com.example.request.dto.CreateRequestDTO;
 import com.example.request.dto.RequestResponse;
 import com.example.request.dto.ViewRequestDTO;
 import com.example.request.model.Request;
 import com.example.request.repository.RequestRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 @Service
 public class RequestServiceImpl implements RequestService {
-    @Autowired
+    //@Autowired
     RequestRepository requestRepository;
 
+    private final WebClient webClient;
+
+    public RequestServiceImpl(RequestRepository requestRepository, WebClient.Builder webClientBuilder) {
+        this.requestRepository = requestRepository;
+        this.webClient = webClientBuilder.baseUrl("http://device-service").build();
+    }
+
     public Mono<ApiResponse> createRequest(CreateRequestDTO dto, String userId) {
-        return requestRepository.save(new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason()))
-                .map(saved -> new ApiResponse(saved.getId()));
+        return webClient.get()
+                .uri("http://localhost:8081/device/by-uuid/{uuid}", dto.getUuid())
+                .retrieve()
+                .bodyToMono(Map.class)   // parse json into a Map
+                .flatMap(response -> {
+                    if (!"success".equals(response.get("status"))) {
+                        return Mono.error(new AppException(ErrorCode.NOT_FOUND));
+                    }
+                    return requestRepository.save(new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason()))
+                            .map(saved -> new ApiResponse(saved.getId()));
+                });
     }
 
     public Mono<RequestResponse> viewMyRequests(String userId) {
