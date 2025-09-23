@@ -3,14 +3,16 @@ package com.example.request.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestResponse {
     private String status;
-    private ViewRequestDTO request;
+    private List<ViewRequestDTO> requests;
 
-    public RequestResponse(ViewRequestDTO request) {
+    public RequestResponse(List<ViewRequestDTO> request) {
         this.status = "success";
-        this.request = request;
+        this.requests = request;
     }
 }

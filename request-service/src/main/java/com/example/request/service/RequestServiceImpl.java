@@ -2,6 +2,8 @@ package com.example.request.service;
 
 import com.example.request.dto.ApiResponse;
 import com.example.request.dto.CreateRequestDTO;
+import com.example.request.dto.RequestResponse;
+import com.example.request.dto.ViewRequestDTO;
 import com.example.request.model.Request;
 import com.example.request.repository.RequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,5 +18,12 @@ public class RequestServiceImpl implements RequestService {
     public Mono<ApiResponse> createRequest(CreateRequestDTO dto, String userId) {
         return requestRepository.save(new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason()))
                 .map(saved -> new ApiResponse(saved.getId()));
+    }
+
+    public Mono<RequestResponse> viewMyRequests(String userId) {
+        return requestRepository.findByRequesterId(Integer.valueOf(userId))
+                .map(ViewRequestDTO::new)
+                .collectList()
+                .map(RequestResponse::new);
     }
 }

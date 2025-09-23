@@ -4,6 +4,7 @@ import com.example.request.common.enums.ErrorCode;
 import com.example.request.common.exception.AppException;
 import com.example.request.dto.ApiResponse;
 import com.example.request.dto.CreateRequestDTO;
+import com.example.request.dto.RequestResponse;
 import com.example.request.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,11 @@ public class RequestController {
     public Mono<ApiResponse> createRequest(@RequestBody CreateRequestDTO request,
                                            @RequestHeader("X-User-Id") String userId) {
         return requestService.createRequest(request, userId);
+    }
+
+    @GetMapping
+    public Mono<RequestResponse> viewMyRequests(@RequestHeader("X-User-Id") String userId) {
+        return requestService.viewMyRequests(userId);
     }
 }
 
