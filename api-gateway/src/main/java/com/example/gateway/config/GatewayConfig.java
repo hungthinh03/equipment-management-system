@@ -21,6 +21,12 @@ public class GatewayConfig {
                                 .filter(jwtAuthFilter.apply(new JwtAuthFilter.Config())) // inject safe headers
                         )
                         .uri("http://localhost:8083")) // JWT required
+                .route("request-service", r -> r.path("/request/**")
+                        .filters(f -> f
+                                .removeRequestHeader("X-*")
+                                .filter(jwtAuthFilter.apply(new JwtAuthFilter.Config()))  // JWT required
+                        )
+                        .uri("http://localhost:8084"))
                 .build();
     }
 }

@@ -28,7 +28,7 @@ public class JwtUtil {
                 .getBody();
     }
 
-    // Extract subject (email)
+    // Extract subject (id)
     public String extractSubject(String token) {
         return extractAllClaims(token).getSubject();
     }

@@ -37,12 +37,12 @@ public class JwtAuthFilter implements GatewayFilterFactory<JwtAuthFilter.Config>
 
             // Extract claims and inject as headers
             String role = jwtUtil.extractRole(token);
-            String email = jwtUtil.extractSubject(token);
+            String id = jwtUtil.extractSubject(token);
 
             // Mutate the request with headers
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                     .header("X-User-Role", role)
-                    .header("X-User-Email", email)
+                    .header("X-User-Id", id)
                     .build();
 
             ServerWebExchange mutatedExchange = exchange.mutate()
