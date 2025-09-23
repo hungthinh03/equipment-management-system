@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,4 +16,6 @@ public class ViewDeviceDTO {
     private String type;       // get type name from id
     private String status;
     private Integer assignedTo;
+    private Instant createdAt;
+    private Instant updatedAt;
 }
