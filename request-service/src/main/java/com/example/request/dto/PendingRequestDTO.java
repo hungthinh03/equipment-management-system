@@ -2,16 +2,12 @@ package com.example.request.dto;
 
 import com.example.request.model.Request;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PendingRequestDTO {
     private Integer id;
@@ -22,6 +18,7 @@ public class PendingRequestDTO {
     private Instant createdAt;
     private Integer approvedByManager;
     private Instant managerApprovedAt;
+    private String managerComment;
 
     public PendingRequestDTO(Request request)
     {
@@ -33,5 +30,6 @@ public class PendingRequestDTO {
         this.createdAt = request.getCreatedAt();
         this.approvedByManager = request.getApprovedByManager();
         this.managerApprovedAt = request.getManagerApprovedAt();
+        this.managerComment = request.getManagerComment();
     }
 }

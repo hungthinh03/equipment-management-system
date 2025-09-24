@@ -1,16 +1,12 @@
 package com.example.request.dto;
 
 import com.example.request.model.Request;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class ViewRequestDTO {
     private Integer id;
     private UUID deviceUuid;         // Public UUID for employee-facing API

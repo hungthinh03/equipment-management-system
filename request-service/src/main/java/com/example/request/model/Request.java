@@ -49,6 +49,12 @@ public class Request {
     @Column("it_approved_at")
     private Instant itApprovedAt;
 
+    @Column("manager_comment")
+    private String managerComment;
+
+    @Column("it_comment")
+    private String itComment;
+
     public Request(String uuid, Integer userId, String reason)
     {
         this.deviceUuid = UUID.fromString(uuid);

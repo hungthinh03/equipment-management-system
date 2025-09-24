@@ -11,5 +11,7 @@ public interface RequestService {
 
     Mono<RequestResponse> viewMyRequests(String userId);
 
-    Mono<PendingResponse> viewPendingRequests(String userId, String role);
+    Mono<PendingResponse> viewAllPendingRequests(String role);
+
+    Mono<PendingResponse> viewPendingRequest(Integer id, String role);
 }

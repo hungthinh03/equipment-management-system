@@ -40,10 +40,16 @@ public class RequestController {
     }
 
     @GetMapping("/pending")
-    public Mono<PendingResponse> viewPendingRequests(@RequestHeader("X-User-Id") String userId,
-                                                     @RequestHeader("X-User-Role") String role) {
+    public Mono<PendingResponse> viewAllPendingRequests(@RequestHeader("X-User-Role") String role) {
         return validateRole(role)
-                .flatMap(r -> requestService.viewPendingRequests(userId, r));
+                .flatMap(r -> requestService.viewAllPendingRequests(r));
+    }
+
+    @GetMapping("/pending/{id}")
+    public Mono<PendingResponse> viewPendingRequest(@PathVariable Integer id,
+                                                    @RequestHeader("X-User-Role") String role) {
+        return validateRole(role)
+                .flatMap(r -> requestService.viewPendingRequest(id, r));
     }
 }
 
