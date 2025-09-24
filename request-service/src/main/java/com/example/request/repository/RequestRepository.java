@@ -9,4 +9,8 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface RequestRepository extends ReactiveCrudRepository<Request, Integer> {
     Flux<Request> findByRequesterId(Integer integer);
+
+    Flux<Request> findByStatus(String status);
+
+    Flux<Request> findByStatusAndApprovedByManagerIsNotNull(String status);
 }

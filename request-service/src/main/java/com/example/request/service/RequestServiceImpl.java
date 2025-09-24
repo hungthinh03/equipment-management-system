@@ -2,10 +2,7 @@ package com.example.request.service;
 
 import com.example.request.common.enums.ErrorCode;
 import com.example.request.common.exception.AppException;
-import com.example.request.dto.ApiResponse;
-import com.example.request.dto.CreateRequestDTO;
-import com.example.request.dto.RequestResponse;
-import com.example.request.dto.ViewRequestDTO;
+import com.example.request.dto.*;
 import com.example.request.model.Request;
 import com.example.request.repository.RequestRepository;
 import org.springframework.stereotype.Service;
@@ -26,18 +23,19 @@ public class RequestServiceImpl implements RequestService {
         this.webClient = webClientBuilder.baseUrl("http://device-service").build();
     }
 
-    public Mono<ApiResponse> createRequest(CreateRequestDTO dto, String userId) {
+    public Mono<ApiResponse> createRequest(CreateRequestDTO dto, String userId, String authHeader) {
         return webClient.get()
                 .uri("http://localhost:8081/device/by-uuid/{uuid}", dto.getUuid())
+                .header("Authorization", authHeader)
                 .retrieve()
-                .bodyToMono(Map.class)   // parse json into a Map
-                .flatMap(response -> {
-                    if (!"success".equals(response.get("status"))) {
-                        return Mono.error(new AppException(ErrorCode.NOT_FOUND));
-                    }
-                    return requestRepository.save(new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason()))
-                            .map(saved -> new ApiResponse(saved.getId()));
-                });
+                .onStatus(status -> status.value() == 404,
+                        response -> Mono.error(new AppException(ErrorCode.NOT_FOUND))
+                )
+                .bodyToMono(Map.class)
+                .flatMap(response -> requestRepository.save(
+                        new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason())
+                ))
+                .map(saved -> new ApiResponse(saved.getId()));
     }
 
     public Mono<RequestResponse> viewMyRequests(String userId) {
@@ -45,5 +43,14 @@ public class RequestServiceImpl implements RequestService {
                 .map(ViewRequestDTO::new)
                 .collectList()
                 .map(RequestResponse::new);
+    }
+
+    public Mono<PendingResponse> viewPendingRequests(String userId, String role) {
+        return ("IT".equalsIgnoreCase(role) //Requests that need additional IT approval
+                ? requestRepository.findByStatusAndApprovedByManagerIsNotNull("PENDING")
+                : requestRepository.findByStatus("PENDING")) //Requests that admins hasn't approved
+                .map(PendingRequestDTO::new)
+                .collectList()
+                .map(PendingResponse::new);
     }
 }
