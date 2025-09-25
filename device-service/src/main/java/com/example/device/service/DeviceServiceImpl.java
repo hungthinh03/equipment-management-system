@@ -2,10 +2,7 @@ package com.example.device.service;
 
 import com.example.device.common.enums.ErrorCode;
 import com.example.device.common.exception.AppException;
-import com.example.device.dto.ApiResponse;
-import com.example.device.dto.AddDeviceDTO;
-import com.example.device.dto.DeviceResponse;
-import com.example.device.dto.SearchResponse;
+import com.example.device.dto.*;
 import com.example.device.model.Device;
 import com.example.device.repository.DeviceRepository;
 import com.example.device.repository.DeviceTypeRepository;
@@ -89,10 +86,15 @@ public class DeviceServiceImpl implements DeviceService {
         );
     }
 
-    public Mono<SearchResponse> viewDeviceByUuid(UUID uuid) {
-        return deviceRepo.findSearchResultByUuid(uuid)
+    public Mono<SearchResponse> viewDeviceByUuid(UUID uuid, List<String> fields) {
+        return deviceRepo.searchByUuid(uuid)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .map(SearchResponse::new);
+                .flatMap(device -> Mono.justOrEmpty(fields)
+                        .filter(field -> field.contains("category"))
+                        .map(f -> new SearchResponse(
+                                new SearchResultDTO(device.getUuid(), device.getCategory())))
+                        .switchIfEmpty(Mono.just(new SearchResponse(device)))
+                );
     }
 
     public Mono<ApiResponse> decommissionDevice(String role, Integer id) {

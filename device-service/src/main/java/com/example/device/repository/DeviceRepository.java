@@ -38,7 +38,7 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
     Flux<ViewDeviceDTO> findAllByManagedBy(String role);
 
 
-    @Query("SELECT d.uuid, d.name, dt.name AS type, d.status, d.updated_at " +
+    @Query("SELECT d.uuid, d.name, dt.name AS type, dc.name AS category, d.status, d.updated_at " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
@@ -47,10 +47,11 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
     Flux<SearchResultDTO> searchByParameter(@Param("name") String name,
                                             @Param("type") String type);
 
-    @Query("SELECT d.uuid, d.name, dt.name AS type, d.status, d.updated_at " +
+    @Query("SELECT d.uuid, d.name, dt.name AS type, dc.name AS category, d.status, d.updated_at " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
+            "JOIN device_categories dc ON dt.category_id = dc.id " +
             "WHERE d.uuid = :uuid")
-    Mono<SearchResultDTO> findSearchResultByUuid(UUID uuid);
+    Mono<SearchResultDTO> searchByUuid(UUID uuid);
 }
 
