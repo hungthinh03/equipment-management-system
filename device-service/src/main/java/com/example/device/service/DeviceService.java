@@ -7,7 +7,6 @@ import com.example.device.dto.DeviceResponse;
 import com.example.device.dto.SearchResponse;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface DeviceService {
@@ -21,7 +20,7 @@ public interface DeviceService {
 
     Mono<SearchResponse> searchDevices(String name, String type);
 
-    Mono<SearchResponse> viewDeviceByUuid(UUID uuid, List<String> fields);
+    Mono<SearchResponse> viewDeviceByUuid(UUID uuid);
 
     Mono<ApiResponse> decommissionDevice(String role, Integer id);
 

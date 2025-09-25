@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -61,9 +60,8 @@ public class DeviceController {
     }
 
     @GetMapping("/by-uuid/{uuid}")
-    public Mono<SearchResponse> viewDeviceByUuid(@PathVariable UUID uuid,
-                                                 @RequestParam(required = false) List<String> fields) {
-        return deviceService.viewDeviceByUuid(uuid, fields);
+    public Mono<SearchResponse> viewDeviceByUuid(@PathVariable UUID uuid) {
+        return deviceService.viewDeviceByUuid(uuid);
     }
 
     @DeleteMapping("/{id}")

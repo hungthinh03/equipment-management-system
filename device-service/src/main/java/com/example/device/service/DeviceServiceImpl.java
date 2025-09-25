@@ -86,15 +86,10 @@ public class DeviceServiceImpl implements DeviceService {
         );
     }
 
-    public Mono<SearchResponse> viewDeviceByUuid(UUID uuid, List<String> fields) {
+    public Mono<SearchResponse> viewDeviceByUuid(UUID uuid) {
         return deviceRepo.searchByUuid(uuid)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .flatMap(device -> Mono.justOrEmpty(fields)
-                        .filter(field -> field.contains("category"))
-                        .map(f -> new SearchResponse(
-                                new SearchResultDTO(device.getUuid(), device.getCategory())))
-                        .switchIfEmpty(Mono.just(new SearchResponse(device)))
-                );
+                .map(SearchResponse::new);
     }
 
     public Mono<ApiResponse> decommissionDevice(String role, Integer id) {
