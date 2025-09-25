@@ -55,9 +55,9 @@ public class Request {
     @Column("it_comment")
     private String itComment;
 
-    public Request(String uuid, Integer userId, String reason)
+    public Request(UUID uuid, Integer userId, String reason)
     {
-        this.deviceUuid = UUID.fromString(uuid);
+        this.deviceUuid = uuid;
         this.requesterId = userId;
         this.reason = reason;
     }

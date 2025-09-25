@@ -10,7 +10,8 @@ public enum ErrorCode {
     //INVALID_INPUT(1003, "Missing required fields", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(1005, "Insufficient permissions", HttpStatus.FORBIDDEN),
     NOT_FOUND(1009, "Request not found", HttpStatus.NOT_FOUND),
-    INACCESSIBLE(1010, "Request inaccessible", HttpStatus.FORBIDDEN);
+    INACCESSIBLE(1010, "Request inaccessible", HttpStatus.FORBIDDEN),
+    DEVICE_IN_USE(1011, "Device is currently in use or unavailable", HttpStatus.CONFLICT);
 
     private final int code;
     private final String message;

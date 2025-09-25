@@ -1,9 +1,6 @@
 package com.example.request.service;
 
-import com.example.request.dto.ApiResponse;
-import com.example.request.dto.CreateRequestDTO;
-import com.example.request.dto.PendingResponse;
-import com.example.request.dto.RequestResponse;
+import com.example.request.dto.*;
 import reactor.core.publisher.Mono;
 
 public interface RequestService {
@@ -14,4 +11,6 @@ public interface RequestService {
     Mono<PendingResponse> viewAllPendingRequests(String role);
 
     Mono<PendingResponse> viewPendingRequest(Integer id, String role);
+
+    Mono<ApiResponse> resolveRequest(ResolveRequestDTO request, Integer id, String userId, String role, String authHeader);
 }

@@ -2,10 +2,7 @@ package com.example.request.controller;
 
 import com.example.request.common.enums.ErrorCode;
 import com.example.request.common.exception.AppException;
-import com.example.request.dto.ApiResponse;
-import com.example.request.dto.CreateRequestDTO;
-import com.example.request.dto.PendingResponse;
-import com.example.request.dto.RequestResponse;
+import com.example.request.dto.*;
 import com.example.request.service.RequestService;
 import com.example.request.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +47,16 @@ public class RequestController {
                                                     @RequestHeader("X-User-Role") String role) {
         return validateRole(role)
                 .flatMap(r -> requestService.viewPendingRequest(id, r));
+    }
+
+    @PutMapping("/pending/{id}")
+    public Mono<ApiResponse> resolveRequest(@RequestBody ResolveRequestDTO request,
+                                                @PathVariable Integer id,
+                                                @RequestHeader("X-User-Id") String userId,
+                                                @RequestHeader("X-User-Role") String role,
+                                                @RequestHeader("Authorization") String authHeader) {
+        return validateRole(role)
+                .flatMap(r -> requestService.resolveRequest(request, id, userId, r, authHeader));
     }
 }
 
