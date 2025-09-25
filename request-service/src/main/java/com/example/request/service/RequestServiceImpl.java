@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class RequestServiceImpl implements RequestService {
@@ -73,35 +74,89 @@ public class RequestServiceImpl implements RequestService {
                 .map(request -> new PendingResponse(List.of(new PendingRequestDTO(request))));
     }
 
-    private Request approveRequest(Request request, String role, String userId) {
-        Instant now = Instant.now();
-        if ("Admin".equals(role)) {
-            request.setApprovedByManager(Integer.valueOf(userId));
-            request.setManagerApprovedAt(now);
-            // Status is PENDING or APPROVED whether IT approval is required
-        } else if ("IT".equals(role)) {
-            request.setApprovedByIt(Integer.valueOf(userId));
-            request.setItApprovedAt(now);
+    private void applyInfoAdmin(Request request, String userId, String comment, Instant now) {
+        request.setApprovedByManager(Integer.valueOf(userId));
+        request.setManagerApprovedAt(now);
+        request.setManagerComment(comment);
+    }
+
+    private void applyInfoIt(Request request, String userId, String comment, Instant now) {
+        request.setApprovedByIt(Integer.valueOf(userId));
+        request.setItApprovedAt(now);
+        request.setItComment(comment);
+    }
+
+    private Mono<String> getDeviceCategoryByUuid(UUID uuid, String authHeader) {
+        return webClient.get()
+                .uri("http://localhost:8081/device/by-uuid/{uuid}", uuid)
+                .header("Authorization", authHeader)
+                .retrieve()
+                .onStatus(status -> status.value() == 404,
+                        response -> Mono.error(new AppException(ErrorCode.NOT_FOUND))
+                )
+                .bodyToMono(Map.class)
+                .map(map -> (String) ((Map<?, ?>) map.get("result")).get("category"));
+    }
+
+    /*
+    private Mono<Request> approveRequest(Request request, String role, String userId, String comment, String authHeader) {
+        return Mono.just(role)
+                .filter("Admin"::equals)
+                .flatMap(r -> {
+                    applyInfoAdmin(request, userId, comment, Instant.now()); //sign request with admin info
+                    return getDeviceCategoryByUuid(request.getDeviceUuid(), authHeader)
+                            .map(category -> {
+                                if ("GENERAL".equalsIgnoreCase(category)) {
+                                    request.setStatus("APPROVED"); // IT approval not needed -> approved
+                                }
+                                return request; // else status stay as PENDING
+                            });
+                })
+                .switchIfEmpty(Mono.defer(() -> { // IT
+                    applyInfoIt(request, userId, comment, Instant.now());
+                    request.setStatus("APPROVED");
+                    return Mono.just(request);
+                }));
+    }
+     */
+
+    private Mono<Request> approveRequest(Request request, String role, String userId, String comment, String authHeader) {
+        return Mono.defer(() -> {
+            if ("Admin".equals(role)) {
+                applyInfoAdmin(request, userId, comment, Instant.now()); //sign request with admin info
+                return getDeviceCategoryByUuid(request.getDeviceUuid(), authHeader)
+                        .map(category -> {
+                            if ("GENERAL".equals(category)) {
+                                request.setStatus("APPROVED"); // IT approval not needed -> approved
+                            }
+                            return request; // otherwise stays PENDING for IT
+                        });
+            }
+            applyInfoIt(request, userId, comment, Instant.now());
             request.setStatus("APPROVED");
-        }
-        return request;
+            return Mono.just(request);
+        });
     }
 
-    private Request denyRequest(Request request, String role, String comment) {
-        request.setStatus("DENIED");
-        if ("Admin".equals(role)) request.setManagerComment(comment);
-        if ("IT".equals(role)) request.setItComment(comment);
-        return request;
+    private Mono<Request> denyRequest(Request request, String role, String userId, String comment) {
+        return Mono.defer(() -> {
+            request.setStatus("DENIED");
+            if ("Admin".equals(role))
+                applyInfoAdmin(request, userId, comment, Instant.now());
+            else
+                applyInfoIt(request, userId, comment, Instant.now());
+            return Mono.just(request);
+        });
     }
 
-    public Mono<ApiResponse> resolveRequest(ResolveRequestDTO dto, Integer id, String role, String userId) {
+    public Mono<ApiResponse> resolveRequest(ResolveRequestDTO dto, Integer id, String role, String userId, String authHeader) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canAccessRequest(request, role))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
-                .map(request -> dto.isApprove()
-                        ? approveRequest(request, role, userId)
-                        : denyRequest(request, role, dto.getComment()))
+                .flatMap(request -> dto.isApprove()
+                        ? approveRequest(request, role, userId, dto.getComment(), authHeader)
+                        : denyRequest(request, role, userId, dto.getComment()))
                 .flatMap(requestRepository::save)
                 .map(saved -> new ApiResponse(saved.getId()));
     }
