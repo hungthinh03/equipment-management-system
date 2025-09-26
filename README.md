@@ -320,6 +320,199 @@ The project will be composed of the following microservices:
     }
      ```
      
+3. **Request Service**
+
+- **Create Request**
+    - **Name:** `/createRequest`  
+    - **Endpoint:** `/request`  
+    - **Method:** `POST`  
+    - **Description:** Create a new request for a device.
+    - **Request Body:**
+    ```json
+    {
+        "uuid": "745571f6-d52b-49ef-88cb-db0607853107",
+        "reason": "Laptop broke"
+    }
+    ```
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requestId": 1
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Invalid UUID** - Returned when request UUID is invalid
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1012,
+        "message": "Invalid UUID"
+    }
+     ```
+
+    - **Not found** - Returned when device is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1006,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Device in use** - Returned when request device is in use or unavailable 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1011,
+        "message": "Device is currently in use or unavailable"
+    }
+     ```
+
+- **View My Requests**
+    - **Name:** `/viewMyRequests`  
+    - **Endpoint:** `/request`  
+    - **Method:** `GET`  
+    - **Description:** View all requests submitted by the user.
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 1,
+                "deviceUuid": "745571f6-d52b-49ef-88cb-db0607853107",
+                "reason": "Laptop broke",
+                "status": "PENDING",
+                "createdAt": "2025-09-26T07:20:43.324779Z",
+                "updatedAt": "2025-09-26T07:20:43.324779Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+- **View Pending Request**
+    - **Name:** `/viewPendingRequest`  
+    - **Endpoint:** `/pending/{id}`  
+    - **Method:** `GET`  
+    - **Description:** View a pending request that require the user approval (admin/IT only).
+    - **Request Body:**
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 1,
+                "deviceUuid": "745571f6-d52b-49ef-88cb-db0607853107",
+                "requesterId": 3,
+                "reason": "Laptop broke",
+                "status": "PENDING",
+                "createdAt": "2025-09-26T07:20:43.324779Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Request not found** - Returned when request is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Request inaccessible** - Returned when the user is not authorized to access the request 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request inaccessible"
+    }
+     ```
+
+- **View All Pending Requests**
+    - **Name:** `/viewAllPendingRequests`  
+    - **Endpoint:** `/request/pending`  
+    - **Method:** `GET`  
+    - **Description:** View all pending requests that require the user approval (admin/IT only).
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 1,
+                "deviceUuid": "745571f6-d52b-49ef-88cb-db0607853107",
+                "requesterId": 3,
+                "reason": "Laptop broke",
+                "status": "PENDING",
+                "createdAt": "2025-09-26T07:20:43.324779Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+
 ## 4. Milestones & Time Frames
 - **Time Frame:** 4 weeks  
 - **Start Date:** 8 September, 2025  
