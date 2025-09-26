@@ -8,9 +8,9 @@ public interface RequestService {
 
     Mono<RequestResponse> viewMyRequests(String userId);
 
-    Mono<PendingResponse> viewAllPendingRequests(String role);
+    Mono<PendingResponse> viewAllPendingRequests(String userId, String role);
 
-    Mono<PendingResponse> viewPendingRequest(Integer id, String role);
+    Mono<PendingResponse> viewPendingRequest(Integer id, String userId, String role);
 
     Mono<ApiResponse> resolveRequest(ResolveRequestDTO request, Integer id, String userId, String role, String authHeader);
 }

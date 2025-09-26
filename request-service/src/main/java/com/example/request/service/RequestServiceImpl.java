@@ -49,9 +49,11 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public Mono<ApiResponse> createRequest(CreateRequestDTO dto, String userId, String authHeader) {
-        return getDeviceByUuid(dto.getUuid(), authHeader) // check device exists
-                .flatMap(response -> requestRepository.save(
-                        new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason()) // only if uuid valid
+        return getDeviceByUuid(dto.getUuid(), authHeader)
+                .filter(device -> "AVAILABLE".equalsIgnoreCase(device.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.DEVICE_IN_USE)))
+                .flatMap(device -> requestRepository.save(
+                        new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason())
                 ))
                 .map(saved -> new ApiResponse(saved.getId()));
     }
@@ -63,28 +65,30 @@ public class RequestServiceImpl implements RequestService {
                 .map(RequestResponse::new);
     }
 
-    public Mono<PendingResponse> viewAllPendingRequests(String role) {
+    public Mono<PendingResponse> viewAllPendingRequests(String userId, String role) {
         return ("IT".equalsIgnoreCase(role) //Requests that need additional IT approval
-                ? requestRepository.findByStatusAndApprovedByManagerIsNotNull("PENDING")
+                ? requestRepository.findByStatusAndProcessedByManagerIsNotNull("PENDING")
                 : requestRepository.findByStatus("PENDING")) //Requests that admins hasn't approved
-                .map(PendingRequestDTO::new)
+                .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
+                .map(PendingRequestDTO::new) // excluded own requests
                 .collectList()
                 .map(PendingResponse::new);
     }
 
     private boolean canAccessRequest(Request request, String role) {
-        if ("IT".equals(role)) {
-            return "PENDING".equals(request.getStatus()) && request.getProcessedByManager() != null;
+        if ("IT".equalsIgnoreCase(role)) {
+            return "PENDING".equalsIgnoreCase(request.getStatus()) && request.getProcessedByManager() != null;
         }
         else { //Admin
-            return "PENDING".equals(request.getStatus()) && request.getProcessedByManager() == null;
+            return "PENDING".equalsIgnoreCase(request.getStatus()) && request.getProcessedByManager() == null;
         }
     }
 
-    public Mono<PendingResponse> viewPendingRequest(Integer id, String role) {
+    public Mono<PendingResponse> viewPendingRequest(Integer id, String userId, String role) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(request -> canAccessRequest(request, role))
+                .filter(request -> canAccessRequest(request, role)) // also exclude own requests
+                .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE)))
                 .map(request -> new PendingResponse(List.of(new PendingRequestDTO(request))));
     }
@@ -104,10 +108,10 @@ public class RequestServiceImpl implements RequestService {
     private Mono<Request> approveRequest(Request request, String role, String userId,
                                          String comment, String authHeader) {
         return Mono.defer(() -> {
-            if ("Admin".equals(role)) {
+            if ("ADMIN".equalsIgnoreCase(role)) {
                 return getDeviceByUuid(request.getDeviceUuid().toString(), authHeader)
                         .flatMap(device -> {
-                            if (!"AVAILABLE".equals(device.getStatus())) {
+                            if (!"AVAILABLE".equalsIgnoreCase(device.getStatus())) {
                                 return Mono.error(new AppException(ErrorCode.DEVICE_IN_USE));
                             }
                             if ("GENERAL".equalsIgnoreCase(device.getCategory())) {
@@ -116,7 +120,7 @@ public class RequestServiceImpl implements RequestService {
                             applyInfoAdmin(request, userId, comment, Instant.now()); //sign request with admin info
                             return Mono.just(request); // else stays PENDING for IT approval
                         });
-            }
+            } // IT
             applyInfoIt(request, userId, comment, Instant.now());
             request.setStatus("APPROVED");
             return Mono.just(request);
@@ -125,8 +129,8 @@ public class RequestServiceImpl implements RequestService {
 
     private Mono<Request> denyRequest(Request request, String role, String userId, String comment) {
         return Mono.defer(() -> {
-            request.setStatus("DENIED");
-            if ("Admin".equals(role))
+            request.setStatus("REJECTED");
+            if ("ADMIN".equalsIgnoreCase(role))
                 applyInfoAdmin(request, userId, comment, Instant.now());
             else
                 applyInfoIt(request, userId, comment, Instant.now());
@@ -139,7 +143,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canAccessRequest(request, role))
-                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE)))
                 .flatMap(request -> dto.isApprove()
                         ? approveRequest(request, role, userId, dto.getComment(), authHeader)
                         : denyRequest(request, role, userId, dto.getComment()))

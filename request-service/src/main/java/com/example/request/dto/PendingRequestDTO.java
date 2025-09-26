@@ -16,8 +16,8 @@ public class PendingRequestDTO {
     private String reason;
     private String status;
     private Instant createdAt;
-    private Integer approvedByManager;
-    private Instant managerApprovedAt;
+    private Integer processedByManager;
+    private Instant managerProcessedAt;
     private String managerComment;
 
     public PendingRequestDTO(Request request)
@@ -28,8 +28,8 @@ public class PendingRequestDTO {
         this.reason = request.getReason();
         this.status = request.getStatus();
         this.createdAt = request.getCreatedAt();
-        this.approvedByManager = request.getApprovedByManager();
-        this.managerApprovedAt = request.getManagerApprovedAt();
+        this.processedByManager = request.getProcessedByManager();
+        this.managerProcessedAt = request.getManagerProcessedAt();
         this.managerComment = request.getManagerComment();
     }
 }
