@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/device")
@@ -60,7 +59,7 @@ public class DeviceController {
     }
 
     @GetMapping("/by-uuid/{uuid}")
-    public Mono<SearchResponse> viewDeviceByUuid(@PathVariable UUID uuid) {
+    public Mono<SearchResponse> viewDeviceByUuid(@PathVariable String uuid) {
         return deviceService.viewDeviceByUuid(uuid);
     }
 

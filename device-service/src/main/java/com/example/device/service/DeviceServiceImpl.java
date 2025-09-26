@@ -86,8 +86,17 @@ public class DeviceServiceImpl implements DeviceService {
         );
     }
 
-    public Mono<SearchResponse> viewDeviceByUuid(UUID uuid) {
-        return deviceRepo.searchByUuid(uuid)
+    private Mono<UUID> validateUuid(String uuid) {
+        try {
+            return Mono.just(UUID.fromString(uuid));
+        } catch (IllegalArgumentException e) {
+            return Mono.error(new AppException(ErrorCode.INVALID_UUID));
+        }
+    }
+
+    public Mono<SearchResponse> viewDeviceByUuid(String uuid) {
+        return validateUuid(uuid)
+                .flatMap(deviceRepo::searchByUuid)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .map(SearchResponse::new);
     }
