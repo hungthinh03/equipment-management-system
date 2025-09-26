@@ -37,17 +37,17 @@ public class Request {
     @Column("updated_at")
     private Instant updatedAt;
 
-    @Column("approved_by_manager")
-    private Integer approvedByManager;
+    @Column("processed_by_manager")
+    private Integer processedByManager;
 
-    @Column("manager_approved_at")
-    private Instant managerApprovedAt;
+    @Column("manager_processed_at")
+    private Instant managerProcessedAt;
 
-    @Column("approved_by_it")
-    private Integer approvedByIt;
+    @Column("processed_by_it")
+    private Integer processedByIt;
 
-    @Column("it_approved_at")
-    private Instant itApprovedAt;
+    @Column("it_processed_at")
+    private Instant itProcessedAt;
 
     @Column("manager_comment")
     private String managerComment;
@@ -55,9 +55,9 @@ public class Request {
     @Column("it_comment")
     private String itComment;
 
-    public Request(UUID uuid, Integer userId, String reason)
+    public Request(String uuid, Integer userId, String reason)
     {
-        this.deviceUuid = uuid;
+        this.deviceUuid = UUID.fromString(uuid); //convert to uuid for db save
         this.requesterId = userId;
         this.reason = reason;
     }

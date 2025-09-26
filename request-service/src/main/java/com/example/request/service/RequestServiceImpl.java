@@ -5,14 +5,12 @@ import com.example.request.common.exception.AppException;
 import com.example.request.dto.*;
 import com.example.request.model.Request;
 import com.example.request.repository.RequestRepository;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -27,22 +25,33 @@ public class RequestServiceImpl implements RequestService {
         this.webClient = webClientBuilder.baseUrl("http://device-service").build();
     }
 
-    private Mono<DeviceStatusDTO> getDeviceByUuid(UUID uuid, String authHeader) {
-        return webClient.get()
-                .uri("http://localhost:8081/device/by-uuid/{uuid}", uuid)
-                .header("Authorization", authHeader)
-                .retrieve()
-                .onStatus(status -> status.value() == 404,
-                        response -> Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .bodyToMono(new ParameterizedTypeReference<Map<String, DeviceStatusDTO>>() {})
-                .map(map -> map.get("result"));
-                //.flatMap(Mono::just);
+    private Mono<UUID> validateUuid(String uuid) {
+        try {
+            return Mono.just(UUID.fromString(uuid));
+        } catch (IllegalArgumentException e) {
+            return Mono.error(new AppException(ErrorCode.INVALID_UUID));
+        }
+    }
+
+    private Mono<DeviceStatusDTO> getDeviceByUuid(String uuid, String authHeader) {
+        return validateUuid(uuid)
+                .flatMap(validUuid ->
+                        webClient.get()
+                                .uri("http://localhost:8081/device/by-uuid/{uuid}", validUuid)
+                                .header("Authorization", authHeader)
+                                .retrieve()
+                                .onStatus(status -> status.value() == 404,
+                                        response ->
+                                                Mono.error(new AppException(ErrorCode.DEVICE_NOT_FOUND)))
+                                .bodyToMono(DeviceResponse.class)
+                                .map(DeviceResponse::getResult)
+                );
     }
 
     public Mono<ApiResponse> createRequest(CreateRequestDTO dto, String userId, String authHeader) {
         return getDeviceByUuid(dto.getUuid(), authHeader) // check device exists
                 .flatMap(response -> requestRepository.save(
-                        new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason())
+                        new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason()) // only if uuid valid
                 ))
                 .map(saved -> new ApiResponse(saved.getId()));
     }
@@ -65,10 +74,10 @@ public class RequestServiceImpl implements RequestService {
 
     private boolean canAccessRequest(Request request, String role) {
         if ("IT".equals(role)) {
-            return "PENDING".equals(request.getStatus()) && request.getApprovedByManager() != null;
+            return "PENDING".equals(request.getStatus()) && request.getProcessedByManager() != null;
         }
         else { //Admin
-            return "PENDING".equals(request.getStatus()) && request.getApprovedByManager() == null;
+            return "PENDING".equals(request.getStatus()) && request.getProcessedByManager() == null;
         }
     }
 
@@ -81,30 +90,31 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void applyInfoAdmin(Request request, String userId, String comment, Instant now) {
-        request.setApprovedByManager(Integer.valueOf(userId));
-        request.setManagerApprovedAt(now);
+        request.setProcessedByManager(Integer.valueOf(userId));
+        request.setManagerProcessedAt(now);
         request.setManagerComment(comment);
     }
 
     private void applyInfoIt(Request request, String userId, String comment, Instant now) {
-        request.setApprovedByIt(Integer.valueOf(userId));
-        request.setItApprovedAt(now);
+        request.setProcessedByIt(Integer.valueOf(userId));
+        request.setItProcessedAt(now);
         request.setItComment(comment);
     }
 
-    private Mono<Request> approveRequest(Request request, String role, String userId, String comment, String authHeader) {
+    private Mono<Request> approveRequest(Request request, String role, String userId,
+                                         String comment, String authHeader) {
         return Mono.defer(() -> {
             if ("Admin".equals(role)) {
-                return getDeviceByUuid(request.getDeviceUuid(), authHeader)
+                return getDeviceByUuid(request.getDeviceUuid().toString(), authHeader)
                         .flatMap(device -> {
                             if (!"AVAILABLE".equals(device.getStatus())) {
                                 return Mono.error(new AppException(ErrorCode.DEVICE_IN_USE));
                             }
                             if ("GENERAL".equalsIgnoreCase(device.getCategory())) {
-                                request.setStatus("APPROVED"); // IT approval not needed
+                                request.setStatus("APPROVED"); // when IT approval not needed
                             }
                             applyInfoAdmin(request, userId, comment, Instant.now()); //sign request with admin info
-                            return Mono.just(request); // stays PENDING for IT if not GENERAL
+                            return Mono.just(request); // else stays PENDING for IT approval
                         });
             }
             applyInfoIt(request, userId, comment, Instant.now());
@@ -124,7 +134,8 @@ public class RequestServiceImpl implements RequestService {
         });
     }
 
-    public Mono<ApiResponse> resolveRequest(ResolveRequestDTO dto, Integer id, String userId, String role, String authHeader) {
+    public Mono<ApiResponse> resolveRequest(ResolveRequestDTO dto, Integer id,
+                                            String userId, String role, String authHeader) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canAccessRequest(request, role))
