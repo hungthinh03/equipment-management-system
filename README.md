@@ -611,7 +611,7 @@ Each service will use its own database for storing and managing data related to 
   > device_category: ('GENERAL', 'NETWORK')
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.
-<img src="assets/request.jpg" style="width:40%;"/>
+<img src="assets/request.jpg" style="width:50%;"/>
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
 
 
