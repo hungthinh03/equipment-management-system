@@ -7,12 +7,13 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-    INVALID_INPUT(1003, "Missing required fields", HttpStatus.BAD_REQUEST),
+    MISSING_FIELDS(1003, "Missing required fields", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(1005, "Insufficient permissions", HttpStatus.FORBIDDEN),
     INVALID_TYPE(1006, "Device type not found or inaccessible", HttpStatus.BAD_REQUEST),
     NOT_FOUND(1007, "Device not found", HttpStatus.NOT_FOUND),
     INACCESSIBLE(1008, "Device inaccessible", HttpStatus.FORBIDDEN),
-    INVALID_UUID(1012, "Invalid UUID", HttpStatus.BAD_REQUEST);
+    INVALID_UUID(1012, "Invalid UUID", HttpStatus.BAD_REQUEST),
+    INVALID_STATUS(1013, "Invalid device status", HttpStatus.BAD_REQUEST);
 
     private final int code;
     private final String message;

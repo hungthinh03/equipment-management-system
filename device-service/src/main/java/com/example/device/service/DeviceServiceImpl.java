@@ -28,7 +28,7 @@ public class DeviceServiceImpl implements DeviceService {
         return Mono.justOrEmpty(dto) // stream of elements ["a", "b", "c"]
                 .filter(d -> Stream.of(d.getName(), d.getType()).allMatch(Objects::nonNull))
                 .filter(d -> Stream.of(d.getName(), d.getType()).noneMatch(String::isBlank))
-                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_INPUT)));
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.MISSING_FIELDS)));
     }
 
     //
@@ -112,5 +112,20 @@ public class DeviceServiceImpl implements DeviceService {
                 })
                 .map(updated -> new ApiResponse(updated.getId()));
     }
+
+    public Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String role, String uuid) {
+        return validateUuid(uuid)
+                .flatMap(deviceRepo::findByUuid)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(existing -> List.of("AVAILABLE", "ASSIGNED").contains(dto.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_STATUS)))
+                .flatMap(existing -> {
+                    existing.setStatus(dto.getStatus());
+                    existing.setAssignedTo(dto.getAssignedTo());
+                    return deviceRepo.save(existing);
+                })
+                .map(updated -> new ApiResponse(updated.getId()));
+    }
+
 
 }

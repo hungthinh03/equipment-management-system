@@ -53,5 +53,7 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
             "JOIN device_categories dc ON dt.category_id = dc.id " +
             "WHERE d.uuid = :uuid")
     Mono<SearchResultDTO> searchByUuid(UUID uuid);
+
+    Mono<Device> findByUuid(UUID uuid);
 }
 

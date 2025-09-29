@@ -2,10 +2,7 @@ package com.example.device.controller;
 
 import com.example.device.common.enums.ErrorCode;
 import com.example.device.common.exception.AppException;
-import com.example.device.dto.ApiResponse;
-import com.example.device.dto.AddDeviceDTO;
-import com.example.device.dto.DeviceResponse;
-import com.example.device.dto.SearchResponse;
+import com.example.device.dto.*;
 import com.example.device.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -69,5 +66,18 @@ public class DeviceController {
         return validateRole(role)
                 .flatMap(r -> deviceService.decommissionDevice(r, id));
     }
+
+    @PutMapping("/by-uuid/{uuid}")
+    public Mono<ApiResponse> updateDeviceAssignment(@RequestBody UpdateStatusDTO dto,
+                                                @RequestHeader("X-User-Role") String role,
+                                                @RequestHeader(value = "X-Service-Source", required = false) String source,
+                                                @PathVariable String uuid) {
+        return Mono.justOrEmpty(source)
+                .filter("request-service"::equalsIgnoreCase)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .then(validateRole(role))
+                .flatMap(r -> deviceService.updateDeviceAssignment(dto, r, uuid));
+    }
+
 
 }

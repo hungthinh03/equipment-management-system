@@ -1,10 +1,7 @@
 package com.example.device.service;
 
 
-import com.example.device.dto.ApiResponse;
-import com.example.device.dto.AddDeviceDTO;
-import com.example.device.dto.DeviceResponse;
-import com.example.device.dto.SearchResponse;
+import com.example.device.dto.*;
 import reactor.core.publisher.Mono;
 
 
@@ -23,4 +20,5 @@ public interface DeviceService {
 
     Mono<ApiResponse> decommissionDevice(String role, Integer id);
 
+    Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String role, String uuid);
 }
