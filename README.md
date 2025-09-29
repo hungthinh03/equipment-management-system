@@ -370,7 +370,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Device in use** - Returned when request device is in use or unavailable 
+    - **Device unavailable** - Returned when request device is in use or unavailable 
      ```json
     {
         "status": "error",
@@ -512,6 +512,71 @@ The project will be composed of the following microservices:
     }
      ``` 
 
+- **Resolve Request**
+    - **Name:** `/resolveRequest`  
+    - **Endpoint:** `/request/pending/{id}`  
+    - **Method:** `PUT`  
+    - **Description:** Approve or deny a pending request and update device status accordingly (admin/IT only).
+    - **Request Body:**
+    ```json
+    {
+        "approve": true,
+        "comment": "Approved"
+    }
+    ```
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requestId": 1
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Request not found** - Returned when request is not found 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Request inaccessible** - Returned when the user is not authorized to access the request 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request inaccessible"
+    }
+     ```
+
+    - **Device unavailable** - Returned when request device is in use or unavailable 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1011,
+        "message": "Device is currently in use or unavailable"
+    }
+     ```
 
 ## 4. Milestones & Time Frames
 - **Time Frame:** 4 weeks  
@@ -536,16 +601,20 @@ Each service will use its own database for storing and managing data related to 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
 <img src="assets/auth.jpg" style="width:50%;"/>
 
-> user_role: ('ADMIN', 'EMPLOYEE', 'IT')
+> User role: 'ADMIN', 'EMPLOYEE', 'IT'
 
 - **Device Service DB** - manages all device records, status, and assignment information.
 <img src="assets/device.jpg" style="width:100%;"/>
 
-  > device_status: ('AVAILABLE', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED')
+  > Device status: 'AVAILABLE', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED'
 
-  > device_category: ('GENERAL', 'NETWORK')
+  > Device category: 'GENERAL', 'NETWORK'
 
-- **Request Service DB** - manages device requests, approvals, rejections, and workflow history.  
+- **Request Service DB** - manages device requests, approvals, rejections, and workflow history.
+<img src="assets/request.jpg" style="width:50%;"/>
+
+  > Request status: 'PENDING', 'APPROVED', 'REJECTED', 'CLOSED'
+
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
 
 
