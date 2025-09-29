@@ -39,6 +39,7 @@ public class RequestServiceImpl implements RequestService {
                         webClient.get()
                                 .uri("http://localhost:8081/device/by-uuid/{uuid}", validUuid)
                                 .header("Authorization", authHeader)
+                                .header("X-Service-Source", "request-service")
                                 .retrieve()
                                 .onStatus(status -> status.value() == 404,
                                         response ->
@@ -51,7 +52,7 @@ public class RequestServiceImpl implements RequestService {
     public Mono<ApiResponse> createRequest(CreateRequestDTO dto, String userId, String authHeader) {
         return getDeviceByUuid(dto.getUuid(), authHeader)
                 .filter(device -> "AVAILABLE".equalsIgnoreCase(device.getStatus()))
-                .switchIfEmpty(Mono.error(new AppException(ErrorCode.DEVICE_IN_USE)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.DEVICE_UNAVAILABLE)))
                 .flatMap(device -> requestRepository.save(
                         new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason())
                 ))
@@ -105,6 +106,17 @@ public class RequestServiceImpl implements RequestService {
         request.setItComment(comment);
     }
 
+    private Mono<Request> updateDeviceAssignment(Request request, UpdateAssignmentDTO dto, String authHeader) {
+        return webClient.put()
+                .uri("http://localhost:8081/device/by-uuid/{uuid}", request.getDeviceUuid()) // or use UUID
+                .header("Authorization", authHeader)
+                .header("X-Service-Source", "request-service")
+                .bodyValue(dto)
+                .retrieve()
+                .toBodilessEntity()
+                .thenReturn(request);
+    }
+
     private Mono<Request> approveRequest(Request request, String role, String userId,
                                          String comment, String authHeader) {
         return Mono.defer(() -> {
@@ -112,10 +124,14 @@ public class RequestServiceImpl implements RequestService {
                 return getDeviceByUuid(request.getDeviceUuid().toString(), authHeader)
                         .flatMap(device -> {
                             if (!"AVAILABLE".equalsIgnoreCase(device.getStatus())) {
-                                return Mono.error(new AppException(ErrorCode.DEVICE_IN_USE));
+                                return Mono.error(new AppException(ErrorCode.DEVICE_UNAVAILABLE));
                             }
                             if ("GENERAL".equalsIgnoreCase(device.getCategory())) {
                                 request.setStatus("APPROVED"); // when IT approval not needed
+                                return updateDeviceAssignment(
+                                        request,
+                                        new UpdateAssignmentDTO("ASSIGNED", request.getRequesterId()),
+                                        authHeader);
                             }
                             applyInfoAdmin(request, userId, comment, Instant.now()); //sign request with admin info
                             return Mono.just(request); // else stays PENDING for IT approval
@@ -123,7 +139,9 @@ public class RequestServiceImpl implements RequestService {
             } // IT
             applyInfoIt(request, userId, comment, Instant.now());
             request.setStatus("APPROVED");
-            return Mono.just(request);
+            return updateDeviceAssignment(request,
+                    new UpdateAssignmentDTO("ASSIGNED", request.getRequesterId()),
+                    authHeader);
         });
     }
 
