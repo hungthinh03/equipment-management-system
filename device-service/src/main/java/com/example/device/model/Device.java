@@ -9,6 +9,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +21,7 @@ public class Device {
     private Integer id;
 
     @Column("uuid")
-    private String uuid;
+    private UUID uuid;
 
     @Column("name")
     private String name;

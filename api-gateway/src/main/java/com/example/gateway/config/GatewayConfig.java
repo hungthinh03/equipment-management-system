@@ -21,11 +21,11 @@ public class GatewayConfig {
                         .filters(f -> f
                                 .removeRequestHeader("X-*")
                                 .filter(jwtAuthFilter.apply(new JwtAuthFilter.Config()))
-                                .addRequestHeader("X-Service-Source", "request-service")
-                                .addRequestHeader("X-Processed-Route", "true")
+                                .setRequestHeader("X-Service-Source", "request-service")
+                                .setRequestHeader("X-Processed-Route", "true") //.set not .add
                         )
                         .uri("http://localhost:8083"))
-                .route("device-service", r -> r.path("/device/internal/**")
+                .route("device-service", r -> r.path("/device/**")
                         .filters(f -> f
                                 .removeRequestHeader("X-*") // strip client's custom headers
                                 .filter(jwtAuthFilter.apply(new JwtAuthFilter.Config())) // inject safe headers
