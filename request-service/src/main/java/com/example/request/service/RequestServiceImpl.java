@@ -90,7 +90,7 @@ public class RequestServiceImpl implements RequestService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canAccessRequest(request, role)) // also exclude own requests
                 .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
-                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .map(request -> new PendingResponse(List.of(new PendingRequestDTO(request))));
     }
 
@@ -161,7 +161,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canAccessRequest(request, role))
-                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(request -> dto.isApprove()
                         ? approveRequest(request, role, userId, dto.getComment(), authHeader)
                         : denyRequest(request, role, userId, dto.getComment()))
@@ -169,4 +169,32 @@ public class RequestServiceImpl implements RequestService {
                 .map(saved -> new ApiResponse(saved.getId()));
     }
 
+    private boolean canCloseRequest(Request request, String role) {
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            return request.getProcessedByIt() == null; // General requests only
+        } //IT
+        return request.getProcessedByIt() != null; // Network requests
+    }
+
+    public Mono<ApiResponse> closeRequest(Integer id, String role, String userId, String authHeader) {
+        return requestRepository.findById(id)
+                .filter(req ->
+                        "APPROVED".equalsIgnoreCase(req.getStatus()) && req.getRequestedToCloseAt() != null)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .filter(req -> canCloseRequest(req, role))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .flatMap(request -> updateDeviceAssignment(
+                        request,
+                        new UpdateAssignmentDTO("AVAILABLE", null),
+                        authHeader
+                )
+                .map(req -> {
+                    req.setStatus("CLOSED");
+                    req.setClosedBy(Integer.valueOf(userId));
+                    req.setClosedAt(Instant.now());
+                    return req;
+                })
+                .flatMap(requestRepository::save)
+                .map(saved -> new ApiResponse(saved.getId())));
+    }
 }

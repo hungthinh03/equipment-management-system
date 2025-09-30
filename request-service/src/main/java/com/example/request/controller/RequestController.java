@@ -51,7 +51,7 @@ public class RequestController {
                 .flatMap(r -> requestService.viewPendingRequest(id, userId, r));
     }
 
-    @PutMapping("/pending/{id}")
+    @PostMapping("/pending/{id}")
     public Mono<ApiResponse> resolveRequest(@RequestBody ResolveRequestDTO request,
                                                 @PathVariable Integer id,
                                                 @RequestHeader("X-User-Id") String userId,
@@ -59,6 +59,15 @@ public class RequestController {
                                                 @RequestHeader("Authorization") String authHeader) {
         return validateRole(role)
                 .flatMap(r -> requestService.resolveRequest(request, id, userId, r, authHeader));
+    }
+
+    @PostMapping("/close/{id}")
+    public Mono<ApiResponse> closeRequest(@PathVariable Integer id,
+                                          @RequestHeader("X-User-Id") String userId,
+                                          @RequestHeader("X-User-Role") String role,
+                                          @RequestHeader("Authorization") String authHeader) {
+        return validateRole(role)
+                .flatMap(r -> requestService.closeRequest(id, userId, r, authHeader));
     }
 }
 

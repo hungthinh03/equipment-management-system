@@ -55,6 +55,15 @@ public class Request {
     @Column("it_comment")
     private String itComment;
 
+    @Column("requested_to_close_at")
+    private Instant requestedToCloseAt;
+
+    @Column("closed_by")
+    private Integer closedBy;
+
+    @Column("closed_at")
+    private Instant closedAt;
+
     public Request(String uuid, Integer userId, String reason)
     {
         this.deviceUuid = UUID.fromString(uuid); //convert to uuid for db save

@@ -10,7 +10,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1005, "Insufficient permissions", HttpStatus.FORBIDDEN),
     DEVICE_NOT_FOUND(1007, "Device not found", HttpStatus.NOT_FOUND),
     NOT_FOUND(1009, "Request not found", HttpStatus.NOT_FOUND),
-    INACCESSIBLE(1010, "Request inaccessible", HttpStatus.FORBIDDEN),
+    INVALID_OPERATION(1010, "Request not in a valid state for this action", HttpStatus.FORBIDDEN),
     DEVICE_UNAVAILABLE(1011, "Device is currently in use or unavailable", HttpStatus.CONFLICT),
     INVALID_UUID(1012, "Invalid UUID", HttpStatus.BAD_REQUEST);
 

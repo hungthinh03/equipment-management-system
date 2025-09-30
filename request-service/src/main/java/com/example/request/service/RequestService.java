@@ -13,4 +13,6 @@ public interface RequestService {
     Mono<PendingResponse> viewPendingRequest(Integer id, String userId, String role);
 
     Mono<ApiResponse> resolveRequest(ResolveRequestDTO request, Integer id, String userId, String role, String authHeader);
+
+    Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader);
 }
