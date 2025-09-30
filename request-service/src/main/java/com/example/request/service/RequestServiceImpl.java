@@ -69,7 +69,7 @@ public class RequestServiceImpl implements RequestService {
     public Mono<PendingResponse> viewAllPendingRequests(String userId, String role) {
         return ("IT".equalsIgnoreCase(role) //Requests that need additional IT approval
                 ? requestRepository.findByStatusAndProcessedByManagerIsNotNull("PENDING")
-                : requestRepository.findByStatus("PENDING")) //Requests that admins hasn't approved
+                : requestRepository.findByStatusAndProcessedByManagerIsNull("PENDING")) //Requests admins hasn't approved
                 .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
                 .map(PendingRequestDTO::new) // excluded own requests
                 .collectList()
