@@ -53,13 +53,24 @@ public class RequestController {
 
     @PostMapping("/pending/{id}")
     public Mono<ApiResponse> resolveRequest(@RequestBody ResolveRequestDTO request,
-                                                @PathVariable Integer id,
-                                                @RequestHeader("X-User-Id") String userId,
-                                                @RequestHeader("X-User-Role") String role,
-                                                @RequestHeader("Authorization") String authHeader) {
+                                            @PathVariable Integer id,
+                                            @RequestHeader("X-User-Id") String userId,
+                                            @RequestHeader("X-User-Role") String role,
+                                            @RequestHeader("Authorization") String authHeader) {
         return validateRole(role)
                 .flatMap(r -> requestService.resolveRequest(request, id, userId, r, authHeader));
     }
+
+
+    @PostMapping("/request-close/{id}")
+    public Mono<ApiResponse> submitCloseRequest(@PathVariable Integer id,
+                                                @RequestHeader("X-User-Id") String userId) {
+        return requestService.submitCloseRequest(id, userId);
+    }
+
+    //GET /close
+
+    //GET /close/{id}
 
     @PostMapping("/close/{id}")
     public Mono<ApiResponse> closeRequest(@PathVariable Integer id,

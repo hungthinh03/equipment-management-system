@@ -176,7 +176,22 @@ public class RequestServiceImpl implements RequestService {
         return request.getProcessedByIt() != null; // Network requests
     }
 
-    public Mono<ApiResponse> closeRequest(Integer id, String role, String userId, String authHeader) {
+    public Mono<ApiResponse> submitCloseRequest(Integer id, String userId) {
+        return requestRepository.findById(id)
+                .filter(req -> req.getRequesterId().equals(Integer.valueOf(userId)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED))) // Can only submit for own requests
+                .filter(req -> "APPROVED".equalsIgnoreCase(req.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .filter(req -> req.getRequestedToCloseAt() == null)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.ALREADY_REQUESTED_CLOSE)))
+                .flatMap(req -> {
+                    req.setRequestedToCloseAt(Instant.now());
+                    return requestRepository.save(req);
+                })
+                .map(req -> new ApiResponse(req.getId()));
+    }
+
+    public Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader) {
         return requestRepository.findById(id)
                 .filter(req ->
                         "APPROVED".equalsIgnoreCase(req.getStatus()) && req.getRequestedToCloseAt() != null)

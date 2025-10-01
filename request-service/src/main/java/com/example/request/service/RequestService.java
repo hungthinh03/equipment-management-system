@@ -15,4 +15,6 @@ public interface RequestService {
     Mono<ApiResponse> resolveRequest(ResolveRequestDTO request, Integer id, String userId, String role, String authHeader);
 
     Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader);
+
+    Mono<ApiResponse> submitCloseRequest(Integer id, String userId);
 }
