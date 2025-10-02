@@ -462,12 +462,12 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Request inaccessible** - Returned when the user is not authorized to access the request 
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
      ```json
     {
         "status": "error",
         "statusCode": 1010,
-        "message": "Request inaccessible"
+        "message": "Request not in a valid state for this action"
     }
      ```
 
@@ -515,7 +515,7 @@ The project will be composed of the following microservices:
 - **Resolve Request**
     - **Name:** `/resolveRequest`  
     - **Endpoint:** `/request/pending/{id}`  
-    - **Method:** `PUT`  
+    - **Method:** `POST`  
     - **Description:** Approve or deny a pending request and update device status accordingly (admin/IT only).
     - **Request Body:**
     ```json
@@ -560,12 +560,12 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Request inaccessible** - Returned when the user is not authorized to access the request 
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
      ```json
     {
         "status": "error",
         "statusCode": 1010,
-        "message": "Request inaccessible"
+        "message": "Request not in a valid state for this action"
     }
      ```
 
@@ -577,6 +577,281 @@ The project will be composed of the following microservices:
         "message": "Device is currently in use or unavailable"
     }
      ```
+
+- **Submit Close Request**
+    - **Name:** `/submitCloseRequest`  
+    - **Endpoint:** `/request/request-close/{id}`  
+    - **Method:** `POST`  
+    - **Description:** Submit a request to close an approved request.
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requestId": 1
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Request not found** - Returned when request is not found 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user attempts to submit a close notice on a request they did not create.
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
+    - **Already requested close** - Returned when a close notice has already been submitted for the request.
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1013,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+    
+- **View Closable Request**
+    - **Name:** `/viewClosableRequest`  
+    - **Endpoint:** `/request/close/{id}`  
+    - **Method:** `GET`  
+    - **Description:** View a request that is eligible for closure by the user (admin/IT only).
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 13,
+                "deviceUuid": "35766d0a-f35b-466a-b112-2bc86e874200",
+                "requesterId": 3,
+                "reason": "Need new switch",
+                "status": "APPROVED",
+                "createdAt": "2025-09-30T06:37:05.252951Z",
+                "processedByManager": 1,
+                "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
+                "managerComment": "Approved",
+                "processedByIt": 5,
+                "itProcessedAt": "2025-10-02T03:45:01.482864Z",
+                "itComment": "IT approved",
+                "requestedToCloseAt": "2025-10-02T08:20:06.752053Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Request not found** - Returned when request is not found 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
+- **View All Closable Requests**
+    - **Name:** `/viewAllClosableRequests`  
+    - **Endpoint:** `/request/close`  
+    - **Method:** `GET`  
+    - **Description:** View all requests that are eligible for closure by the user (admin/IT only).
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 13,
+                "deviceUuid": "35766d0a-f35b-466a-b112-2bc86e874200",
+                "requesterId": 3,
+                "reason": "Need new switch",
+                "status": "APPROVED",
+                "createdAt": "2025-09-30T06:37:05.252951Z",
+                "processedByManager": 1,
+                "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
+                "managerComment": "Approved",
+                "processedByIt": 5,
+                "itProcessedAt": "2025-10-02T03:45:01.482864Z",
+                "itComment": "IT approved",
+                "requestedToCloseAt": "2025-10-02T08:20:06.752053Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+
+
+- **Close Request**
+    - **Name:** `/closeRequest`  
+    - **Endpoint:** `/request/close/{id}`  
+    - **Method:** `GET`  
+    - **Description:** Close a request that has been marked for closure (admin/IT only).
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requestId": 13
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Request not found** - Returned when request is not found 
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
+- **View My Processed Requests**
+    - **Name:** `/viewMyProcessedRequests`  
+    - **Endpoint:** `/request/processed`  
+    - **Method:** `GET`  
+    - **Description:** View all requests that the user has processed or closed (admin/IT only).
+    - **Responses**:  
+    - **Success**:  
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 13,
+                "deviceUuid": "35766d0a-f35b-466a-b112-2bc86e874200",
+                "requesterId": 3,
+                "reason": "Need new switch",
+                "status": "CLOSED",
+                "createdAt": "2025-09-30T06:37:05.252951Z",
+                "processedByManager": 1,
+                "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
+                "managerComment": "Approved",
+                "processedByIt": 5,
+                "itProcessedAt": "2025-10-02T03:45:01.482864Z",
+                "itComment": "IT approved",
+                "requestedToCloseAt": "2025-10-02T08:20:06.752053Z",
+                "closeAt": "2025-10-02T08:44:32.066074Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:  
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
 
 ## 4. Milestones & Time Frames
 - **Time Frame:** 4 weeks  
