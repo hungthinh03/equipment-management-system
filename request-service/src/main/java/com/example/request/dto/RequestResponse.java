@@ -1,18 +1,18 @@
 package com.example.request.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "status", "requests" })
 public class RequestResponse {
     private String status;
-    private List<ViewRequestDTO> requests;
+    private List<RequestDTO> requests;
 
-    public RequestResponse(List<ViewRequestDTO> request) {
+    public RequestResponse(List<RequestDTO> requests) {
         this.status = "success";
-        this.requests = request;
+        this.requests = requests;
     }
 }

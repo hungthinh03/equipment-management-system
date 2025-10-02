@@ -32,19 +32,19 @@ public class RequestController {
     }
 
     @GetMapping
-    public Mono<RequestResponse> viewMyRequests(@RequestHeader("X-User-Id") String userId) {
+    public Mono<MyRequestResponse> viewMyRequests(@RequestHeader("X-User-Id") String userId) {
         return requestService.viewMyRequests(userId);
     }
 
     @GetMapping("/pending")
-    public Mono<PendingResponse> viewAllPendingRequests(@RequestHeader("X-User-Id") String userId,
+    public Mono<RequestResponse> viewAllPendingRequests(@RequestHeader("X-User-Id") String userId,
                                                         @RequestHeader("X-User-Role") String role) {
         return validateRole(role)
                 .flatMap(r -> requestService.viewAllPendingRequests(userId, r));
     }
 
     @GetMapping("/pending/{id}")
-    public Mono<PendingResponse> viewPendingRequest(@PathVariable Integer id,
+    public Mono<RequestResponse> viewPendingRequest(@PathVariable Integer id,
                                                     @RequestHeader("X-User-Id") String userId,
                                                     @RequestHeader("X-User-Role") String role) {
         return validateRole(role)
@@ -68,9 +68,20 @@ public class RequestController {
         return requestService.submitCloseRequest(id, userId);
     }
 
-    //GET /close
+    @GetMapping("/close")
+    public Mono<RequestResponse> viewAllClosableRequests(@RequestHeader("X-User-Id") String userId,
+                                                         @RequestHeader("X-User-Role") String role) {
+        return validateRole(role)
+                .flatMap(r -> requestService.viewAllClosableRequests(userId, r));
+    }
 
-    //GET /close/{id}
+    @GetMapping("/close/{id}")
+    public Mono<RequestResponse> viewClosableRequest(@PathVariable Integer id,
+                                                     @RequestHeader("X-User-Id") String userId,
+                                                     @RequestHeader("X-User-Role") String role) {
+        return validateRole(role)
+                .flatMap(r -> requestService.viewClosableRequest(id, userId, r));
+    }
 
     @PostMapping("/close/{id}")
     public Mono<ApiResponse> closeRequest(@PathVariable Integer id,

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ViewRequestDTO {
+public class ViewMyRequestDTO {
     private Integer id;
     private UUID deviceUuid;         // Public UUID for employee-facing API
     private String reason;
@@ -19,7 +19,7 @@ public class ViewRequestDTO {
     private Instant requestedToCloseAt;
     private Instant closedAt;
 
-    public ViewRequestDTO(Request request) {
+    public ViewMyRequestDTO(Request request) {
         this.id = request.getId();
         this.deviceUuid = request.getDeviceUuid();
         this.reason = request.getReason();

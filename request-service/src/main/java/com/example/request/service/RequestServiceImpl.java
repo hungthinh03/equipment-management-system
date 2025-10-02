@@ -59,21 +59,21 @@ public class RequestServiceImpl implements RequestService {
                 .map(saved -> new ApiResponse(saved.getId()));
     }
 
-    public Mono<RequestResponse> viewMyRequests(String userId) {
+    public Mono<MyRequestResponse> viewMyRequests(String userId) {
         return requestRepository.findByRequesterId(Integer.valueOf(userId))
-                .map(ViewRequestDTO::new)
+                .map(ViewMyRequestDTO::new)
                 .collectList()
-                .map(RequestResponse::new);
+                .map(MyRequestResponse::new);
     }
 
-    public Mono<PendingResponse> viewAllPendingRequests(String userId, String role) {
+    public Mono<RequestResponse> viewAllPendingRequests(String userId, String role) {
         return ("IT".equalsIgnoreCase(role) //Requests that need additional IT approval
                 ? requestRepository.findByStatusAndProcessedByManagerIsNotNull("PENDING")
                 : requestRepository.findByStatusAndProcessedByManagerIsNull("PENDING")) //Requests admins hasn't approved
                 .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
-                .map(PendingRequestDTO::new) // excluded own requests
+                .map(RequestDTO::new) // excluded own requests
                 .collectList()
-                .map(PendingResponse::new);
+                .map(RequestResponse::new);
     }
 
     private boolean canAccessRequest(Request request, String role) {
@@ -85,13 +85,13 @@ public class RequestServiceImpl implements RequestService {
         }
     }
 
-    public Mono<PendingResponse> viewPendingRequest(Integer id, String userId, String role) {
+    public Mono<RequestResponse> viewPendingRequest(Integer id, String userId, String role) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canAccessRequest(request, role)) // also exclude own requests
                 .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
-                .map(request -> new PendingResponse(List.of(new PendingRequestDTO(request))));
+                .map(request -> new RequestResponse(List.of(new RequestDTO(request))));
     }
 
     private void applyInfoAdmin(Request request, String userId, String comment, Instant now) {
@@ -191,12 +191,36 @@ public class RequestServiceImpl implements RequestService {
                 .map(req -> new ApiResponse(req.getId()));
     }
 
+    public Mono<RequestResponse> viewAllClosableRequests(String userId, String role) {
+        return requestRepository.findByRequestedToCloseAtIsNotNull()
+                .filter(req -> "APPROVED".equalsIgnoreCase(req.getStatus()))
+                .filter(req -> canCloseRequest(req, role))
+                .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
+                .map(RequestDTO::new)
+                .collectList()
+                .map(RequestResponse::new);
+    }
+
+    public Mono<RequestResponse> viewClosableRequest(Integer id, String userId, String role) {
+        return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(req -> req.getRequestedToCloseAt() != null
+                        && "APPROVED".equalsIgnoreCase(req.getStatus()))  // is closable
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .filter(req -> canCloseRequest(req, role))      // role check
+                .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .map(RequestDTO::new)
+                .map(req -> new RequestResponse(List.of(req)));
+    }
+
     public Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader) {
         return requestRepository.findById(id)
-                .filter(req ->
-                        "APPROVED".equalsIgnoreCase(req.getStatus()) && req.getRequestedToCloseAt() != null)
+                .filter(req -> "APPROVED".equalsIgnoreCase(req.getStatus())
+                        && req.getRequestedToCloseAt() != null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
-                .filter(req -> canCloseRequest(req, role))
+                .filter(req -> canCloseRequest(req, role)
+                        && !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
                 .flatMap(request -> updateDeviceAssignment(
                         request,
