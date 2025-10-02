@@ -146,14 +146,16 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private Mono<Request> denyRequest(Request request, String role, String userId, String comment) {
-        return Mono.defer(() -> {
-            request.setStatus("REJECTED");
-            if ("ADMIN".equalsIgnoreCase(role))
-                applyInfoAdmin(request, userId, comment, Instant.now());
-            else
-                applyInfoIt(request, userId, comment, Instant.now());
-            return Mono.just(request);
-        });
+        return Mono.just(request)
+                .map(req -> {
+                    if ("ADMIN".equalsIgnoreCase(role)) {
+                        applyInfoAdmin(req, userId, comment, Instant.now());
+                    } else {
+                        applyInfoIt(req, userId, comment, Instant.now());
+                    }
+                    req.setStatus("REJECTED");
+                    return req;
+                });
     }
 
     public Mono<ApiResponse> resolveRequest(ResolveRequestDTO dto, Integer id,
@@ -216,6 +218,7 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader) {
         return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(req -> "APPROVED".equalsIgnoreCase(req.getStatus())
                         && req.getRequestedToCloseAt() != null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
@@ -236,4 +239,19 @@ public class RequestServiceImpl implements RequestService {
                 .flatMap(requestRepository::save)
                 .map(saved -> new ApiResponse(saved.getId())));
     }
+
+    private boolean isProcessedBy(Request req, Integer userId) {
+        return userId.equals(req.getProcessedByManager())
+                || userId.equals(req.getProcessedByIt())
+                || userId.equals(req.getClosedBy());
+    }
+
+    public Mono<RequestResponse> viewMyProcessedRequests(String userId) {
+        return requestRepository.findByProcessedByManagerIsNotNull()
+                .filter(req -> isProcessedBy(req, Integer.valueOf(userId)))
+                .map(RequestDTO::new)
+                .collectList()
+                .map(RequestResponse::new);
+    }
+
 }

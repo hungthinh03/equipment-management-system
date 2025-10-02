@@ -91,5 +91,12 @@ public class RequestController {
         return validateRole(role)
                 .flatMap(r -> requestService.closeRequest(id, userId, r, authHeader));
     }
+
+    @GetMapping("/processed")
+    public Mono<RequestResponse> viewMyProcessedRequests(@RequestHeader("X-User-Id") String userId,
+                                                         @RequestHeader("X-User-Role") String role) {
+        return validateRole(role)
+                .flatMap(r -> requestService.viewMyProcessedRequests(userId));
+    }
 }
 

@@ -23,6 +23,7 @@ public class RequestDTO {
     private Instant itProcessedAt;
     private String itComment;
     private Instant requestedToCloseAt;
+    private Instant closeAt;
 
     public RequestDTO(Request request)
     {
@@ -39,5 +40,6 @@ public class RequestDTO {
         this.itProcessedAt = request.getItProcessedAt();
         this.itComment = request.getItComment();
         this.requestedToCloseAt = request.getRequestedToCloseAt();
+        this.closeAt = request.getClosedAt();
     }
 }

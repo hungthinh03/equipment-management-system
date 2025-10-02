@@ -21,4 +21,6 @@ public interface RequestService {
     Mono<RequestResponse> viewAllClosableRequests(String userId, String role);
 
     Mono<RequestResponse> viewClosableRequest(Integer id, String userId, String role);
+
+    Mono<RequestResponse> viewMyProcessedRequests(String userId);
 }
