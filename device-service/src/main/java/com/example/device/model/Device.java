@@ -35,11 +35,35 @@ public class Device {
     @Column("assigned_to")
     private Integer assignedTo;
 
+    @Column("ownership_type")
+    private String ownershipType; // COMPANY, BYOD
+
+    @Column("owned_by")
+    private Integer ownedBy; // userId if BYOD, else null
+
+    @Column("purchase_price")
+    private Double purchasePrice;
+
+    @Column("purchase_date")
+    private Instant purchaseDate;
+
+    @Column("serial_number")
+    private String serialNumber;
+
+    @Column("manufacturer")
+    private String manufacturer;
+
+    @Column("created_by")
+    private Integer createdBy;
+
     @Column("created_at")
     private Instant createdAt;
 
     @Column("updated_at")
     private Instant updatedAt;
+
+    @Column("decommission_at")
+    private Instant decommissionAt;
 
 
     public Device(AddDeviceDTO dto, Integer typeId) {
