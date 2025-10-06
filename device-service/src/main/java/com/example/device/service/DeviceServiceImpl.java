@@ -4,6 +4,7 @@ import com.example.device.common.enums.ErrorCode;
 import com.example.device.common.exception.AppException;
 import com.example.device.dto.*;
 import com.example.device.model.Device;
+import com.example.device.model.DeviceType;
 import com.example.device.repository.DeviceRepository;
 import com.example.device.repository.DeviceTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     private Instant parseDateAsInstant(String date) {
         if (date == null || date.isBlank())
-            return null; //optional
+            return null;
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate parsed = LocalDate.parse(date, fmt);
         return parsed.atStartOfDay(ZoneOffset.UTC).toInstant();
@@ -65,12 +66,19 @@ public class DeviceServiceImpl implements DeviceService {
                 .then(); // proceed
     }
 
+    private Mono<DeviceType> validateDeviceType(String name, String role) {
+        return deviceTypeRepo.findByName(name)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.TYPE_NOT_FOUND)))
+                .flatMap(dt -> deviceTypeRepo.findByNameAndManagedBy(name, role)
+                        .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE_TYPE)))
+                );
+    }
+
     public Mono<ApiResponse> addDevice(AddDeviceDTO dto, String userId, String role) {
         return validateDevice(dto)
                 .filter(d -> isValidPurchaseDate(dto.getPurchaseDate()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_DATE)))
-                .flatMap(d -> deviceTypeRepo.findByNameAndManagedBy(d.getType(), role)
-                        .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_TYPE)))
+                .flatMap(d -> validateDeviceType(d.getType(), role)
                         .flatMap(deviceType ->
                                 validateSerialNumber(d.getSerialNumber())
                                         .then(Mono.just(
@@ -82,17 +90,31 @@ public class DeviceServiceImpl implements DeviceService {
                 .map(savedDevice -> new ApiResponse(savedDevice.getId()));
     }
 
-    public Mono<ApiResponse> updateDevice(AddDeviceDTO dto, String role, Integer id) {
-        return deviceRepo.findById(id) //can check NOT_FOUND first since only used by ADMIN/IT
+    private Mono<Void> validateUpdatedSerialNumber(String newSerial, String oldSerial) {
+        return Mono.just(newSerial)
+                .filter(s -> !s.equals(oldSerial))
+                .flatMap(this::validateSerialNumber) // check if new serial number already exists
+                .then();
+    }
+
+    public Mono<ApiResponse> updateDevice(AddDeviceDTO dto, String userId, String role, Integer id) {
+        return deviceRepo.findById(id) // check NOT_FOUND first since only used by ADMIN/IT
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .flatMap(existing -> validateDevice(dto)
-                        .flatMap(d -> deviceTypeRepo.findByNameAndManagedBy(d.getType(), role)
-                                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_TYPE)))
-                                .flatMap(deviceType -> {
-                                    existing.setName(d.getName());
-                                    existing.setTypeId(deviceType.getId());
-                                    return deviceRepo.save(existing);
-                                })
+                        .flatMap(d -> validateDeviceType(d.getType(), role)
+                                .flatMap(deviceType ->
+                                        validateUpdatedSerialNumber(d.getSerialNumber(), existing.getSerialNumber())
+                                                .then(Mono.defer(() -> {
+                                                    existing.setName(d.getName());
+                                                    existing.setTypeId(deviceType.getId());
+                                                    existing.setSerialNumber(d.getSerialNumber());
+                                                    existing.setManufacturer(d.getManufacturer());
+                                                    existing.setPurchasePrice(d.getPurchasePrice());
+                                                    existing.setPurchaseDate(parseDateAsInstant(d.getPurchaseDate()));
+                                                    existing.setUpdatedBy(Integer.valueOf(userId));
+                                                    return deviceRepo.save(existing);
+                                                }))
+                                )
                         )
                 )
                 .map(updated -> new ApiResponse(updated.getId()));
@@ -110,6 +132,13 @@ public class DeviceServiceImpl implements DeviceService {
         return deviceRepo.findAllByManagedBy(role)
                 .collectList()
                 .map(DeviceResponse::new); // Only return list of devices managed by current user
+    }
+
+    public Mono<TypeResponse> viewAllDeviceTypes(String role) {
+        return deviceTypeRepo.findAllNamesByManagedBy(role)
+                .collectList()
+                .defaultIfEmpty(List.of())
+                .map(TypeResponse::new);
     }
 
     private boolean isBlankParams(String name, String type) {

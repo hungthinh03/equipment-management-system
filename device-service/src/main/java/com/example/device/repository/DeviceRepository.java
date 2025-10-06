@@ -16,7 +16,7 @@ import java.util.UUID;
 @Repository
 public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer>{
 
-    @Query("SELECT d.id, d.uuid, d.name, dt.name AS type, d.status, d.assigned_to, d.created_at, d.updated_at " +
+    @Query("SELECT d.*, dt.name AS type " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
@@ -30,28 +30,31 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
             "WHERE d.id = :id AND dc.managed_by = :role")
     Mono<Device> findDeviceByIdAndManagedBy(Integer id, String role);
 
-    @Query("SELECT d.id, d.uuid, d.name, dt.name AS type, d.status, d.assigned_to, d.created_at, d.updated_at " +
+    @Query("SELECT d.*, dt.name AS type " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
-            "WHERE dc.managed_by = :role")
+            "WHERE dc.managed_by = :role " +
+            "ORDER BY CASE WHEN d.status = 'DECOMMISSIONED' THEN 1 ELSE 0 END, d.updated_at DESC")
     Flux<ViewDeviceDTO> findAllByManagedBy(String role);
 
 
-    @Query("SELECT d.uuid, d.name, dt.name AS type, dc.name AS category, d.status, d.updated_at " +
+    @Query("SELECT d.uuid, d.name, dt.name AS type, dc.name AS category, d.manufacturer, d.status, d.updated_at " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
             "WHERE (:name IS NULL OR d.name ILIKE CONCAT('%', :name, '%')) " +
-            "AND (:type IS NULL OR dt.name ILIKE :type)")
+            "AND (:type IS NULL OR dt.name ILIKE :type) " +
+            "AND d.status <> 'DECOMMISSIONED'")
     Flux<SearchResultDTO> searchByParameter(@Param("name") String name,
                                             @Param("type") String type);
 
-    @Query("SELECT d.uuid, d.name, dt.name AS type, dc.name AS category, d.status, d.updated_at " +
+    @Query("SELECT d.uuid, d.name, dt.name AS type, dc.name AS category, d.manufacturer, d.status, d.updated_at " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
-            "WHERE d.uuid = :uuid")
+            "WHERE d.uuid = :uuid " +
+            "AND d.status <> 'DECOMMISSIONED'")
     Mono<SearchResultDTO> searchByUuid(UUID uuid);
 
     Mono<Device> findByUuid(UUID uuid);
