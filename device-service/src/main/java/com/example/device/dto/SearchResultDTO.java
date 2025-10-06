@@ -16,11 +16,8 @@ public class SearchResultDTO {
     private String name;
     private String type;
     private String category;
+    private String manufacturer;
     private String status;
     private Instant updatedAt;
 
-    public SearchResultDTO(String uuid, String category) {
-        this.uuid = uuid;
-        this.category = category;
-    }
 }

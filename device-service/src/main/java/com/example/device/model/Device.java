@@ -63,6 +63,9 @@ public class Device {
     @Column("updated_at")
     private Instant updatedAt;
 
+    @Column("updated_by")
+    private Integer updatedBy;
+
     @Column("decommission_at")
     private Instant decommissionAt;
 
@@ -75,6 +78,7 @@ public class Device {
         this.purchasePrice = dto.getPurchasePrice();
         this.purchaseDate = date;
         this.createdBy = userId;
+        this.updatedBy = userId;
     }
 
 }
