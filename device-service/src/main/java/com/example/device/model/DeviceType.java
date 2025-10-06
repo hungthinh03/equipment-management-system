@@ -20,7 +20,4 @@ public class DeviceType {
     @Column("name")
     private String name;
 
-    @Column("category")
-    private Integer category;
-
 }

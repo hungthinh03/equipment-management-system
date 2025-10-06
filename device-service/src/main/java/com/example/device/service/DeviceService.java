@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 public interface DeviceService {
     Mono<ApiResponse> addDevice(AddDeviceDTO dto, String userId, String role);
 
-    Mono<ApiResponse> updateDevice(AddDeviceDTO request, String role, Integer id);
+    Mono<ApiResponse> updateDevice(AddDeviceDTO request, String userId, String role, Integer id);
 
     Mono<DeviceResponse> viewDevice(String role, Integer id);
 
@@ -21,4 +21,6 @@ public interface DeviceService {
     Mono<ApiResponse> decommissionDevice(String role, Integer id);
 
     Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String role, String uuid);
+
+    Mono<TypeResponse> viewAllDeviceTypes(String role);
 }

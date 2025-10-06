@@ -31,10 +31,11 @@ public class DeviceController {
 
     @PutMapping("/{id}")
     public Mono<ApiResponse> updateDevice(@RequestBody AddDeviceDTO request,
+                                          @RequestHeader("X-User-Id") String userId,
                                           @RequestHeader("X-User-Role") String role,
                                           @PathVariable Integer id) {
         return validateRole(role)
-                .flatMap(r -> deviceService.updateDevice(request, r, id));
+                .flatMap(r -> deviceService.updateDevice(request, userId, r, id));
     }
 
     @GetMapping("/{id}")
@@ -48,6 +49,12 @@ public class DeviceController {
     public Mono<DeviceResponse> viewAllDevices(@RequestHeader("X-User-Role") String role) {
         return validateRole(role)
                 .flatMap(r -> deviceService.viewAllDevices(r));
+    }
+
+    @GetMapping("/type")
+    public Mono<TypeResponse> viewAllDeviceTypes(@RequestHeader("X-User-Role") String role) {
+        return validateRole(role)
+                .flatMap(r -> deviceService.viewAllDeviceTypes(r));
     }
 
     @GetMapping("/search")
