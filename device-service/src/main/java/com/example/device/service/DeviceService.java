@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 
 public interface DeviceService {
-    Mono<ApiResponse> addDevice(AddDeviceDTO dto, String role);
+    Mono<ApiResponse> addDevice(AddDeviceDTO dto, String userId, String role);
 
     Mono<ApiResponse> updateDevice(AddDeviceDTO request, String role, Integer id);
 

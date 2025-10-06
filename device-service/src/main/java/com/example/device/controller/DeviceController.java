@@ -23,9 +23,10 @@ public class DeviceController {
 
     @PostMapping
     public Mono<ApiResponse> addDevice(@RequestBody AddDeviceDTO request,
+                                       @RequestHeader("X-User-Id") String userId,
                                        @RequestHeader("X-User-Role") String role) {
         return validateRole(role)
-                .flatMap(r -> deviceService.addDevice(request, r));
+                .flatMap(r -> deviceService.addDevice(request, userId, r));
     }
 
     @PutMapping("/{id}")

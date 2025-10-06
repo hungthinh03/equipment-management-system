@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class Device {
     private Integer ownedBy; // userId if BYOD, else null
 
     @Column("purchase_price")
-    private Double purchasePrice;
+    private BigDecimal purchasePrice;
 
     @Column("purchase_date")
     private Instant purchaseDate;
@@ -66,9 +67,14 @@ public class Device {
     private Instant decommissionAt;
 
 
-    public Device(AddDeviceDTO dto, Integer typeId) {
+    public Device(AddDeviceDTO dto, Integer typeId, Instant date, Integer userId) {
         this.name = dto.getName();
         this.typeId = typeId;
+        this.serialNumber = dto.getSerialNumber();
+        this.manufacturer = dto.getManufacturer();
+        this.purchasePrice = dto.getPurchasePrice();
+        this.purchaseDate = date;
+        this.createdBy = userId;
     }
 
 }

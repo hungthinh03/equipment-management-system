@@ -55,5 +55,7 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
     Mono<SearchResultDTO> searchByUuid(UUID uuid);
 
     Mono<Device> findByUuid(UUID uuid);
+
+    Mono<Device> findBySerialNumber(String serialNumber);
 }
 

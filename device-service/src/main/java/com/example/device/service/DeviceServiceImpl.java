@@ -10,8 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -25,19 +29,56 @@ public class DeviceServiceImpl implements DeviceService {
     private DeviceTypeRepository deviceTypeRepo;
 
     private Mono<AddDeviceDTO> validateDevice(AddDeviceDTO dto) {
-        return Mono.justOrEmpty(dto) // stream of elements ["a", "b", "c"]
-                .filter(d -> Stream.of(d.getName(), d.getType()).allMatch(Objects::nonNull))
-                .filter(d -> Stream.of(d.getName(), d.getType()).noneMatch(String::isBlank))
+        return Mono.justOrEmpty(dto)
+                .filter(d -> Stream.of(
+                                d.getName(),
+                                d.getType(),
+                                d.getSerialNumber(),
+                                d.getManufacturer(),
+                                d.getPurchaseDate()
+                        ).allMatch(s -> s != null && !s.isBlank())
+                                && d.getPurchasePrice() != null
+                )
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.MISSING_FIELDS)));
     }
 
-    //
-    public Mono<ApiResponse> addDevice(AddDeviceDTO dto, String role) {
+    private boolean isValidPurchaseDate(String date) {
+        try {
+            parseDateAsInstant(date);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    private Instant parseDateAsInstant(String date) {
+        if (date == null || date.isBlank())
+            return null; //optional
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate parsed = LocalDate.parse(date, fmt);
+        return parsed.atStartOfDay(ZoneOffset.UTC).toInstant();
+    }
+
+    private Mono<Void> validateSerialNumber(String serialNumber) {
+        return deviceRepo.findBySerialNumber(serialNumber)
+                .flatMap(existing -> Mono.error(new AppException(ErrorCode.DUPLICATE_SERIAL)))
+                .then(); // proceed
+    }
+
+    public Mono<ApiResponse> addDevice(AddDeviceDTO dto, String userId, String role) {
         return validateDevice(dto)
+                .filter(d -> isValidPurchaseDate(dto.getPurchaseDate()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_DATE)))
                 .flatMap(d -> deviceTypeRepo.findByNameAndManagedBy(d.getType(), role)
                         .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_TYPE)))
+                        .flatMap(deviceType ->
+                                validateSerialNumber(d.getSerialNumber())
+                                        .then(Mono.just(
+                                                new Device(d, deviceType.getId(),
+                                                        parseDateAsInstant(d.getPurchaseDate()), Integer.valueOf(userId))))
+                        )
                 )
-                .flatMap(deviceType -> deviceRepo.save(new Device(dto, deviceType.getId())))
+                .flatMap(deviceRepo::save)
                 .map(savedDevice -> new ApiResponse(savedDevice.getId()));
     }
 
