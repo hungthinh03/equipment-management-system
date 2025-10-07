@@ -127,13 +127,14 @@ public class RequestServiceImpl implements RequestService {
                                 return Mono.error(new AppException(ErrorCode.DEVICE_UNAVAILABLE));
                             }
                             if ("GENERAL".equalsIgnoreCase(device.getCategory())) {
+                                applyInfoAdmin(request, userId, comment, Instant.now()); //sign request with admin info
                                 request.setStatus("APPROVED"); // when IT approval not needed
                                 return updateDeviceAssignment(
                                         request,
                                         new UpdateAssignmentDTO("ASSIGNED", request.getRequesterId()),
                                         authHeader);
                             }
-                            applyInfoAdmin(request, userId, comment, Instant.now()); //sign request with admin info
+                            applyInfoAdmin(request, userId, comment, Instant.now());
                             return Mono.just(request); // else stays PENDING for IT approval
                         });
             } // IT
