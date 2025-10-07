@@ -14,13 +14,15 @@ public interface DeviceService {
 
     Mono<DeviceResponse> viewAllDevices(String role);
 
+    Mono<TypeResponse> viewAllDeviceTypes(String role);
+
     Mono<SearchResponse> searchDevices(String name, String type);
 
     Mono<SearchResponse> viewDeviceByUuid(String uuid);
 
-    Mono<ApiResponse> decommissionDevice(String role, Integer id);
+    Mono<ApiResponse> updateDeviceMaintenance(Boolean maintenance, String userId, String role, Integer id);
 
-    Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String role, String uuid);
+    Mono<ApiResponse> decommissionDevice(String userId, String role, Integer id);
 
-    Mono<TypeResponse> viewAllDeviceTypes(String role);
+    Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String userId, String uuid);
 }

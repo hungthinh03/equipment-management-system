@@ -100,6 +100,8 @@ public class DeviceServiceImpl implements DeviceService {
     public Mono<ApiResponse> updateDevice(AddDeviceDTO dto, String userId, String role, Integer id) {
         return deviceRepo.findById(id) // check NOT_FOUND first since only used by ADMIN/IT
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(device -> !"DECOMMISSIONED".equalsIgnoreCase(device.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(existing -> validateDevice(dto)
                         .flatMap(d -> validateDeviceType(d.getType(), role)
                                 .flatMap(deviceType ->
@@ -171,27 +173,53 @@ public class DeviceServiceImpl implements DeviceService {
                 .map(SearchResponse::new);
     }
 
-    public Mono<ApiResponse> decommissionDevice(String role, Integer id) {
+    public Mono<ApiResponse> updateDeviceMaintenance(Boolean maintenance, String userId, String role, Integer id) {
+        return Mono.justOrEmpty(maintenance)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.MISSING_FIELDS)))
+                .then(deviceRepo.findById(id)
+                        .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                        .then(deviceRepo.findDeviceByIdAndManagedBy(id, role)
+                                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE))))
+                        .filter(device ->
+                                maintenance && "AVAILABLE".equals(device.getStatus()) ||
+                                !maintenance && "MAINTENANCE".equals(device.getStatus()))
+                        .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                        .flatMap(device -> {
+                            device.setStatus(maintenance ? "MAINTENANCE" : "AVAILABLE");
+                            device.setUpdatedBy(Integer.valueOf(userId));
+                            return deviceRepo.save(device);
+                        })
+                        .map(saved -> new ApiResponse(saved.getId())));
+    }
+
+    public Mono<ApiResponse> decommissionDevice(String userId, String role, Integer id) {
         return deviceRepo.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .then(deviceRepo.findDeviceByIdAndManagedBy(id, role)
                         .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE))))
+                .filter(device -> "AVAILABLE".equals(device.getStatus())
+                        || "MAINTENANCE".equals(device.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(device -> {
                     device.setStatus("DECOMMISSIONED");
+                    device.setUpdatedBy(Integer.valueOf(userId));
                     return deviceRepo.save(device);
                 })
                 .map(updated -> new ApiResponse(updated.getId()));
     }
 
-    public Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String role, String uuid) {
+    public Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String userId, String uuid) {
         return validateUuid(uuid)
                 .flatMap(deviceRepo::findByUuid)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(device -> !"DECOMMISSIONED".equals(device.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(existing -> List.of("AVAILABLE", "ASSIGNED").contains(dto.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_STATUS)))
                 .flatMap(existing -> {
                     existing.setStatus(dto.getStatus());
                     existing.setAssignedTo(dto.getAssignedTo());
+                    existing.setUpdatedBy(Integer.valueOf(userId));
                     return deviceRepo.save(existing);
                 })
                 .map(updated -> new ApiResponse(updated.getId()));

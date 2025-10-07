@@ -68,23 +68,34 @@ public class DeviceController {
         return deviceService.viewDeviceByUuid(uuid);
     }
 
+    @PutMapping("/maintenance/{id}")
+    public Mono<ApiResponse> updateDeviceMaintenance(@RequestBody MaintenanceDTO request,
+                                                     @RequestHeader("X-User-Id") String userId,
+                                                     @RequestHeader("X-User-Role") String role,
+                                                     @PathVariable Integer id) {
+        return validateRole(role)
+                .flatMap(r -> deviceService.updateDeviceMaintenance(request.getMaintenance(), userId, r, id));
+    }
+
     @DeleteMapping("/{id}")
-    public Mono<ApiResponse> decommissionDevice(@RequestHeader("X-User-Role") String role,
+    public Mono<ApiResponse> decommissionDevice(@RequestHeader("X-User-Id") String userId,
+                                                @RequestHeader("X-User-Role") String role,
                                                 @PathVariable Integer id) {
         return validateRole(role)
-                .flatMap(r -> deviceService.decommissionDevice(r, id));
+                .flatMap(r -> deviceService.decommissionDevice(userId, r, id));
     }
 
     @PutMapping("/by-uuid/{uuid}")
     public Mono<ApiResponse> updateDeviceAssignment(@RequestBody UpdateStatusDTO dto,
-                                                @RequestHeader("X-User-Role") String role,
-                                                @RequestHeader(value = "X-Service-Source", required = false) String source,
-                                                @PathVariable String uuid) {
+                                                    @RequestHeader("X-User-Id") String userId,
+                                                    @RequestHeader("X-User-Role") String role,
+                                                    @RequestHeader(value = "X-Service-Source", required = false) String source,
+                                                    @PathVariable String uuid) {
         return Mono.justOrEmpty(source)
                 .filter("request-service"::equalsIgnoreCase)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
                 .then(validateRole(role))
-                .flatMap(r -> deviceService.updateDeviceAssignment(dto, r, uuid));
+                .flatMap(r -> deviceService.updateDeviceAssignment(dto, userId, uuid));
     }
 
 
