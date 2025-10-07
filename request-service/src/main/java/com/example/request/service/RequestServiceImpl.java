@@ -36,7 +36,7 @@ public class RequestServiceImpl implements RequestService {
     private Mono<DeviceStatusDTO> getDeviceByUuid(String uuid, String authHeader) {
         return validateUuid(uuid)
                 .flatMap(validUuid ->
-                        webClient.get()
+                        webClient.get() //web request service
                                 .uri("http://localhost:8081/device/by-uuid/{uuid}", validUuid)
                                 .header("Authorization", authHeader)
                                 .header("X-Service-Source", "request-service")

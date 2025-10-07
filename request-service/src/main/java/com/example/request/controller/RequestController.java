@@ -28,7 +28,7 @@ public class RequestController {
     public Mono<ApiResponse> createRequest(@RequestBody CreateRequestDTO request,
                                            @RequestHeader("X-User-Id") String userId,
                                            @RequestHeader("Authorization") String authHeader) {
-        return requestService.createRequest(request, userId, authHeader);
+        return requestService.createRequest(request, userId, authHeader); //more powerful manager
     }
 
     @GetMapping
@@ -61,7 +61,7 @@ public class RequestController {
                 .flatMap(r -> requestService.resolveRequest(request, id, userId, r, authHeader));
     }
 
-
+    //@
     @PostMapping("/request-close/{id}")
     public Mono<ApiResponse> submitCloseRequest(@PathVariable Integer id,
                                                 @RequestHeader("X-User-Id") String userId) {
