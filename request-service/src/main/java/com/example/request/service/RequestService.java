@@ -14,16 +14,19 @@ public interface RequestService {
 
     Mono<ApiResponse> resolveRequest(ResolveRequestDTO request, Integer id, String userId, String role, String authHeader);
 
+    Mono<RequestResponse> viewAllPendingAssignments(String role);
+
     Mono<ApiResponse> confirmDeviceAssignment(Integer id, String role, String authHeader);
 
-    Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader);
+    Mono<ApiResponse> submitReturnNotice(Integer id, String userId);
 
-    Mono<ApiResponse> submitCloseRequest(Integer id, String userId);
+    Mono<RequestResponse> viewAllReturnNotices(String userId, String role);
 
-    Mono<RequestResponse> viewAllClosableRequests(String userId, String role);
+    Mono<RequestResponse> viewReturnNotice(Integer id, String userId, String role);
 
-    Mono<RequestResponse> viewClosableRequest(Integer id, String userId, String role);
+    Mono<ApiResponse> confirmReturnNotice(Integer id, String userId, String role, String authHeader);
 
     Mono<RequestResponse> viewMyProcessedRequests(String userId);
+
 
 }

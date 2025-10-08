@@ -181,6 +181,14 @@ public class RequestServiceImpl implements RequestService {
         }
     }
 
+    public Mono<RequestResponse> viewAllPendingAssignments(String role) {
+        return requestRepository.findAllByStatus("APPROVED")
+                .filter(request -> canConfirmAssignment(request, role))
+                .map(RequestDTO::new)
+                .collectList()
+                .map(RequestResponse::new);
+    }
+
     public Mono<ApiResponse> confirmDeviceAssignment(Integer id, String role, String authHeader) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
@@ -204,7 +212,7 @@ public class RequestServiceImpl implements RequestService {
         return request.getProcessedByIt() != null; // Network requests
     }
 
-    public Mono<ApiResponse> submitCloseRequest(Integer id, String userId) {
+    public Mono<ApiResponse> submitReturnNotice(Integer id, String userId) {
         return requestRepository.findById(id)
                 .filter(req -> req.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED))) // Can only submit for own requests
@@ -219,7 +227,7 @@ public class RequestServiceImpl implements RequestService {
                 .map(req -> new ApiResponse(req.getId()));
     }
 
-    public Mono<RequestResponse> viewAllClosableRequests(String userId, String role) {
+    public Mono<RequestResponse> viewAllReturnNotices(String userId, String role) {
         return requestRepository.findByRequestedToCloseAtIsNotNull()
                 .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus()))
                 .filter(req -> canCloseRequest(req, role))
@@ -229,7 +237,7 @@ public class RequestServiceImpl implements RequestService {
                 .map(RequestResponse::new);
     }
 
-    public Mono<RequestResponse> viewClosableRequest(Integer id, String userId, String role) {
+    public Mono<RequestResponse> viewReturnNotice(Integer id, String userId, String role) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(req -> req.getRequestedToCloseAt() != null
@@ -242,7 +250,7 @@ public class RequestServiceImpl implements RequestService {
                 .map(req -> new RequestResponse(List.of(req)));
     }
 
-    public Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader) {
+    public Mono<ApiResponse> confirmReturnNotice(Integer id, String userId, String role, String authHeader) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus())

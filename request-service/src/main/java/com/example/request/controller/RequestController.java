@@ -61,40 +61,53 @@ public class RequestController {
                 .flatMap(r -> requestService.resolveRequest(request, id, userId, r, authHeader));
     }
 
-    //@
-    @PostMapping("/request-close/{id}")
-    public Mono<ApiResponse> submitCloseRequest(@PathVariable Integer id,
-                                                @RequestHeader("X-User-Id") String userId) {
-        return requestService.submitCloseRequest(id, userId);
+    @GetMapping("/assign")
+    public Mono<RequestResponse> viewAllPendingAssignments(@RequestHeader("X-User-Role") String role) {
+        return validateRole(role)
+                .flatMap(r -> requestService.viewAllPendingAssignments(r));
     }
 
-    @GetMapping("/close")
-    public Mono<RequestResponse> viewAllClosableRequests(@RequestHeader("X-User-Id") String userId,
+    @PostMapping("/assign/{id}")
+    public Mono<ApiResponse> confirmDeviceAssignment(@PathVariable Integer id,
+                                                     @RequestHeader("X-User-Role") String role,
+                                                     @RequestHeader("Authorization") String authHeader) {
+        return validateRole(role)
+                .flatMap(r -> requestService.confirmDeviceAssignment(id, r, authHeader));
+    }
+
+    @PostMapping("/return/{id}")
+    public Mono<ApiResponse> submitReturnNotice(@PathVariable Integer id,
+                                                @RequestHeader("X-User-Id") String userId) {
+        return requestService.submitReturnNotice(id, userId);
+    }
+
+    @GetMapping("/return")
+    public Mono<RequestResponse> viewAllReturnNotices(@RequestHeader("X-User-Id") String userId,
                                                          @RequestHeader("X-User-Role") String role) {
         return validateRole(role)
-                .flatMap(r -> requestService.viewAllClosableRequests(userId, r));
+                .flatMap(r -> requestService.viewAllReturnNotices(userId, r));
     }
 
-    @GetMapping("/close/{id}")
-    public Mono<RequestResponse> viewClosableRequest(@PathVariable Integer id,
+    @GetMapping("/return/{id}")
+    public Mono<RequestResponse> viewReturnNotice(@PathVariable Integer id,
                                                      @RequestHeader("X-User-Id") String userId,
                                                      @RequestHeader("X-User-Role") String role) {
         return validateRole(role)
-                .flatMap(r -> requestService.viewClosableRequest(id, userId, r));
+                .flatMap(r -> requestService.viewReturnNotice(id, userId, r));
     }
 
-    @PostMapping("/close/{id}")
-    public Mono<ApiResponse> closeRequest(@PathVariable Integer id,
+    @PostMapping("/return/{id}/confirm")
+    public Mono<ApiResponse> confirmReturnNotice(@PathVariable Integer id,
                                           @RequestHeader("X-User-Id") String userId,
                                           @RequestHeader("X-User-Role") String role,
                                           @RequestHeader("Authorization") String authHeader) {
         return validateRole(role)
-                .flatMap(r -> requestService.closeRequest(id, userId, r, authHeader));
+                .flatMap(r -> requestService.confirmReturnNotice(id, userId, r, authHeader));
     }
 
     @GetMapping("/processed")
     public Mono<RequestResponse> viewMyProcessedRequests(@RequestHeader("X-User-Id") String userId,
-                                                         @RequestHeader("X-User-Role") String role) {
+                                                     @RequestHeader("X-User-Role") String role) {
         return validateRole(role)
                 .flatMap(r -> requestService.viewMyProcessedRequests(userId));
     }
