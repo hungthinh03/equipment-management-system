@@ -189,13 +189,15 @@ public class RequestServiceImpl implements RequestService {
                 .map(RequestResponse::new);
     }
 
-    public Mono<ApiResponse> confirmDeviceAssignment(Integer id, String role, String authHeader) {
+    public Mono<ApiResponse> confirmDeviceAssignment(Integer id, String userId, String role, String authHeader) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canConfirmAssignment(request, role))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(request -> {
                     request.setStatus("DELIVERED");
+                    request.setDeliveredAt(Instant.now());
+                    request.setDeliveredBy(Integer.valueOf(userId));
                     return updateDeviceAssignment(
                             request,
                             new UpdateAssignmentDTO("ASSIGNED", request.getRequesterId()),
@@ -218,10 +220,10 @@ public class RequestServiceImpl implements RequestService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED))) // Can only submit for own requests
                 .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
-                .filter(req -> req.getRequestedToCloseAt() == null)
+                .filter(req -> req.getReturnSubmittedAt() == null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.ALREADY_REQUESTED_CLOSE)))
                 .flatMap(req -> {
-                    req.setRequestedToCloseAt(Instant.now());
+                    req.setReturnSubmittedAt(Instant.now());
                     return requestRepository.save(req);
                 })
                 .map(req -> new ApiResponse(req.getId()));
@@ -240,7 +242,7 @@ public class RequestServiceImpl implements RequestService {
     public Mono<RequestResponse> viewReturnNotice(Integer id, String userId, String role) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(req -> req.getRequestedToCloseAt() != null
+                .filter(req -> req.getReturnSubmittedAt() != null
                         && "DELIVERED".equalsIgnoreCase(req.getStatus()))  // is closable
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(req -> canCloseRequest(req, role))      // role check
@@ -254,7 +256,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus())
-                        && req.getRequestedToCloseAt() != null)
+                        && req.getReturnSubmittedAt() != null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(req -> canCloseRequest(req, role)
                         && !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
@@ -267,7 +269,6 @@ public class RequestServiceImpl implements RequestService {
                 .map(req -> {
                     req.setStatus("CLOSED");
                     req.setClosedBy(Integer.valueOf(userId));
-                    req.setClosedAt(Instant.now());
                     return req;
                 })
                 .flatMap(requestRepository::save)

@@ -16,7 +16,7 @@ public interface RequestService {
 
     Mono<RequestResponse> viewAllPendingAssignments(String role);
 
-    Mono<ApiResponse> confirmDeviceAssignment(Integer id, String role, String authHeader);
+    Mono<ApiResponse> confirmDeviceAssignment(Integer id, String userId, String role, String authHeader);
 
     Mono<ApiResponse> submitReturnNotice(Integer id, String userId);
 

@@ -69,10 +69,11 @@ public class RequestController {
 
     @PostMapping("/assign/{id}")
     public Mono<ApiResponse> confirmDeviceAssignment(@PathVariable Integer id,
+                                                     @RequestHeader("X-User-Id") String userId,
                                                      @RequestHeader("X-User-Role") String role,
                                                      @RequestHeader("Authorization") String authHeader) {
         return validateRole(role)
-                .flatMap(r -> requestService.confirmDeviceAssignment(id, r, authHeader));
+                .flatMap(r -> requestService.confirmDeviceAssignment(id, userId, r, authHeader));
     }
 
     @PostMapping("/return/{id}")

@@ -22,9 +22,10 @@ public class RequestDTO {
     private Integer processedByIt;
     private Instant itProcessedAt;
     private String itComment;
-    private Instant requestedToCloseAt;
-    private Integer closeBy;
-    private Instant closeAt;
+    private Integer deliveredBy;
+    private Instant deliveredAt;
+    private Instant returnSubmittedAt;
+    private Integer closedBy;
 
     public RequestDTO(Request request)
     {
@@ -40,8 +41,9 @@ public class RequestDTO {
         this.processedByIt = request.getProcessedByIt();
         this.itProcessedAt = request.getItProcessedAt();
         this.itComment = request.getItComment();
-        this.requestedToCloseAt = request.getRequestedToCloseAt();
-        this.closeBy = request.getClosedBy();
-        this.closeAt = request.getClosedAt();
+        this.deliveredBy = request.getDeliveredBy();
+        this.deliveredAt = request.getDeliveredAt();
+        this.returnSubmittedAt = request.getReturnSubmittedAt();
+        this.closedBy = request.getClosedBy();
     }
 }

@@ -16,8 +16,7 @@ public class ViewMyRequestDTO {
     private String status;           // PENDING, APPROVED, REJECTED, CLOSED
     private Instant createdAt;
     private Instant UpdatedAt;
-    private Instant requestedToCloseAt;
-    private Instant closedAt;
+    private Instant returnSubmittedAt;
 
     public ViewMyRequestDTO(Request request) {
         this.id = request.getId();
@@ -26,7 +25,6 @@ public class ViewMyRequestDTO {
         this.status = request.getStatus();
         this.createdAt = request.getCreatedAt();
         this.UpdatedAt = request.getUpdatedAt();
-        this.requestedToCloseAt = request.getRequestedToCloseAt();
-        this.closedAt = request.getClosedAt();
+        this.returnSubmittedAt = request.getReturnSubmittedAt();
     }
 }

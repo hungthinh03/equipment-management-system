@@ -55,14 +55,17 @@ public class Request {
     @Column("it_comment")
     private String itComment;
 
-    @Column("requested_to_close_at")
-    private Instant requestedToCloseAt;
+    @Column("delivered_by")
+    private Integer deliveredBy;
+
+    @Column("delivered_at")
+    private Instant deliveredAt;
+
+    @Column("return_submitted_at")
+    private Instant returnSubmittedAt;
 
     @Column("closed_by")
     private Integer closedBy;
-
-    @Column("closed_at")
-    private Instant closedAt;
 
     public Request(String uuid, Integer userId, String reason)
     {
