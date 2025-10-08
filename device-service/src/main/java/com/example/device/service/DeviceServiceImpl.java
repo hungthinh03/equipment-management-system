@@ -100,7 +100,8 @@ public class DeviceServiceImpl implements DeviceService {
     public Mono<ApiResponse> updateDevice(AddDeviceDTO dto, String userId, String role, Integer id) {
         return deviceRepo.findById(id) // check NOT_FOUND first since only used by ADMIN/IT
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(device -> !"DECOMMISSIONED".equalsIgnoreCase(device.getStatus()))
+                .filter(device -> "AVAILABLE".equalsIgnoreCase(device.getStatus()) ||
+                        "MAINTENANCE".equalsIgnoreCase(device.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(existing -> validateDevice(dto)
                         .flatMap(d -> validateDeviceType(d.getType(), role)
@@ -214,7 +215,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(device -> !"DECOMMISSIONED".equals(device.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
-                .filter(existing -> List.of("AVAILABLE", "ASSIGNED").contains(dto.getStatus()))
+                .filter(existing -> List.of("AVAILABLE", "ASSIGNED", "RESERVED").contains(dto.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_STATUS)))
                 .flatMap(existing -> {
                     existing.setStatus(dto.getStatus());
