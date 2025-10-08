@@ -881,14 +881,14 @@ Each service will use its own database for storing and managing data related to 
 - **Device Service DB** - manages all device records, status, and assignment information.
 <img src="assets/device.jpg" style="width:100%;"/>
 
-  > Device status: 'AVAILABLE', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED'
+  > Device status: 'AVAILABLE', 'RESERVED', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED'
 
   > Device category: 'GENERAL', 'NETWORK'
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.
 <img src="assets/request.jpg" style="width:50%;"/>
 
-  > Request status: 'PENDING', 'APPROVED', 'REJECTED', 'CLOSED'
+  > Request status: 'PENDING', 'REJECTED', 'APPROVED', 'DELIVERED', 'CLOSED'
 
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
 
