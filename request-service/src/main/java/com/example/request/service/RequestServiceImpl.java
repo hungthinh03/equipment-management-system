@@ -230,7 +230,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public Mono<RequestResponse> viewAllReturnNotices(String userId, String role) {
-        return requestRepository.findByRequestedToCloseAtIsNotNull()
+        return requestRepository.findByReturnSubmittedAtIsNotNull()
                 .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus()))
                 .filter(req -> canCloseRequest(req, role))
                 .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests

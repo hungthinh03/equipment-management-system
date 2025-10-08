@@ -14,7 +14,7 @@ public interface RequestRepository extends ReactiveCrudRepository<Request, Integ
 
     Flux<Request> findByStatusAndProcessedByManagerIsNull(String status);
 
-    Flux<Request> findByRequestedToCloseAtIsNotNull();
+    Flux<Request> findByReturnSubmittedAtIsNotNull();
 
     Flux<Request> findByProcessedByManagerIsNotNull();
 
