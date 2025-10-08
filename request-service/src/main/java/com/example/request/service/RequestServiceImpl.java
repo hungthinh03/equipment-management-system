@@ -76,7 +76,7 @@ public class RequestServiceImpl implements RequestService {
                 .map(RequestResponse::new);
     }
 
-    private boolean canAccessRequest(Request request, String role) {
+    private boolean canAccessPendingRequest(Request request, String role) {
         if ("IT".equalsIgnoreCase(role)) {
             return "PENDING".equalsIgnoreCase(request.getStatus()) && request.getProcessedByManager() != null;
         }
@@ -88,7 +88,7 @@ public class RequestServiceImpl implements RequestService {
     public Mono<RequestResponse> viewPendingRequest(Integer id, String userId, String role) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(request -> canAccessRequest(request, role)) // also exclude own requests
+                .filter(request -> canAccessPendingRequest(request, role)) // also exclude own requests
                 .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .map(request -> new RequestResponse(List.of(new RequestDTO(request))));
@@ -131,7 +131,7 @@ public class RequestServiceImpl implements RequestService {
                                 request.setStatus("APPROVED"); // when IT approval not needed
                                 return updateDeviceAssignment(
                                         request,
-                                        new UpdateAssignmentDTO("ASSIGNED", request.getRequesterId()),
+                                        new UpdateAssignmentDTO("RESERVED", request.getRequesterId()),
                                         authHeader);
                             }
                             applyInfoAdmin(request, userId, comment, Instant.now());
@@ -141,7 +141,7 @@ public class RequestServiceImpl implements RequestService {
             applyInfoIt(request, userId, comment, Instant.now());
             request.setStatus("APPROVED");
             return updateDeviceAssignment(request,
-                    new UpdateAssignmentDTO("ASSIGNED", request.getRequesterId()),
+                    new UpdateAssignmentDTO("RESERVED", request.getRequesterId()),
                     authHeader);
         });
     }
@@ -163,11 +163,36 @@ public class RequestServiceImpl implements RequestService {
                                             String userId, String role, String authHeader) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(request -> canAccessRequest(request, role))
+                .filter(request -> canAccessPendingRequest(request, role))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(request -> dto.isApprove()
                         ? approveRequest(request, role, userId, dto.getComment(), authHeader)
                         : denyRequest(request, role, userId, dto.getComment()))
+                .flatMap(requestRepository::save)
+                .map(saved -> new ApiResponse(saved.getId()));
+    }
+
+    private boolean canConfirmAssignment(Request request, String role) {
+        if ("IT".equalsIgnoreCase(role)) {
+            return "APPROVED".equalsIgnoreCase(request.getStatus()) && request.getProcessedByIt() != null;
+        }
+        else {
+            return "APPROVED".equalsIgnoreCase(request.getStatus()) && request.getProcessedByIt() == null;
+        }
+    }
+
+    public Mono<ApiResponse> confirmDeviceAssignment(Integer id, String role, String authHeader) {
+        return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(request -> canConfirmAssignment(request, role))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .flatMap(request -> {
+                    request.setStatus("DELIVERED");
+                    return updateDeviceAssignment(
+                            request,
+                            new UpdateAssignmentDTO("ASSIGNED", request.getRequesterId()),
+                            authHeader);
+                })
                 .flatMap(requestRepository::save)
                 .map(saved -> new ApiResponse(saved.getId()));
     }
@@ -183,7 +208,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findById(id)
                 .filter(req -> req.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED))) // Can only submit for own requests
-                .filter(req -> "APPROVED".equalsIgnoreCase(req.getStatus()))
+                .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(req -> req.getRequestedToCloseAt() == null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.ALREADY_REQUESTED_CLOSE)))
@@ -196,7 +221,7 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<RequestResponse> viewAllClosableRequests(String userId, String role) {
         return requestRepository.findByRequestedToCloseAtIsNotNull()
-                .filter(req -> "APPROVED".equalsIgnoreCase(req.getStatus()))
+                .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus()))
                 .filter(req -> canCloseRequest(req, role))
                 .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
                 .map(RequestDTO::new)
@@ -208,7 +233,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(req -> req.getRequestedToCloseAt() != null
-                        && "APPROVED".equalsIgnoreCase(req.getStatus()))  // is closable
+                        && "DELIVERED".equalsIgnoreCase(req.getStatus()))  // is closable
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(req -> canCloseRequest(req, role))      // role check
                 .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own
@@ -220,7 +245,7 @@ public class RequestServiceImpl implements RequestService {
     public Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(req -> "APPROVED".equalsIgnoreCase(req.getStatus())
+                .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus())
                         && req.getRequestedToCloseAt() != null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(req -> canCloseRequest(req, role)

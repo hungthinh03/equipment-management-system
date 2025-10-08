@@ -14,6 +14,8 @@ public interface RequestService {
 
     Mono<ApiResponse> resolveRequest(ResolveRequestDTO request, Integer id, String userId, String role, String authHeader);
 
+    Mono<ApiResponse> confirmDeviceAssignment(Integer id, String role, String authHeader);
+
     Mono<ApiResponse> closeRequest(Integer id, String userId, String role, String authHeader);
 
     Mono<ApiResponse> submitCloseRequest(Integer id, String userId);
@@ -23,4 +25,5 @@ public interface RequestService {
     Mono<RequestResponse> viewClosableRequest(Integer id, String userId, String role);
 
     Mono<RequestResponse> viewMyProcessedRequests(String userId);
+
 }
