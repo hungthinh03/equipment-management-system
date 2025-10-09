@@ -1,6 +1,6 @@
 package com.example.device.common.exception;
 
-import com.example.device.dto.ApiResponse;
+import com.example.device.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

@@ -1,4 +1,4 @@
-package com.example.device.dto;
+package com.example.device.response;
 
 import lombok.Data;
 

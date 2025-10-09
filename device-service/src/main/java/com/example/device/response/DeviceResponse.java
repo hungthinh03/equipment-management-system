@@ -1,5 +1,6 @@
-package com.example.device.dto;
+package com.example.device.response;
 
+import com.example.device.dto.ViewDeviceDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
