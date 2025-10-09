@@ -1,4 +1,4 @@
-package com.example.request.dto;
+package com.example.request.response;
 
 import com.example.request.common.enums.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;

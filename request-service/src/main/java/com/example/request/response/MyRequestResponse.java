@@ -1,5 +1,6 @@
-package com.example.request.dto;
+package com.example.request.response;
 
+import com.example.request.dto.ViewMyRequestDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 

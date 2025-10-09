@@ -1,5 +1,6 @@
-package com.example.request.dto;
+package com.example.request.response;
 
+import com.example.request.dto.RequestDTO;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 

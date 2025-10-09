@@ -1,6 +1,9 @@
 package com.example.request.service;
 
 import com.example.request.dto.*;
+import com.example.request.response.ApiResponse;
+import com.example.request.response.MyRequestResponse;
+import com.example.request.response.RequestResponse;
 import reactor.core.publisher.Mono;
 
 public interface RequestService {
