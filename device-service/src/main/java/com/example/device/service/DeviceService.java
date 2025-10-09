@@ -16,7 +16,7 @@ public interface DeviceService {
 
     Mono<TypeResponse> viewAllDeviceTypes(String role);
 
-    Mono<SearchResponse> searchDevices(String name, String type);
+    Mono<SearchResponse> searchDevices(String name, String type, int page);
 
     Mono<SearchResponse> viewDeviceByUuid(String uuid);
 

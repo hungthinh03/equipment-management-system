@@ -55,8 +55,9 @@ public class DeviceController {
 
     @GetMapping("/search")
     public Mono<SearchResponse> searchDevices(@RequestParam(required = false) String name,
-                                              @RequestParam(required = false) String type) {
-        return deviceService.searchDevices(name, type);
+                                              @RequestParam(required = false) String type,
+                                              @RequestParam(defaultValue = "0") int page) {
+        return deviceService.searchDevices(name, type, page-1);
     }
 
     @GetMapping("/by-uuid/{uuid}")

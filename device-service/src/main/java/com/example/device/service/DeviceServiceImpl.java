@@ -149,14 +149,21 @@ public class DeviceServiceImpl implements DeviceService {
                 (type == null || type.isBlank());
     }
 
-    public Mono<SearchResponse> searchDevices(String name, String type) {
-        return Mono.defer(() ->
-                isBlankParams(name, type)
-                        ? Mono.just(new SearchResponse(List.of()))
-                        : deviceRepo.searchByParameter(name, type)
-                        .collectList()
-                        .map(SearchResponse::new)
-        );
+
+    public Mono<SearchResponse> searchDevices(String name, String type, int page) {
+        int size = 10; // results per page
+        int pageIndex = Math.max(page, 0); // min page = 0
+        return isBlankParams(name, type)
+                ? Mono.just(new SearchResponse(List.of(), pageIndex+1, size, 0))
+                : deviceRepo.searchByParameter(name, type)
+                .collectList()
+                .flatMap(devices -> {
+                    List<SearchResultDTO> pagedResults = devices.stream()
+                            .skip((long) pageIndex * size)
+                            .limit(size)
+                            .toList();
+                    return Mono.just(new SearchResponse(pagedResults, pageIndex+1, size, devices.size()));
+                });
     }
 
     private Mono<UUID> validateUuid(String uuid) {
@@ -171,7 +178,7 @@ public class DeviceServiceImpl implements DeviceService {
         return validateUuid(uuid)
                 .flatMap(deviceRepo::searchByUuid)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .map(SearchResponse::new);
+                .map(result -> new SearchResponse(List.of(result)));
     }
 
     public Mono<ApiResponse> updateDeviceMaintenance(Boolean maintenance, String userId, String role, Integer id) {
