@@ -9,4 +9,5 @@ public class CreateRegistryDTO {
     private String type;
     private String serialNumber;
     private String manufacturer;
+    private String reason;
 }

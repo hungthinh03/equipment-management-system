@@ -3,7 +3,9 @@ package com.example.request.service;
 import com.example.request.common.enums.ErrorCode;
 import com.example.request.common.exception.AppException;
 import com.example.request.dto.*;
+import com.example.request.model.Registry;
 import com.example.request.model.Request;
+import com.example.request.repository.RegistryRepository;
 import com.example.request.repository.RequestRepository;
 import com.example.request.response.ApiResponse;
 import com.example.request.response.DeviceResponse;
@@ -19,13 +21,14 @@ import java.util.UUID;
 
 @Service
 public class RequestServiceImpl implements RequestService {
-    //@Autowired
     RequestRepository requestRepository;
+    RegistryRepository registryRepository;
 
     private final WebClient webClient;
 
-    public RequestServiceImpl(RequestRepository requestRepository, WebClient.Builder webClientBuilder) {
+    public RequestServiceImpl(RequestRepository requestRepository, RegistryRepository registryRepository, WebClient.Builder webClientBuilder) {
         this.requestRepository = requestRepository;
+        this.registryRepository = registryRepository;
         this.webClient = webClientBuilder.baseUrl("http://device-service").build();
     }
 
@@ -313,6 +316,35 @@ public class RequestServiceImpl implements RequestService {
                 .map(RequestDTO::new)
                 .collectList()
                 .map(RequestResponse::new);
+    }
+
+    private Mono<Void> validateWithDeviceService(CreateRegistryDTO dto, String authHeader) {
+        return webClient.post()
+                .uri("http://localhost:8081/devices/registration/validate")
+                .header("Authorization", authHeader)
+                .header("X-Service-Source", "request-service")
+                .bodyValue(dto)
+                .retrieve()
+                .onStatus(status -> status.value() == 400,
+                        response ->
+                                Mono.error(new AppException(ErrorCode.INVALID_OPERATION))
+                )
+                .onStatus(status -> status.value() == 404,
+                        response ->
+                                Mono.error(new AppException(ErrorCode.INVALID_OPERATION))
+                )
+                .toBodilessEntity() // don't retrieve response
+                .then();
+    }
+
+    public Mono<ApiResponse> createRegistry(CreateRegistryDTO dto, String userId, String authHeader) {
+        return validateWithDeviceService(dto, authHeader)
+                .then(requestRepository.save( // fix uuid = "REGISTER"
+                        new Request("REGISTER", Integer.valueOf(userId), dto.getReason())))
+                .flatMap(savedRequest ->
+                        registryRepository.save(new Registry(savedRequest.getId(), dto))
+                                .thenReturn(new ApiResponse(savedRequest.getId()))
+                );
     }
 
 }

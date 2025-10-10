@@ -117,5 +117,12 @@ public class RequestController {
                                                          @RequestHeader("X-User-Role") String role) {
         return requestService.viewMyProcessedRequests(userId);
     }
+
+    @PostMapping("/register")
+    public Mono<ApiResponse> createRegistry(@RequestBody CreateRegistryDTO registry,
+                                            @RequestHeader("X-User-Id") String userId,
+                                            @RequestHeader("Authorization") String authHeader) {
+        return requestService.createRegistry(registry, userId, authHeader);
+    }
 }
 

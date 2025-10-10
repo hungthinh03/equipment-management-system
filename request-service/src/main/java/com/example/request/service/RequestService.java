@@ -34,4 +34,6 @@ public interface RequestService {
     Mono<ApiResponse> confirmReturnNotice(Integer id, String userId, String role, String authHeader);
 
     Mono<RequestResponse> viewMyProcessedRequests(String userId);
+
+    Mono<ApiResponse> createRegistry(CreateRegistryDTO registry, String userId, String authHeader);
 }

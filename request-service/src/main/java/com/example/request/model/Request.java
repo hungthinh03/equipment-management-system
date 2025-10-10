@@ -19,6 +19,9 @@ public class Request {
     @Column("id")
     private Integer id;
 
+    @Column("request_type")
+    private String requestType;     // ASSIGN or REGISTER
+
     @Column("device_uuid")
     private UUID deviceUuid;         // Public UUID for employee-facing API
 

@@ -1,5 +1,6 @@
 package com.example.request.model;
 
+import com.example.request.dto.CreateRegistryDTO;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
@@ -26,4 +27,13 @@ public class Registry {
 
     @Column("manufacturer")
     private String manufacturer;
+
+    public Registry(Integer requestId, CreateRegistryDTO dto) {
+        this.requestId = requestId;
+        this.name = dto.getName();
+        this.type = dto.getType();
+        this.serialNumber = dto.getSerialNumber();
+        this.manufacturer = dto.getManufacturer();
+    }
+
 }
