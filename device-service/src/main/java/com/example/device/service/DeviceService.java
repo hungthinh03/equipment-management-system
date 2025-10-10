@@ -29,4 +29,6 @@ public interface DeviceService {
     Mono<ApiResponse> decommissionDevice(String userId, String role, Integer id);
 
     Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String userId, String uuid);
+
+    Mono<ApiResponse> validateDeviceRegistration(RegistryDTO dto);
 }

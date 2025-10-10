@@ -99,5 +99,8 @@ public class DeviceController {
                 .flatMap(r -> deviceService.updateDeviceAssignment(dto, userId, uuid));
     }
 
-
+    @PutMapping("registration/validate")
+    public Mono<ApiResponse> validateDeviceRegistration(@RequestBody RegistryDTO dto) {
+        return deviceService.validateDeviceRegistration(dto);
+    }
 }

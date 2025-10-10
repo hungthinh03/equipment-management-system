@@ -17,6 +17,11 @@ public class ApiResponse {
         this.id = id;
     }
 
+    public ApiResponse(String message) {
+        this.status = "success";
+        this.message = message;
+    }
+
     public ApiResponse(ErrorCode errorCode) {
         this.status = "error";
         this.statusCode = errorCode.getCode();

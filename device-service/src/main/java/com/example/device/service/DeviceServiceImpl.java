@@ -237,5 +237,18 @@ public class DeviceServiceImpl implements DeviceService {
                 .map(updated -> new ApiResponse(updated.getId()));
     }
 
-
+    public Mono<ApiResponse> validateDeviceRegistration(RegistryDTO dto) {
+        return Mono.justOrEmpty(dto)
+                .filter(d -> Stream.of(
+                                d.getName(),
+                                d.getType(),
+                                d.getSerialNumber(),
+                                d.getManufacturer()
+                        ).allMatch(s -> s != null && !s.isBlank()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.MISSING_FIELDS))) //400
+                .flatMap(registry -> deviceTypeRepo.findByName(registry.getType()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.TYPE_NOT_FOUND))) //404
+                .flatMap(type -> validateSerialNumber(dto.getSerialNumber()))  //400
+                .thenReturn(new ApiResponse("Device is valid"));
+    }
 }
