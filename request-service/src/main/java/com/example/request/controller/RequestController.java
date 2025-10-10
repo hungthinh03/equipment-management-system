@@ -25,8 +25,20 @@ public class RequestController {
     }
 
     @GetMapping
-    public Mono<MyRequestResponse> viewMyRequests(@RequestHeader("X-User-Id") String userId) {
-        return requestService.viewMyRequests(userId);
+    public Mono<MyRequestResponse> viewAllMyRequests(@RequestHeader("X-User-Id") String userId) {
+        return requestService.viewAllMyRequests(userId);
+    }
+
+    @GetMapping("/{id}")
+    public Mono<MyRequestResponse> viewMyRequest(@PathVariable Integer id,
+                                                 @RequestHeader("X-User-Id") String userId) {
+        return requestService.viewMyRequest(id, userId);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public Mono<ApiResponse> cancelMyRequest(@PathVariable Integer id,
+                                             @RequestHeader("X-User-Id") String userId) {
+        return requestService.cancelMyRequest(id, userId);
     }
 
     @GetMapping("/pending")

@@ -49,8 +49,7 @@ public class RequestServiceImpl implements RequestService {
                                         response ->
                                                 Mono.error(new AppException(ErrorCode.DEVICE_NOT_FOUND)))
                                 .bodyToMono(DeviceResponse.class)
-                                .map(DeviceResponse::getResult)
-                );
+                                .map(DeviceResponse::getResult));
     }
 
     public Mono<ApiResponse> createRequest(CreateRequestDTO dto, String userId, String authHeader) {
@@ -63,11 +62,34 @@ public class RequestServiceImpl implements RequestService {
                 .map(saved -> new ApiResponse(saved.getId()));
     }
 
-    public Mono<MyRequestResponse> viewMyRequests(String userId) {
+    public Mono<MyRequestResponse> viewAllMyRequests(String userId) {
         return requestRepository.findByRequesterId(Integer.valueOf(userId))
                 .map(ViewMyRequestDTO::new)
                 .collectList()
                 .map(MyRequestResponse::new);
+    }
+
+    public Mono<MyRequestResponse> viewMyRequest(Integer id, String userId) {
+        return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(request -> request.getRequesterId().equals(Integer.valueOf(userId)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .map(ViewMyRequestDTO::new)
+                .map(request -> new MyRequestResponse(List.of(request)));
+    }
+
+    public Mono<ApiResponse> cancelMyRequest(Integer id, String userId) {
+        return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(request -> request.getRequesterId().equals(Integer.valueOf(userId)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .filter(request -> "PENDING".equalsIgnoreCase(request.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .flatMap(request -> {
+                    request.setStatus("CANCELLED");
+                    return requestRepository.save(request);
+                })
+                .map(saved -> new ApiResponse(saved.getId()));
     }
 
     public Mono<RequestResponse> viewAllPendingRequests(String userId, String role) {

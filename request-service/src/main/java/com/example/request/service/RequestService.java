@@ -9,7 +9,11 @@ import reactor.core.publisher.Mono;
 public interface RequestService {
     Mono<ApiResponse> createRequest(CreateRequestDTO request, String userId, String authHeader);
 
-    Mono<MyRequestResponse> viewMyRequests(String userId);
+    Mono<MyRequestResponse> viewAllMyRequests(String userId);
+
+    Mono<MyRequestResponse> viewMyRequest(Integer id, String userId);
+
+    Mono<ApiResponse> cancelMyRequest(Integer id, String userId);
 
     Mono<RequestResponse> viewAllPendingRequests(String userId, String role);
 
@@ -30,6 +34,4 @@ public interface RequestService {
     Mono<ApiResponse> confirmReturnNotice(Integer id, String userId, String role, String authHeader);
 
     Mono<RequestResponse> viewMyProcessedRequests(String userId);
-
-
 }
