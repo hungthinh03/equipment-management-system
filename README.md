@@ -1,7 +1,7 @@
 # Equipment Management System
 
 ## 1. Objective
-To design, develop, and deliver a **microservices-based RESTful API** that enables company-wide device management. The system is decomposed into independent services for authentication, device CRUD operations, request/approval workflows, and reporting, each running in its own container.
+To design, develop, and deliver a **microservices-based RESTful API** that enables company-wide equipment management. The system is decomposed into independent services for authentication, device CRUD operations, request/approval workflows, and reporting, each running in its own container.
 
 
 ## 2. Scope of Work
@@ -893,9 +893,16 @@ Each service will use its own database for storing and managing data related to 
 - **Report Service DB** - stores aggregated data and reporting snapshots.  
 
 
-## 6. Technical Specifications
+## 6. Workflow Overview
+
+The following diagram illustrates the complete equipment request lifecycle, from submission and approval to device delivery and closure, involving interactions between multiple services.
+
+<img src="assets/request_diagram.png" style="width:65%;"/>
+
+
+## 7. Technical Specifications
 - **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
-- **Service Communication:** REST APIs (optionally with an API Gateway).  
+- **Service Communication:** REST APIs (with an API Gateway).  
 - **Containerization:** Each service runs in its own Docker container.  
 - **Persistence:** Shared PostgreSQL (or per-service schema separation).  
 - **Scalability:** Services can be scaled independently.  
