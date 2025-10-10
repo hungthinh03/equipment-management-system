@@ -15,6 +15,7 @@ public class SearchResponse {
     private Integer size;
     private Integer totalItems;
     private List<SearchResultDTO> results;
+    private SearchResultDTO result; // exact response USED by request-service
 
     public SearchResponse(List<SearchResultDTO> results, Integer page, Integer size, Integer totalItems) {
         this.status = "success";
@@ -24,9 +25,9 @@ public class SearchResponse {
         this.totalItems = totalItems;
     }
 
-    public SearchResponse(List<SearchResultDTO> results) {
+    public SearchResponse(SearchResultDTO result) {
         this.status = "success";
-        this.results = results;
+        this.result = result;
     }
 
 }

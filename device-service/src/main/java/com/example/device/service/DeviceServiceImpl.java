@@ -182,7 +182,7 @@ public class DeviceServiceImpl implements DeviceService {
         return validateUuid(uuid)
                 .flatMap(deviceRepo::searchByUuid)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .map(result -> new SearchResponse(List.of(result)));
+                .map(SearchResponse::new);
     }
 
     public Mono<ApiResponse> updateDeviceMaintenance(Boolean maintenance, String userId, String role, Integer id) {
