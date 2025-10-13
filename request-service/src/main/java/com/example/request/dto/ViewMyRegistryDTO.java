@@ -15,7 +15,7 @@ public class ViewMyRegistryDTO {
     private Instant createdAt;
     private Instant UpdatedAt;
 
-    public ViewMyRegistryDTO(RegistryDTO dto) {
+    public ViewMyRegistryDTO(MyRegistryDTO dto) {
         this.requestId = dto.getRequestId();
         this.device = new RegisterDeviceDTO(
                 dto.getName(),

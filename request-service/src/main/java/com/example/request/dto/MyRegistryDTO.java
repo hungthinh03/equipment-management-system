@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.Instant;
 
 @Data
-public class RegistryDTO {
+public class MyRegistryDTO {
     private Integer requestId;
     private String name;                    // register device
     private String type;

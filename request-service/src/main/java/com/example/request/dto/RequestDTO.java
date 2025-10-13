@@ -11,6 +11,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestDTO {
     private Integer id;
+    private String requestType;
     private UUID deviceUuid;
     private Integer requesterId;
     private String reason;
@@ -30,6 +31,7 @@ public class RequestDTO {
     public RequestDTO(Request request)
     {
         this.id = request.getId();
+        this.requestType = request.getRequestType();
         this.deviceUuid = request.getDeviceUuid();
         this.requesterId = request.getRequesterId();
         this.reason = request.getReason();
