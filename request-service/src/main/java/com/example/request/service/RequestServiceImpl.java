@@ -60,7 +60,7 @@ public class RequestServiceImpl implements RequestService {
                 .filter(device -> "AVAILABLE".equalsIgnoreCase(device.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.DEVICE_UNAVAILABLE)))
                 .flatMap(device -> requestRepository.save(
-                        new Request(dto.getUuid(), Integer.valueOf(userId), dto.getReason())
+                        new Request("ASSIGN", dto.getUuid(), Integer.valueOf(userId), dto.getReason())
                 ))
                 .map(saved -> new ApiResponse(saved.getId()));
     }
@@ -318,33 +318,36 @@ public class RequestServiceImpl implements RequestService {
                 .map(RequestResponse::new);
     }
 
-    private Mono<Void> validateWithDeviceService(CreateRegistryDTO dto, String authHeader) {
+    private Mono<Void> validateDevice(CreateRegistryDTO dto, String authHeader) {
         return webClient.post()
-                .uri("http://localhost:8081/devices/registration/validate")
+                .uri("http://localhost:8081/device/registration/validate")
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "request-service")
                 .bodyValue(dto)
                 .retrieve()
                 .onStatus(status -> status.value() == 400,
                         response ->
-                                Mono.error(new AppException(ErrorCode.INVALID_OPERATION))
+                                Mono.error(new AppException(ErrorCode.MISSING_FIELDS))
                 )
                 .onStatus(status -> status.value() == 404,
                         response ->
-                                Mono.error(new AppException(ErrorCode.INVALID_OPERATION))
+                                Mono.error(new AppException(ErrorCode.TYPE_NOT_FOUND))
+                )
+                .onStatus(status -> status.value() == 409,
+                        response ->
+                                Mono.error(new AppException(ErrorCode.DUPLICATE_SERIAL))
                 )
                 .toBodilessEntity() // don't retrieve response
                 .then();
     }
 
     public Mono<ApiResponse> createRegistry(CreateRegistryDTO dto, String userId, String authHeader) {
-        return validateWithDeviceService(dto, authHeader)
-                .then(requestRepository.save( // fix uuid = "REGISTER"
+        return validateDevice(dto, authHeader)
+                .then(requestRepository.save(
                         new Request("REGISTER", Integer.valueOf(userId), dto.getReason())))
                 .flatMap(savedRequest ->
                         registryRepository.save(new Registry(savedRequest.getId(), dto))
-                                .thenReturn(new ApiResponse(savedRequest.getId()))
-                );
+                                .thenReturn(new ApiResponse(savedRequest.getId())));
     }
 
 }

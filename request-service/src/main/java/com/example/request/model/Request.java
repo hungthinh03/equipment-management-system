@@ -70,9 +70,17 @@ public class Request {
     @Column("closed_by")
     private Integer closedBy;
 
-    public Request(String uuid, Integer userId, String reason)
+    public Request(String requestType, String uuid, Integer userId, String reason)
     {
+        this.requestType = requestType;
         this.deviceUuid = UUID.fromString(uuid); //convert to uuid for db save
+        this.requesterId = userId;
+        this.reason = reason;
+    }
+
+    public Request(String requestType, Integer userId, String reason)
+    {
+        this.requestType = requestType;
         this.requesterId = userId;
         this.reason = reason;
     }
