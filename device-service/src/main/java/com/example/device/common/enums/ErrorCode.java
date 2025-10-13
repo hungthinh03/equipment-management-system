@@ -15,7 +15,7 @@ public enum ErrorCode {
     INVALID_UUID(1012, "Invalid UUID", HttpStatus.BAD_REQUEST),
     INVALID_STATUS(1013, "Invalid device status", HttpStatus.BAD_REQUEST),
     INVALID_DATE(1014, "Date must be in format yyyy-MM-dd", HttpStatus.BAD_REQUEST),
-    DUPLICATE_SERIAL(1015, "Serial number already exists", HttpStatus.BAD_REQUEST),
+    DUPLICATE_SERIAL(1015, "Serial number already exists", HttpStatus.CONFLICT),
     TYPE_NOT_FOUND(1016, "Device type not found", HttpStatus.NOT_FOUND),
     INVALID_OPERATION(1017, "Device not in a valid state for this action", HttpStatus.FORBIDDEN);
 

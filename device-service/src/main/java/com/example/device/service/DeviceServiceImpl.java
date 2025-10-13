@@ -248,7 +248,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.MISSING_FIELDS))) //400
                 .flatMap(registry -> deviceTypeRepo.findByName(registry.getType()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.TYPE_NOT_FOUND))) //404
-                .flatMap(type -> validateSerialNumber(dto.getSerialNumber()))  //400
+                .flatMap(type -> validateSerialNumber(dto.getSerialNumber()))  //409
                 .thenReturn(new ApiResponse("Device is valid"));
     }
 }
