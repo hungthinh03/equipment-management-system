@@ -7,10 +7,7 @@ import com.example.request.model.Registry;
 import com.example.request.model.Request;
 import com.example.request.repository.RegistryRepository;
 import com.example.request.repository.RequestRepository;
-import com.example.request.response.ApiResponse;
-import com.example.request.response.DeviceResponse;
-import com.example.request.response.MyRequestResponse;
-import com.example.request.response.RequestResponse;
+import com.example.request.response.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -67,6 +64,7 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<MyRequestResponse> viewAllMyRequests(String userId) {
         return requestRepository.findByRequesterId(Integer.valueOf(userId))
+                .filter(request -> "ASSIGN".equals(request.getRequestType())) // exclude registries
                 .map(ViewMyRequestDTO::new)
                 .collectList()
                 .map(MyRequestResponse::new);
@@ -74,6 +72,7 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<MyRequestResponse> viewMyRequest(Integer id, String userId) {
         return requestRepository.findById(id)
+                .filter(request -> "ASSIGN".equals(request.getRequestType()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> request.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
@@ -137,7 +136,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Mono<Request> updateDeviceAssignment(Request request, UpdateAssignmentDTO dto, String authHeader) {
         return webClient.put()
-                .uri("http://localhost:8081/device/by-uuid/{uuid}", request.getDeviceUuid()) // or use UUID
+                .uri("http://localhost:8081/device/by-uuid/{uuid}", request.getDeviceUuid())
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "request-service")
                 .bodyValue(dto)
@@ -212,6 +211,7 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<RequestResponse> viewAllPendingAssignments(String role) {
         return requestRepository.findAllByStatus("APPROVED")
+                .filter(request -> "ASSIGN".equals(request.getRequestType()))
                 .filter(request -> canConfirmAssignment(request, role))
                 .map(RequestDTO::new)
                 .collectList()
@@ -222,6 +222,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canConfirmAssignment(request, role))
+                .filter(request -> "ASSIGN".equals(request.getRequestType()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(request -> {
                     request.setStatus("DELIVERED");
@@ -234,13 +235,6 @@ public class RequestServiceImpl implements RequestService {
                 })
                 .flatMap(requestRepository::save)
                 .map(saved -> new ApiResponse(saved.getId()));
-    }
-
-    private boolean canCloseRequest(Request request, String role) {
-        if ("ADMIN".equalsIgnoreCase(role)) {
-            return request.getProcessedByIt() == null; // General requests only
-        } //IT
-        return request.getProcessedByIt() != null; // Network requests
     }
 
     public Mono<ApiResponse> submitReturnNotice(Integer id, String userId) {
@@ -256,6 +250,13 @@ public class RequestServiceImpl implements RequestService {
                     return requestRepository.save(req);
                 })
                 .map(req -> new ApiResponse(req.getId()));
+    }
+
+    private boolean canCloseRequest(Request request, String role) {
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            return request.getProcessedByIt() == null; // General requests only
+        } //IT
+        return request.getProcessedByIt() != null; // Network requests
     }
 
     public Mono<RequestResponse> viewAllReturnNotices(String userId, String role) {
@@ -348,6 +349,24 @@ public class RequestServiceImpl implements RequestService {
                 .flatMap(savedRequest ->
                         registryRepository.save(new Registry(savedRequest.getId(), dto))
                                 .thenReturn(new ApiResponse(savedRequest.getId())));
+    }
+
+    public Mono<MyRegistryResponse> viewAllMyRegistries(String userId) {
+        return registryRepository.findAllRegistryByRequesterId(Integer.valueOf(userId))
+                .map(ViewMyRegistryDTO::new)
+                .collectList()
+                .map(MyRegistryResponse::new);
+    }
+
+    public Mono<MyRegistryResponse> viewMyRegistry(Integer id, String userId) {
+        return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(request -> request.getRequesterId().equals(Integer.valueOf(userId)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .flatMap(request -> registryRepository.findByRequestId(id))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.REGISTRY_NOT_FOUND)))
+                .map(ViewMyRegistryDTO::new)
+                .map(registry -> new MyRegistryResponse(List.of(registry)));
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.request.service;
 
 import com.example.request.dto.*;
 import com.example.request.response.ApiResponse;
+import com.example.request.response.MyRegistryResponse;
 import com.example.request.response.MyRequestResponse;
 import com.example.request.response.RequestResponse;
 import reactor.core.publisher.Mono;
@@ -36,4 +37,8 @@ public interface RequestService {
     Mono<RequestResponse> viewMyProcessedRequests(String userId);
 
     Mono<ApiResponse> createRegistry(CreateRegistryDTO registry, String userId, String authHeader);
+
+    Mono<MyRegistryResponse> viewAllMyRegistries(String userId);
+
+    Mono<MyRegistryResponse> viewMyRegistry(Integer id, String userId);
 }

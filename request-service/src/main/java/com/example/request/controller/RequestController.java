@@ -3,6 +3,7 @@ package com.example.request.controller;
 import com.example.request.annotation.RequireRole;
 import com.example.request.dto.*;
 import com.example.request.response.ApiResponse;
+import com.example.request.response.MyRegistryResponse;
 import com.example.request.response.MyRequestResponse;
 import com.example.request.response.RequestResponse;
 import com.example.request.service.RequestService;
@@ -124,5 +125,18 @@ public class RequestController {
                                             @RequestHeader("Authorization") String authHeader) {
         return requestService.createRegistry(registry, userId, authHeader);
     }
+
+    @GetMapping("/register")
+    public Mono<MyRegistryResponse> viewAllMyRegistries(@RequestHeader("X-User-Id") String userId) {
+        return requestService.viewAllMyRegistries(userId);
+    }
+
+    @GetMapping("/register/{id}")
+    public Mono<MyRegistryResponse> viewMyRegistry(@PathVariable Integer id,
+                                                  @RequestHeader("X-User-Id") String userId) {
+        return requestService.viewMyRegistry(id, userId);
+    }
+
+
 }
 
