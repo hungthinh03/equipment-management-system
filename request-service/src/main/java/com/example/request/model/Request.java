@@ -1,5 +1,6 @@
 package com.example.request.model;
 
+import com.example.request.dto.RequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -83,6 +84,26 @@ public class Request {
         this.requestType = requestType;
         this.requesterId = userId;
         this.reason = reason;
+    }
+
+    public Request(RequestDTO dto) {
+        this.id = dto.getRequestId();  // if RequestDTO uses requestId instead of id
+        this.requestType = dto.getRequestType();
+        this.deviceUuid = dto.getDeviceUuid();
+        this.requesterId = dto.getRequesterId();
+        this.reason = dto.getReason();
+        this.status = dto.getStatus();
+        this.createdAt = dto.getCreatedAt();
+        this.processedByManager = dto.getProcessedByManager();
+        this.managerProcessedAt = dto.getManagerProcessedAt();
+        this.processedByIt = dto.getProcessedByIt();
+        this.itProcessedAt = dto.getItProcessedAt();
+        this.managerComment = dto.getManagerComment();
+        this.itComment = dto.getItComment();
+        this.deliveredBy = dto.getDeliveredBy();
+        this.deliveredAt = dto.getDeliveredAt();
+        this.returnSubmittedAt = dto.getReturnSubmittedAt();
+        this.closedBy = dto.getClosedBy();
     }
 }
 

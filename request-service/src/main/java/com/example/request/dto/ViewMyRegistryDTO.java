@@ -8,7 +8,7 @@ import java.time.Instant;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ViewMyRegistryDTO {
-    private Integer requestId;
+    private Integer id;
     private RegisterDeviceDTO device;
     private String reason;
     private String status;                  // PENDING, APPROVED, REJECTED, CLOSED
@@ -16,7 +16,7 @@ public class ViewMyRegistryDTO {
     private Instant UpdatedAt;
 
     public ViewMyRegistryDTO(MyRegistryDTO dto) {
-        this.requestId = dto.getRequestId();
+        this.id = dto.getRequestId();
         this.device = new RegisterDeviceDTO(
                 dto.getName(),
                 dto.getType(),

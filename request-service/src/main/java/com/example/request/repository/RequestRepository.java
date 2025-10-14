@@ -10,13 +10,10 @@ import reactor.core.publisher.Flux;
 public interface RequestRepository extends ReactiveCrudRepository<Request, Integer> {
     Flux<Request> findByRequesterId(Integer integer);
 
-    Flux<Request> findByStatusAndProcessedByManagerIsNotNull(String status);
-
-    Flux<Request> findByStatusAndProcessedByManagerIsNull(String status);
-
     Flux<Request> findByReturnSubmittedAtIsNotNull();
 
     Flux<Request> findByProcessedByManagerIsNotNull();
 
     Flux<Request> findAllByStatus(String status);
+
 }

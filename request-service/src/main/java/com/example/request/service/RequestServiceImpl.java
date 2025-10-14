@@ -96,13 +96,16 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<RequestResponse> viewAllPendingRequests(String userId, String role) {
         return ("IT".equalsIgnoreCase(role) //Requests that need additional IT approval
-                ? requestRepository.findByStatusAndProcessedByManagerIsNotNull("PENDING")
-                : requestRepository.findByStatusAndProcessedByManagerIsNull("PENDING")) //Requests admins hasn't approved
+                ? registryRepository.findAllPendingRequestsForIT()
+                : registryRepository.findAllPendingRequestsForManager()) //Requests admins hasn't approved
                 .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
-                .map(RequestDTO::new) // excluded own requests
+                .map(dto -> "REGISTER".equalsIgnoreCase(dto.getRequestType())
+                        ? new RegisterRequestDTO(dto)
+                        : new AssignRequestDTO(dto))
                 .collectList()
                 .map(RequestResponse::new);
     }
+
 
     private boolean canAccessPendingRequest(Request request, String role) {
         if ("IT".equalsIgnoreCase(role)) {
@@ -114,12 +117,15 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public Mono<RequestResponse> viewPendingRequest(Integer id, String userId, String role) {
-        return requestRepository.findById(id)
+        return registryRepository.findRequestById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(request -> canAccessPendingRequest(request, role)) // also exclude own requests
-                .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
+                .filter(dto -> canAccessPendingRequest(new Request(dto), role)) // also exclude own requests
+                .filter(dto -> !dto.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
-                .map(request -> new RequestResponse(List.of(new RequestDTO(request))));
+                .map(dto -> "REGISTER".equalsIgnoreCase(dto.getRequestType())
+                        ? new RegisterRequestDTO(dto)
+                        : new AssignRequestDTO(dto))
+                .map(dto -> new RequestResponse(List.of(dto)));
     }
 
     private void applyInfoAdmin(Request request, String userId, String comment, Instant now) {
@@ -213,7 +219,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findAllByStatus("APPROVED")
                 .filter(request -> "ASSIGN".equals(request.getRequestType()))
                 .filter(request -> canConfirmAssignment(request, role))
-                .map(RequestDTO::new)
+                .map(AssignRequestDTO::new)
                 .collectList()
                 .map(RequestResponse::new);
     }
@@ -264,7 +270,7 @@ public class RequestServiceImpl implements RequestService {
                 .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus()))
                 .filter(req -> canCloseRequest(req, role))
                 .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
-                .map(RequestDTO::new)
+                .map(AssignRequestDTO::new)
                 .collectList()
                 .map(RequestResponse::new);
     }
@@ -278,7 +284,7 @@ public class RequestServiceImpl implements RequestService {
                 .filter(req -> canCloseRequest(req, role))      // role check
                 .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
-                .map(RequestDTO::new)
+                .map(AssignRequestDTO::new)
                 .map(req -> new RequestResponse(List.of(req)));
     }
 
@@ -314,7 +320,7 @@ public class RequestServiceImpl implements RequestService {
     public Mono<RequestResponse> viewMyProcessedRequests(String userId) {
         return requestRepository.findByProcessedByManagerIsNotNull()
                 .filter(req -> isProcessedBy(req, Integer.valueOf(userId)))
-                .map(RequestDTO::new)
+                .map(AssignRequestDTO::new)
                 .collectList()
                 .map(RequestResponse::new);
     }
