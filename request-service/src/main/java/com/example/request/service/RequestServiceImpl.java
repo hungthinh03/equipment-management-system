@@ -8,11 +8,13 @@ import com.example.request.model.Request;
 import com.example.request.repository.RegistryRepository;
 import com.example.request.repository.RequestRepository;
 import com.example.request.response.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,8 +98,8 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<RequestResponse> viewAllPendingRequests(String userId, String role) {
         return ("IT".equalsIgnoreCase(role) //Requests that need additional IT approval
-                ? registryRepository.findAllPendingRequestsForIT()
-                : registryRepository.findAllPendingRequestsForManager()) //Requests admins hasn't approved
+                ? requestRepository.findAllPendingRequestsForIT()
+                : requestRepository.findAllPendingRequestsForManager()) //Requests admins hasn't approved
                 .filter(request -> !request.getRequesterId().equals(Integer.valueOf(userId)))
                 .map(dto -> "REGISTER".equalsIgnoreCase(dto.getRequestType())
                         ? new RegisterRequestDTO(dto)
@@ -107,7 +109,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
 
-    private boolean canAccessPendingRequest(Request request, String role) {
+    private boolean canAccessPendingRequest(RequestDTO request, String role) {
         if ("IT".equalsIgnoreCase(role)) {
             return "PENDING".equalsIgnoreCase(request.getStatus()) && request.getProcessedByManager() != null;
         }
@@ -117,9 +119,9 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public Mono<RequestResponse> viewPendingRequest(Integer id, String userId, String role) {
-        return registryRepository.findRequestById(id)
+        return requestRepository.findRequestById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(dto -> canAccessPendingRequest(new Request(dto), role)) // also exclude own requests
+                .filter(dto -> canAccessPendingRequest(dto, role)) // also exclude own requests
                 .filter(dto -> !dto.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .map(dto -> "REGISTER".equalsIgnoreCase(dto.getRequestType())
@@ -128,19 +130,19 @@ public class RequestServiceImpl implements RequestService {
                 .map(dto -> new RequestResponse(List.of(dto)));
     }
 
-    private void applyInfoAdmin(Request request, String userId, String comment, Instant now) {
+    private void applyInfoAdmin(RequestDTO request, String userId, String comment, Instant now) {
         request.setProcessedByManager(Integer.valueOf(userId));
         request.setManagerProcessedAt(now);
         request.setManagerComment(comment);
     }
 
-    private void applyInfoIt(Request request, String userId, String comment, Instant now) {
+    private void applyInfoIt(RequestDTO request, String userId, String comment, Instant now) {
         request.setProcessedByIt(Integer.valueOf(userId));
         request.setItProcessedAt(now);
         request.setItComment(comment);
     }
 
-    private Mono<Request> updateDeviceAssignment(Request request, UpdateAssignmentDTO dto, String authHeader) {
+    private Mono<Void> updateDeviceAssignment(Request request, UpdateAssignmentDTO dto, String authHeader) {
         return webClient.put()
                 .uri("http://localhost:8081/device/by-uuid/{uuid}", request.getDeviceUuid())
                 .header("Authorization", authHeader)
@@ -148,39 +150,73 @@ public class RequestServiceImpl implements RequestService {
                 .bodyValue(dto)
                 .retrieve()
                 .toBodilessEntity()
-                .thenReturn(request);
+                .then();
     }
 
-    private Mono<Request> approveRequest(Request request, String role, String userId,
-                                         String comment, String authHeader) {
+    private Mono<RequestDTO> approveAssignment(RequestDTO dto, String role, String userId,
+                                            String comment, String authHeader) {
         return Mono.defer(() -> {
             if ("ADMIN".equalsIgnoreCase(role)) {
-                return getDeviceByUuid(request.getDeviceUuid().toString(), authHeader)
+                return getDeviceByUuid(dto.getDeviceUuid().toString(), authHeader)
                         .flatMap(device -> {
                             if (!"AVAILABLE".equalsIgnoreCase(device.getStatus())) {
                                 return Mono.error(new AppException(ErrorCode.DEVICE_UNAVAILABLE));
                             }
                             if ("GENERAL".equalsIgnoreCase(device.getCategory())) {
-                                applyInfoAdmin(request, userId, comment, Instant.now()); //sign request with admin info
-                                request.setStatus("APPROVED"); // when IT approval not needed
+                                applyInfoAdmin(dto, userId, comment, Instant.now()); //sign request with admin info
+                                dto.setStatus("APPROVED"); // when IT approval not needed
                                 return updateDeviceAssignment(
-                                        request,
-                                        new UpdateAssignmentDTO("RESERVED", request.getRequesterId()),
-                                        authHeader);
+                                        new Request(dto),
+                                        new UpdateAssignmentDTO("RESERVED", dto.getRequesterId()),
+                                        authHeader)
+                                        .thenReturn(dto);
                             }
-                            applyInfoAdmin(request, userId, comment, Instant.now());
-                            return Mono.just(request); // else stays PENDING for IT approval
+                            applyInfoAdmin(dto, userId, comment, Instant.now());
+                            return Mono.just(dto); // else stays PENDING for IT approval
                         });
             } // IT
-            applyInfoIt(request, userId, comment, Instant.now());
-            request.setStatus("APPROVED");
-            return updateDeviceAssignment(request,
-                    new UpdateAssignmentDTO("RESERVED", request.getRequesterId()),
-                    authHeader);
+            applyInfoIt(dto, userId, comment, Instant.now());
+            dto.setStatus("APPROVED");
+            return updateDeviceAssignment(new Request(dto),
+                    new UpdateAssignmentDTO("RESERVED", dto.getRequesterId()),
+                    authHeader)
+                    .thenReturn(dto);
         });
     }
 
-    private Mono<Request> denyRequest(Request request, String role, String userId, String comment) {
+    private Mono<List<String>> getAllDeviceTypesManagedByRole(String authHeader) {
+        return webClient.get()
+                .uri("http://localhost:8081/device/type")
+                .header("Authorization", authHeader)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .map(json -> {
+                    List<String> typeList = new ArrayList<>();
+                    json.get("deviceType").forEach(node -> typeList.add(node.asText()));
+                    return typeList;
+                });
+    }
+
+    private Mono<RequestDTO> approveRegistry(RequestDTO dto, String role, String userId,
+                                         String comment, String authHeader) {
+        return Mono.defer(() -> {
+            if ("ADMIN".equalsIgnoreCase(role)) {
+                return getAllDeviceTypesManagedByRole(authHeader)
+                        .flatMap(typeList -> {
+                            applyInfoAdmin(dto, userId, comment, Instant.now());
+                            if (typeList.contains(dto.getType())) {
+                                dto.setStatus("APPROVED"); // when IT approval not needed
+                            }
+                            return Mono.just(dto); // else stays PENDING for IT approval
+                        });
+            } // IT
+            applyInfoIt(dto, userId, comment, Instant.now());
+            dto.setStatus("APPROVED");
+            return Mono.just(dto);
+        });
+    }
+
+    private Mono<RequestDTO> denyRequest(RequestDTO request, String role, String userId, String comment) {
         return Mono.just(request)
                 .map(req -> {
                     if ("ADMIN".equalsIgnoreCase(role)) {
@@ -195,14 +231,16 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<ApiResponse> resolveRequest(ResolveRequestDTO dto, Integer id,
                                             String userId, String role, String authHeader) {
-        return requestRepository.findById(id)
+        return requestRepository.findRequestById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(request -> canAccessPendingRequest(request, role))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(request -> dto.isApprove()
-                        ? approveRequest(request, role, userId, dto.getComment(), authHeader)
+                        ? ("ASSIGN".equalsIgnoreCase(request.getRequestType())
+                        ? approveAssignment(request, role, userId, dto.getComment(), authHeader)
+                        : approveRegistry(request, role, userId, dto.getComment(), authHeader))
                         : denyRequest(request, role, userId, dto.getComment()))
-                .flatMap(requestRepository::save)
+                .flatMap(request -> requestRepository.save(new Request(request)))
                 .map(saved -> new ApiResponse(saved.getId()));
     }
 
@@ -237,7 +275,8 @@ public class RequestServiceImpl implements RequestService {
                     return updateDeviceAssignment(
                             request,
                             new UpdateAssignmentDTO("ASSIGNED", request.getRequesterId()),
-                            authHeader);
+                            authHeader)
+                            .thenReturn(request);
                 })
                 .flatMap(requestRepository::save)
                 .map(saved -> new ApiResponse(saved.getId()));
@@ -297,18 +336,17 @@ public class RequestServiceImpl implements RequestService {
                 .filter(req -> canCloseRequest(req, role)
                         && !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
-                .flatMap(request -> updateDeviceAssignment(
-                        request,
-                        new UpdateAssignmentDTO("AVAILABLE", null),
-                        authHeader
-                )
-                .map(req -> {
-                    req.setStatus("CLOSED");
-                    req.setClosedBy(Integer.valueOf(userId));
-                    return req;
+                .flatMap(request -> {
+                    request.setStatus("CLOSED");
+                    request.setClosedBy(Integer.valueOf(userId));
+                    return updateDeviceAssignment(
+                            request,
+                            new UpdateAssignmentDTO("AVAILABLE", null),
+                            authHeader
+                    ).thenReturn(request);
                 })
                 .flatMap(requestRepository::save)
-                .map(saved -> new ApiResponse(saved.getId())));
+                .map(saved -> new ApiResponse(saved.getId()));
     }
 
     private boolean isProcessedBy(Request req, Integer userId) {
@@ -374,5 +412,6 @@ public class RequestServiceImpl implements RequestService {
                 .map(ViewMyRegistryDTO::new)
                 .map(registry -> new MyRegistryResponse(List.of(registry)));
     }
+
 
 }
