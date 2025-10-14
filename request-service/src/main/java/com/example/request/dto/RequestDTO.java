@@ -1,18 +1,20 @@
 package com.example.request.dto;
 
-import com.example.request.model.Request;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestDTO {
     private Integer id;
+    private Integer requestId;
     private String requestType;
     private UUID deviceUuid;
+    private String name;
+    private String type;
+    private String serialNumber;
+    private String manufacturer;
     private Integer requesterId;
     private String reason;
     private String status;
@@ -28,24 +30,4 @@ public class RequestDTO {
     private Instant returnSubmittedAt;
     private Integer closedBy;
 
-    public RequestDTO(Request request)
-    {
-        this.id = request.getId();
-        this.requestType = request.getRequestType();
-        this.deviceUuid = request.getDeviceUuid();
-        this.requesterId = request.getRequesterId();
-        this.reason = request.getReason();
-        this.status = request.getStatus();
-        this.createdAt = request.getCreatedAt();
-        this.processedByManager = request.getProcessedByManager();
-        this.managerProcessedAt = request.getManagerProcessedAt();
-        this.managerComment = request.getManagerComment();
-        this.processedByIt = request.getProcessedByIt();
-        this.itProcessedAt = request.getItProcessedAt();
-        this.itComment = request.getItComment();
-        this.deliveredBy = request.getDeliveredBy();
-        this.deliveredAt = request.getDeliveredAt();
-        this.returnSubmittedAt = request.getReturnSubmittedAt();
-        this.closedBy = request.getClosedBy();
-    }
 }
