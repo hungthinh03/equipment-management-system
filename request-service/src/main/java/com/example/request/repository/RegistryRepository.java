@@ -31,4 +31,5 @@ public interface RegistryRepository extends ReactiveCrudRepository<Registry, Int
             "WHERE rg.request_id = :requestId")
     Mono<MyRegistryDTO> findByRequestId(Integer requestId);
 
+    Mono<Registry> getDeviceTypeByRequestId(Integer id);
 }
