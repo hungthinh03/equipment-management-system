@@ -199,22 +199,24 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private Mono<Request> approveRegistry(Request request, String role, String userId,
-                                         String comment, String deviceType, String authHeader) {
-        return Mono.defer(() -> {
-            if ("ADMIN".equalsIgnoreCase(role)) {
-                return getAllDeviceTypesManagedByRole(authHeader)
-                        .flatMap(typeList -> {
-                            applyInfoAdmin(request, userId, comment, Instant.now());
-                            if (typeList.contains(deviceType)) {
-                                request.setStatus("APPROVED"); // when IT approval not needed
-                            }
-                            return Mono.just(request); // else stays PENDING for IT approval
-                        });
-            } // IT
-            applyInfoIt(request, userId, comment, Instant.now());
-            request.setStatus("APPROVED");
-            return Mono.just(request);
-        });
+                                         String comment, Registry device, String authHeader) {
+        return validateDevice(new CreateRegistryDTO(device), authHeader)
+                .then(
+                        Mono.defer(() -> {
+                            if ("ADMIN".equalsIgnoreCase(role)) {
+                                return getAllDeviceTypesManagedByRole(authHeader)
+                                        .flatMap(typeList -> {
+                                            applyInfoAdmin(request, userId, comment, Instant.now());
+                                            if (typeList.contains(device.getType())) {
+                                                request.setStatus("APPROVED"); // when IT approval not needed
+                                            }
+                                            return Mono.just(request); // else stays PENDING for IT approval
+                                        });
+                            } // IT
+                            applyInfoIt(request, userId, comment, Instant.now());
+                            request.setStatus("APPROVED");
+                            return Mono.just(request);
+        }));
     }
 
     private Mono<Request> approveRequest(Request request, String role, String userId, String comment, String authHeader) {
@@ -222,7 +224,7 @@ public class RequestServiceImpl implements RequestService {
                 ? approveAssignment(request, role, userId, comment, authHeader)
                 : registryRepository.getDeviceTypeByRequestId(request.getId())
                 .flatMap(registry ->
-                        approveRegistry(request, role, userId, comment, registry.getType(), authHeader)
+                        approveRegistry(request, role, userId, comment, registry, authHeader)
                 );
     }
 
