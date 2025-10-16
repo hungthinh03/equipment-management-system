@@ -198,25 +198,42 @@ public class RequestServiceImpl implements RequestService {
                 });
     }
 
+    private Mono<Void> addRegisterDevice(CreateRegistryDTO dto, String authHeader) {
+        return webClient.post()
+                .uri("http://localhost:8081/device/registration")
+                .header("Authorization", authHeader)
+                .header("X-Service-Source", "request-service")
+                .bodyValue(dto)
+                .retrieve()
+                .toBodilessEntity() // don't retrieve response
+                .then();
+    }
+
     private Mono<Request> approveRegistry(Request request, String role, String userId,
-                                         String comment, Registry device, String authHeader) {
+                                          String comment, Registry device, String authHeader) {
         return validateDevice(new CreateRegistryDTO(device), authHeader)
-                .then(
-                        Mono.defer(() -> {
-                            if ("ADMIN".equalsIgnoreCase(role)) {
-                                return getAllDeviceTypesManagedByRole(authHeader)
-                                        .flatMap(typeList -> {
-                                            applyInfoAdmin(request, userId, comment, Instant.now());
-                                            if (typeList.contains(device.getType())) {
-                                                request.setStatus("APPROVED"); // when IT approval not needed
-                                            }
-                                            return Mono.just(request); // else stays PENDING for IT approval
-                                        });
-                            } // IT
-                            applyInfoIt(request, userId, comment, Instant.now());
-                            request.setStatus("APPROVED");
-                            return Mono.just(request);
-        }));
+                .then(Mono.defer(() -> {
+                    if ("ADMIN".equalsIgnoreCase(role)) {
+                            return getAllDeviceTypesManagedByRole(authHeader)
+                                    .flatMap(typeList -> {
+                                        applyInfoAdmin(request, userId, comment, Instant.now());
+                                        if (typeList.contains(device.getType())) {
+                                            request.setStatus("APPROVED"); // IT approval not needed
+                                            return addRegisterDevice(
+                                                    new CreateRegistryDTO(device, request.getRequesterId()),
+                                                    authHeader
+                                            ).thenReturn(request);
+                                        }
+                                        return Mono.just(request); // stays PENDING
+                                    });
+                        } // IT
+                        applyInfoIt(request, userId, comment, Instant.now());
+                        request.setStatus("APPROVED");
+                        return addRegisterDevice(
+                                new CreateRegistryDTO(device, request.getRequesterId()),
+                                authHeader
+                        ).thenReturn(request);
+                }));
     }
 
     private Mono<Request> approveRequest(Request request, String role, String userId, String comment, String authHeader) {
