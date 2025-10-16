@@ -1,5 +1,6 @@
 package com.example.device.repository;
 
+import com.example.device.dto.MyDeviceDTO;
 import com.example.device.dto.SearchResultDTO;
 import com.example.device.dto.ViewDeviceDTO;
 import com.example.device.model.Device;
@@ -62,5 +63,17 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
     Mono<Device> findByUuid(UUID uuid);
 
     Mono<Device> findBySerialNumber(String serialNumber);
+
+    @Query("SELECT d.uuid, d.name, dt.name AS type, d.serial_number, d.manufacturer, d.decommission_at " +
+            "FROM devices d " +
+            "JOIN device_types dt ON d.type_id = dt.id " +
+            "WHERE d.owned_by = :userId")
+    Flux<MyDeviceDTO> findAllMyDevicesByOwnedBy(Integer userId);
+
+    @Query("SELECT d.uuid, d.name, dt.name AS type, d.serial_number, d.manufacturer, d.decommission_at " +
+            "FROM devices d " +
+            "JOIN device_types dt ON d.type_id = dt.id " +
+            "WHERE d.uuid = :uuid")
+    Mono<MyDeviceDTO> findMyDeviceByUuid(UUID uuid);
 }
 

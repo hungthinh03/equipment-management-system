@@ -4,10 +4,7 @@ import com.example.device.annotation.RequireRole;
 import com.example.device.common.enums.ErrorCode;
 import com.example.device.common.exception.AppException;
 import com.example.device.dto.*;
-import com.example.device.response.ApiResponse;
-import com.example.device.response.DeviceResponse;
-import com.example.device.response.SearchResponse;
-import com.example.device.response.TypeResponse;
+import com.example.device.response.*;
 import com.example.device.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -114,5 +111,16 @@ public class DeviceController {
                 .filter("request-service"::equalsIgnoreCase)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
                 .flatMap(r -> deviceService.registerDevice(dto, userId));
+    }
+
+    @GetMapping("my")
+    public Mono<MyDeviceResponse> viewAllMyDevices(@RequestHeader("X-User-Id") String userId) {
+        return deviceService.viewAllMyDevices(userId);
+    }
+
+    @GetMapping("my/{uuid}")
+    public Mono<MyDeviceResponse> viewMyDevice(@RequestHeader("X-User-Id") String userId,
+                                               @PathVariable String uuid) {
+        return deviceService.viewMyDevice(userId, uuid);
     }
 }

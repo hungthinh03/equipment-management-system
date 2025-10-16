@@ -13,7 +13,6 @@ public class DeviceResponse {
     private ViewDeviceDTO device;
     private List<ViewDeviceDTO> deviceList;
 
-
     public DeviceResponse(ViewDeviceDTO device) {
         this.status = "success";
         this.device = device;

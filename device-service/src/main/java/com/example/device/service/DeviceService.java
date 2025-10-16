@@ -2,10 +2,7 @@ package com.example.device.service;
 
 
 import com.example.device.dto.*;
-import com.example.device.response.ApiResponse;
-import com.example.device.response.DeviceResponse;
-import com.example.device.response.SearchResponse;
-import com.example.device.response.TypeResponse;
+import com.example.device.response.*;
 import reactor.core.publisher.Mono;
 
 
@@ -33,4 +30,8 @@ public interface DeviceService {
     Mono<ApiResponse> validateDeviceRegistration(RegisterDeviceDTO dto);
 
     Mono<ApiResponse> registerDevice(RegisterDeviceDTO dto, String userId);
+
+    Mono<MyDeviceResponse> viewAllMyDevices(String userId);
+
+    Mono<MyDeviceResponse> viewMyDevice(String userId, String uuid);
 }

@@ -7,10 +7,7 @@ import com.example.device.model.Device;
 import com.example.device.model.DeviceType;
 import com.example.device.repository.DeviceRepository;
 import com.example.device.repository.DeviceTypeRepository;
-import com.example.device.response.ApiResponse;
-import com.example.device.response.DeviceResponse;
-import com.example.device.response.SearchResponse;
-import com.example.device.response.TypeResponse;
+import com.example.device.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -259,4 +256,20 @@ public class DeviceServiceImpl implements DeviceService {
                         deviceRepo.save(new Device(dto, deviceType.getId(), Integer.valueOf(userId))))
                 .map(savedDevice -> new ApiResponse(savedDevice.getId()));
     }
+
+    public Mono<MyDeviceResponse> viewAllMyDevices(String userId) {
+        return deviceRepo.findAllMyDevicesByOwnedBy(Integer.valueOf(userId))
+                .collectList()
+                .map(MyDeviceResponse::new);
+    }
+
+
+//    public Mono<MyDeviceResponse> viewMyDevice(String userId, String uuid) {
+//        return validateUuid(uuid)
+//                .flatMap(deviceRepo::findByUuid)
+//                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+//                .filter(device -> device.getOwnedBy().equals(Integer.valueOf(userId)))
+//                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+//                .map(device -> new MyDeviceDTO(device));
+//    }
 }
