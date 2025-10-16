@@ -108,7 +108,11 @@ public class DeviceController {
     @RequireRole({"ADMIN", "IT"})
     public Mono<ApiResponse> registerDevice(@RequestBody RegisterDeviceDTO dto,
                                             @RequestHeader("X-User-Id") String userId,
-                                            @RequestHeader("X-User-Role") String role) {
-        return deviceService.registerDevice(dto, userId);
+                                            @RequestHeader("X-User-Role") String role,
+                                            @RequestHeader(value = "X-Service-Source", required = false) String source) {
+        return Mono.justOrEmpty(source)
+                .filter("request-service"::equalsIgnoreCase)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .flatMap(r -> deviceService.registerDevice(dto, userId));
     }
 }
