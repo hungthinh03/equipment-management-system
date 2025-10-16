@@ -15,8 +15,6 @@ public interface RequestRepository extends ReactiveCrudRepository<Request, Integ
 
     Flux<Request> findByReturnSubmittedAtIsNotNull();
 
-    Flux<Request> findByProcessedByManagerIsNotNull();
-
     Flux<Request> findAllByStatus(String status);
 
     @Query("SELECT r.*, rg.* " +
@@ -38,4 +36,10 @@ public interface RequestRepository extends ReactiveCrudRepository<Request, Integ
             "LEFT JOIN registries rg ON r.id = rg.request_id " +
             "WHERE r.id = :id")
     Mono<RequestDTO> findRequestById(Integer id);
+
+    @Query("SELECT r.*, rg.* " +
+            "FROM requests r " +
+            "LEFT JOIN registries rg ON r.id = rg.request_id " +
+            "WHERE r.processed_by_manager IS NOT NULL")
+    Flux<RequestDTO> findRequestByProcessedByManagerIsNotNull();
 }

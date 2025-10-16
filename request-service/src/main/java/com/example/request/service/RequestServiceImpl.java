@@ -365,9 +365,11 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public Mono<RequestResponse> viewMyProcessedRequests(String userId) {
-        return requestRepository.findByProcessedByManagerIsNotNull()
-                .filter(req -> isProcessedBy(req, Integer.valueOf(userId)))
-                .map(AssignRequestDTO::new)
+        return requestRepository.findRequestByProcessedByManagerIsNotNull()
+                .filter(dto -> isProcessedBy(new Request(dto), Integer.valueOf(userId)))
+                .map(dto -> "REGISTER".equalsIgnoreCase(dto.getRequestType())
+                        ? new RegisterRequestDTO(dto)
+                        : new AssignRequestDTO(dto))
                 .collectList()
                 .map(RequestResponse::new);
     }
