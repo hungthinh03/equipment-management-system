@@ -100,7 +100,15 @@ public class DeviceController {
     }
 
     @PostMapping("registration/validate")
-    public Mono<ApiResponse> validateDeviceRegistration(@RequestBody RegistryDTO dto) {
+    public Mono<ApiResponse> validateDeviceRegistration(@RequestBody RegisterDeviceDTO dto) {
         return deviceService.validateDeviceRegistration(dto);
+    }
+
+    @PostMapping("registration")
+    @RequireRole({"ADMIN", "IT"})
+    public Mono<ApiResponse> registerDevice(@RequestBody RegisterDeviceDTO dto,
+                                            @RequestHeader("X-User-Id") String userId,
+                                            @RequestHeader("X-User-Role") String role) {
+        return deviceService.registerDevice(dto, userId);
     }
 }

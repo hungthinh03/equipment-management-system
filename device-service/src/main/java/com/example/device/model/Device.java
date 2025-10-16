@@ -1,6 +1,7 @@
 package com.example.device.model;
 
 import com.example.device.dto.AddDeviceDTO;
+import com.example.device.dto.RegisterDeviceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -77,6 +78,19 @@ public class Device {
         this.manufacturer = dto.getManufacturer();
         this.purchasePrice = dto.getPurchasePrice();
         this.purchaseDate = date;
+        this.createdBy = userId;
+        this.updatedBy = userId;
+    }
+
+    public Device(RegisterDeviceDTO dto, Integer typeId, Integer userId) {
+        this.name = dto.getName();
+        this.typeId = typeId;
+        this.serialNumber = dto.getSerialNumber();
+        this.manufacturer = dto.getManufacturer();
+        this.status = "ASSIGNED";
+        this.assignedTo = dto.getRequesterId();
+        this.ownershipType = "BYOD";
+        this.ownedBy = dto.getRequesterId();
         this.createdBy = userId;
         this.updatedBy = userId;
     }

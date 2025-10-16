@@ -237,7 +237,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .map(updated -> new ApiResponse(updated.getId()));
     }
 
-    public Mono<ApiResponse> validateDeviceRegistration(RegistryDTO dto) {
+    public Mono<ApiResponse> validateDeviceRegistration(RegisterDeviceDTO dto) {
         return Mono.justOrEmpty(dto)
                 .filter(d -> Stream.of(
                                 d.getName(),
@@ -250,5 +250,13 @@ public class DeviceServiceImpl implements DeviceService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.TYPE_NOT_FOUND))) //404
                 .flatMap(type -> validateSerialNumber(dto.getSerialNumber()))  //409
                 .thenReturn(new ApiResponse("Device is valid"));
+    }
+
+    public Mono<ApiResponse> registerDevice(RegisterDeviceDTO dto, String userId) {
+        return validateDeviceRegistration(dto)
+                .flatMap(response -> deviceTypeRepo.findByName(dto.getType()))
+                .flatMap(deviceType ->
+                        deviceRepo.save(new Device(dto, deviceType.getId(), Integer.valueOf(userId))))
+                .map(savedDevice -> new ApiResponse(savedDevice.getId()));
     }
 }

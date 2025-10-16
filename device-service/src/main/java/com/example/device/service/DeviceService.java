@@ -30,5 +30,7 @@ public interface DeviceService {
 
     Mono<ApiResponse> updateDeviceAssignment(UpdateStatusDTO dto, String userId, String uuid);
 
-    Mono<ApiResponse> validateDeviceRegistration(RegistryDTO dto);
+    Mono<ApiResponse> validateDeviceRegistration(RegisterDeviceDTO dto);
+
+    Mono<ApiResponse> registerDevice(RegisterDeviceDTO dto, String userId);
 }
