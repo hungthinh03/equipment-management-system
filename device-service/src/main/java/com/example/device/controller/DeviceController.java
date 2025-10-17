@@ -123,4 +123,12 @@ public class DeviceController {
                                                @PathVariable String uuid) {
         return deviceService.viewMyDevice(userId, uuid);
     }
+
+    @DeleteMapping("/by-uuid/{uuid}")
+    @RequireRole({"ADMIN", "IT"}) // needs @RequestHeader("X-User-Role")
+    public Mono<ApiResponse> unenrollDevice(@RequestHeader("X-User-Id") String userId,
+                                            @RequestHeader("X-User-Role") String role,
+                                            @PathVariable String uuid) {
+        return deviceService.unenrollDevice(userId, role, uuid);
+    }
 }

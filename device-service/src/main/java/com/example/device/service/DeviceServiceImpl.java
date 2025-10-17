@@ -88,7 +88,8 @@ public class DeviceServiceImpl implements DeviceService {
                         )
                 )
                 .flatMap(deviceRepo::save)
-                .map(savedDevice -> new ApiResponse(savedDevice.getId()));
+                .flatMap(saved -> deviceRepo.findById(saved.getId())) // Reload to fetch DB-generated UUID
+                .map(saved -> new ApiResponse(saved.getId(), saved.getUuid()));
     }
 
     private Mono<Void> validateUpdatedSerialNumber(String newSerial, String oldSerial) {
@@ -101,7 +102,9 @@ public class DeviceServiceImpl implements DeviceService {
     public Mono<ApiResponse> updateDevice(AddDeviceDTO dto, String userId, String role, Integer id) {
         return deviceRepo.findById(id) // check NOT_FOUND first since only used by ADMIN/IT
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(device -> "AVAILABLE".equalsIgnoreCase(device.getStatus()) ||
+                .filter(device ->
+                        "BOYD".equalsIgnoreCase(device.getOwnershipType()) ||
+                        "AVAILABLE".equalsIgnoreCase(device.getStatus()) ||
                         "MAINTENANCE".equalsIgnoreCase(device.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(existing -> validateDevice(dto)
@@ -189,6 +192,7 @@ public class DeviceServiceImpl implements DeviceService {
                         .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                         .then(deviceRepo.findDeviceByIdAndManagedBy(id, role)
                                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE))))
+                        .filter(device -> "COMPANY".equalsIgnoreCase(device.getOwnershipType()))
                         .filter(device ->
                                 maintenance && "AVAILABLE".equals(device.getStatus()) ||
                                 !maintenance && "MAINTENANCE".equals(device.getStatus()))
@@ -206,11 +210,14 @@ public class DeviceServiceImpl implements DeviceService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .then(deviceRepo.findDeviceByIdAndManagedBy(id, role)
                         .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE))))
-                .filter(device -> "AVAILABLE".equals(device.getStatus())
-                        || "MAINTENANCE".equals(device.getStatus()))
+                .filter(device ->
+                        "BOYD".equalsIgnoreCase(device.getOwnershipType()) ||
+                                "AVAILABLE".equalsIgnoreCase(device.getStatus()) ||
+                                "MAINTENANCE".equalsIgnoreCase(device.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(device -> {
                     device.setStatus("DECOMMISSIONED");
+                    device.setDecommissionAt(Instant.now());
                     device.setUpdatedBy(Integer.valueOf(userId));
                     return deviceRepo.save(device);
                 })
@@ -271,5 +278,22 @@ public class DeviceServiceImpl implements DeviceService {
                         deviceRepo.findMyDeviceByUuid(Integer.valueOf(userId), device.getUuid()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
                 .map(MyDeviceResponse::new);
+    }
+
+    public Mono<ApiResponse> unenrollDevice(String userId, String role, String uuid) {
+        return validateUuid(uuid)
+                .flatMap(deviceRepo::findByUuid)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .flatMap(device -> deviceRepo.findDeviceByIdAndManagedBy(device.getId(), role)
+                        .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE))))
+                .filter(device -> "BOYD".equalsIgnoreCase(device.getOwnershipType()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .flatMap(device -> {
+                    device.setStatus("DECOMMISSIONED");
+                    device.setDecommissionAt(Instant.now());
+                    device.setUpdatedBy(Integer.valueOf(userId));
+                    return deviceRepo.save(device);
+                })
+                .map(updated -> new ApiResponse(updated.getId()));
     }
 }
