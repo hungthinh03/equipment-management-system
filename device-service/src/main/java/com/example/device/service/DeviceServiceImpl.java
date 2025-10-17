@@ -263,13 +263,13 @@ public class DeviceServiceImpl implements DeviceService {
                 .map(MyDeviceResponse::new);
     }
 
-
-//    public Mono<MyDeviceResponse> viewMyDevice(String userId, String uuid) {
-//        return validateUuid(uuid)
-//                .flatMap(deviceRepo::findByUuid)
-//                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-//                .filter(device -> device.getOwnedBy().equals(Integer.valueOf(userId)))
-//                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
-//                .map(device -> new MyDeviceDTO(device));
-//    }
+    public Mono<MyDeviceResponse> viewMyDevice(String userId, String uuid) {
+        return validateUuid(uuid)
+                .flatMap(deviceRepo::findByUuid)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .flatMap(device ->
+                        deviceRepo.findMyDeviceByUuid(Integer.valueOf(userId), device.getUuid()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .map(MyDeviceResponse::new);
+    }
 }

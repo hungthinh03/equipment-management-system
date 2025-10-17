@@ -73,7 +73,8 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
     @Query("SELECT d.uuid, d.name, dt.name AS type, d.serial_number, d.manufacturer, d.decommission_at " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
-            "WHERE d.uuid = :uuid")
-    Mono<MyDeviceDTO> findMyDeviceByUuid(UUID uuid);
+            "WHERE d.owned_by = :userId " +
+            "AND d.uuid = :uuid")
+    Mono<MyDeviceDTO> findMyDeviceByUuid(Integer userId, UUID uuid);
 }
 
