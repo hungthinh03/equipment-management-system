@@ -888,7 +888,7 @@ Each service will use its own database for storing and managing data related to 
   > Device ownership type: 'COMPANY', 'BYOD'
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.
-<img src="assets/request.jpg" style="width:50%;"/>
+<img src="assets/request.jpg" style="width:80%;"/>
 
   > Request type: 'ASSIGN', 'REGISTER'
 
