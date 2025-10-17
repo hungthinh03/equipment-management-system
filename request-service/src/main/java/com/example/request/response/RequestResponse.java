@@ -10,9 +10,9 @@ import java.util.List;
 @JsonPropertyOrder({ "status", "requests" })
 public class RequestResponse {
     private String status;
-    private List<AssignRequestDTO> requests;
+    private List<? extends AssignRequestDTO> requests;
 
-    public RequestResponse(List<AssignRequestDTO> requests) {
+    public RequestResponse(List<? extends AssignRequestDTO> requests) {
         this.status = "success";
         this.requests = requests;
     }

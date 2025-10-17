@@ -41,4 +41,12 @@ public interface RequestService {
     Mono<MyRegistryResponse> viewAllMyRegistries(String userId);
 
     Mono<MyRegistryResponse> viewMyRegistry(Integer id, String userId);
+
+    Mono<ApiResponse> submitUnenrollNotice(Integer id, String userId);
+
+    Mono<RequestResponse> viewAllUnenrollNotices(String userId, String role);
+
+    Mono<RequestResponse> viewUnenrollNotice(Integer id, String userId, String role);
+
+    Mono<ApiResponse> confirmUnenrollNotice(Integer id, String userId, String role, String authHeader);
 }

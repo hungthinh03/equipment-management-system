@@ -14,7 +14,7 @@ public interface RegistryRepository extends ReactiveCrudRepository<Registry, Int
 
     @Query("SELECT r.id AS request_id, " +
             "rg.name, rg.type, rg.serial_number, rg.manufacturer, " +
-            "r.reason, r.status, r.created_at, r.updated_at " +
+            "r.reason, r.status, r.created_at, r.updated_at, r.return_submitted_at " +
             "FROM requests r " +
             "JOIN registries rg " +
             "ON r.id = rg.request_id " +
@@ -24,7 +24,7 @@ public interface RegistryRepository extends ReactiveCrudRepository<Registry, Int
 
     @Query("SELECT r.id AS request_id, " +
             "rg.name, rg.type, rg.serial_number, rg.manufacturer, " +
-            "r.reason, r.status, r.created_at, r.updated_at " +
+            "r.reason, r.status, r.created_at, r.updated_at, r.return_submitted_at " +
             "FROM requests r " +
             "JOIN registries rg " +
             "ON r.id = rg.request_id " +

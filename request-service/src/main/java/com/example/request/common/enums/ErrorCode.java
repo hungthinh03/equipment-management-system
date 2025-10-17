@@ -14,7 +14,7 @@ public enum ErrorCode {
     INVALID_OPERATION(1010, "Request not in a valid state for this action", HttpStatus.FORBIDDEN),
     DEVICE_UNAVAILABLE(1011, "Device is currently in use or unavailable", HttpStatus.CONFLICT),
     INVALID_UUID(1012, "Invalid UUID", HttpStatus.BAD_REQUEST),
-    ALREADY_REQUESTED_CLOSE(1013, "Return notice already submitted", HttpStatus.BAD_REQUEST),
+    ALREADY_REQUESTED_CLOSE(1013, "Notice has already been submitted", HttpStatus.BAD_REQUEST),
     TYPE_NOT_FOUND(1016, "Device type not found", HttpStatus.NOT_FOUND),
     DUPLICATE_SERIAL(1015, "Serial number already exists", HttpStatus.CONFLICT),
     REGISTRY_NOT_FOUND(1018, "Registry not found", HttpStatus.NOT_FOUND);

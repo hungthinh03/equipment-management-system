@@ -333,8 +333,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public Mono<RequestResponse> viewAllReturnNotices(String userId, String role) {
-        return requestRepository.findByReturnSubmittedAtIsNotNull()
-                .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus()))
+        return requestRepository.findByReturnSubmittedAtIsNotNullAndStatus("DELIVERED")
                 .filter(req -> canCloseRequest(req, role))
                 .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
                 .map(AssignRequestDTO::new)
@@ -443,9 +442,63 @@ public class RequestServiceImpl implements RequestService {
                 .map(registry -> new MyRegistryResponse(List.of(registry)));
     }
 
-//    public Mono<ApiResponse> SubmitUnenrollRequest() {
-//
-//    }
+    public Mono<ApiResponse> submitUnenrollNotice(Integer id, String userId) {
+        return requestRepository.findById(id)
+                .filter(req -> req.getRequesterId().equals(Integer.valueOf(userId)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED))) // Can only submit for own requests
+                .filter(req ->
+                        "REGISTER".equalsIgnoreCase(req.getRequestType()) &&
+                        "APPROVED".equalsIgnoreCase(req.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .filter(req -> req.getReturnSubmittedAt() == null)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.ALREADY_REQUESTED_CLOSE)))
+                .flatMap(req -> {
+                    req.setReturnSubmittedAt(Instant.now());
+                    return requestRepository.save(req);
+                })
+                .map(req -> new ApiResponse(req.getId()));
+    }
 
+    public Mono<RequestResponse> viewAllUnenrollNotices(String userId, String role) {
+        return requestRepository.findRequestByReturnSubmittedAtIsNotNullAndStatus("APPROVED")
+                .filter(dto -> canCloseRequest(new Request(dto), role))
+                .filter(dto -> !dto.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
+                .map(RegisterRequestDTO::new)
+                .collectList()
+                .map(RequestResponse::new);
+    }
+
+    public Mono<RequestResponse> viewUnenrollNotice(Integer id, String userId, String role) {
+        return requestRepository.findRequestById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(dto ->
+                        dto.getReturnSubmittedAt() != null &&
+                        "APPROVED".equalsIgnoreCase(dto.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .filter(dto -> canCloseRequest(new Request(dto), role))
+                .filter(dto -> !dto.getRequesterId().equals(Integer.valueOf(userId)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .map(RegisterRequestDTO::new)
+                .map(req -> new RequestResponse(List.of(req)));
+    }
+
+    public Mono<ApiResponse> confirmUnenrollNotice(Integer id, String userId, String role, String authHeader) {
+        return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
+                .filter(dto ->
+                        dto.getReturnSubmittedAt() != null &&
+                                "APPROVED".equalsIgnoreCase(dto.getStatus()))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
+                .filter(dto -> canCloseRequest(dto, role))
+                .filter(dto -> !dto.getRequesterId().equals(Integer.valueOf(userId)))
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .map(request -> {
+                    request.setStatus("CLOSED");
+                    request.setClosedBy(Integer.valueOf(userId));
+                    return request;
+                })
+                .flatMap(requestRepository::save)
+                .map(saved -> new ApiResponse(saved.getId()));
+    }
 
 }

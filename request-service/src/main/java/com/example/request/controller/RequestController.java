@@ -91,15 +91,15 @@ public class RequestController {
     @GetMapping("/return")
     @RequireRole({"ADMIN", "IT"})
     public Mono<RequestResponse> viewAllReturnNotices(@RequestHeader("X-User-Id") String userId,
-                                                         @RequestHeader("X-User-Role") String role) {
+                                                      @RequestHeader("X-User-Role") String role) {
         return  requestService.viewAllReturnNotices(userId, role);
     }
 
     @GetMapping("/return/{id}")
     @RequireRole({"ADMIN", "IT"})
     public Mono<RequestResponse> viewReturnNotice(@PathVariable Integer id,
-                                                     @RequestHeader("X-User-Id") String userId,
-                                                     @RequestHeader("X-User-Role") String role) {
+                                                  @RequestHeader("X-User-Id") String userId,
+                                                  @RequestHeader("X-User-Role") String role) {
         return requestService.viewReturnNotice(id, userId, role);
     }
 
@@ -133,10 +133,38 @@ public class RequestController {
 
     @GetMapping("/register/{id}")
     public Mono<MyRegistryResponse> viewMyRegistry(@PathVariable Integer id,
-                                                  @RequestHeader("X-User-Id") String userId) {
+                                                   @RequestHeader("X-User-Id") String userId) {
         return requestService.viewMyRegistry(id, userId);
     }
 
+    @PostMapping("/register/{id}/unenroll")
+    public Mono<ApiResponse> submitUnenrollNotice(@PathVariable Integer id,
+                                                  @RequestHeader("X-User-Id") String userId) {
+        return requestService.submitUnenrollNotice(id, userId);
+    }
 
+    @RequireRole({"ADMIN", "IT"})
+    @GetMapping("/unenroll")
+    public Mono<RequestResponse> viewAllUnenrollNotices(@RequestHeader("X-User-Id") String userId,
+                                                        @RequestHeader("X-User-Role") String role) {
+        return requestService.viewAllUnenrollNotices(userId, role);
+    }
+
+    @RequireRole({"ADMIN", "IT"})
+    @GetMapping("/unenroll/{id}")
+    public Mono<RequestResponse> viewUnenrollNotice(@PathVariable Integer id,
+                                                    @RequestHeader("X-User-Id") String userId,
+                                                    @RequestHeader("X-User-Role") String role) {
+        return requestService.viewUnenrollNotice(id, userId, role);
+    }
+
+    @RequireRole({"ADMIN", "IT"})
+    @PostMapping("unenroll/{id}")
+    public Mono<ApiResponse> confirmUnenrollNotice(@PathVariable Integer id,
+                                                   @RequestHeader("X-User-Id") String userId,
+                                                   @RequestHeader("X-User-Role") String role,
+                                                   @RequestHeader("Authorization") String authHeader) {
+        return requestService.confirmUnenrollNotice(id, userId, role, authHeader);
+    }
 }
 
