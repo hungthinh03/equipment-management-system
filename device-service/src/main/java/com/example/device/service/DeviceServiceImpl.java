@@ -215,7 +215,7 @@ public class DeviceServiceImpl implements DeviceService {
                                 "MAINTENANCE".equalsIgnoreCase(device.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(device -> {
-                    device.setStatus("DECOMMISSIONED");
+                    device.setStatus("RETIRED");
                     device.setDecommissionAt(Instant.now());
                     device.setUpdatedBy(Integer.valueOf(userId));
                     return deviceRepo.save(device);
@@ -227,7 +227,7 @@ public class DeviceServiceImpl implements DeviceService {
         return validateUuid(uuid)
                 .flatMap(deviceRepo::findByUuid)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(device -> !"DECOMMISSIONED".equals(device.getStatus()))
+                .filter(device -> !"RETIRED".equals(device.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(existing -> List.of("AVAILABLE", "ASSIGNED", "RESERVED").contains(dto.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_STATUS)))
@@ -289,7 +289,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .filter(device -> "BYOD".equalsIgnoreCase(device.getOwnershipType()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(device -> {
-                    device.setStatus("DECOMMISSIONED");
+                    device.setStatus("RETIRED");
                     device.setDecommissionAt(Instant.now());
                     device.setUpdatedBy(Integer.valueOf(userId));
                     return deviceRepo.save(device);

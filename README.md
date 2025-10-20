@@ -883,7 +883,7 @@ Each service will use its own database for storing and managing data related to 
 
   > Device category: 'GENERAL', 'NETWORK'
   
-  > Device status: 'AVAILABLE', 'RESERVED', 'ASSIGNED', 'MAINTENANCE', 'DECOMMISSIONED'
+  > Device status: 'AVAILABLE', 'RESERVED', 'ASSIGNED', 'MAINTENANCE', 'RETIRED'
   
   > Device ownership type: 'COMPANY', 'BYOD'
 

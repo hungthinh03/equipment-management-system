@@ -36,7 +36,7 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
             "WHERE dc.managed_by = :role " +
-            "ORDER BY CASE WHEN d.status = 'DECOMMISSIONED' THEN 1 ELSE 0 END, d.updated_at DESC")
+            "ORDER BY CASE WHEN d.status = 'RETIRED' THEN 1 ELSE 0 END, d.updated_at DESC")
     Flux<ViewDeviceDTO> findAllByManagedBy(String role);
 
 
@@ -47,7 +47,7 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
             "WHERE d.ownership_type = 'COMPANY' " +
             "AND (:name IS NULL OR d.name ILIKE CONCAT('%', :name, '%')) " +
             "AND (:type IS NULL OR dt.name ILIKE :type) " +
-            "AND d.status <> 'DECOMMISSIONED' " +
+            "AND d.status <> 'RETIRED' " +
             "ORDER BY CASE WHEN d.status = 'AVAILABLE' THEN 0 ELSE 1 END, d.updated_at DESC")
     Flux<SearchResultDTO> searchByParameter(@Param("name") String name,
                                             @Param("type") String type);
@@ -57,7 +57,7 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
             "JOIN device_types dt ON d.type_id = dt.id " +
             "JOIN device_categories dc ON dt.category_id = dc.id " +
             "WHERE d.uuid = :uuid " +
-            "AND d.status <> 'DECOMMISSIONED'")
+            "AND d.status <> 'RETIRED'")
     Mono<SearchResultDTO> searchByUuid(UUID uuid);
 
     Mono<Device> findByUuid(UUID uuid);
