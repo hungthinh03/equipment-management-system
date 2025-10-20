@@ -26,5 +26,5 @@ public class ViewDeviceDTO {
     private Integer createdBy;
     private Instant updatedAt;
     private Integer updatedBy;
-    private Instant decommissionAt;
+    private Instant retiredAt;
 }

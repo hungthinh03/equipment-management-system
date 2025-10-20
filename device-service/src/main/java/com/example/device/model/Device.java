@@ -67,8 +67,8 @@ public class Device {
     @Column("updated_by")
     private Integer updatedBy;
 
-    @Column("decommission_at")
-    private Instant decommissionAt;
+    @Column("retired_at")
+    private Instant retiredAt;
 
 
     public Device(AddDeviceDTO dto, Integer typeId, Instant date, Integer userId) {

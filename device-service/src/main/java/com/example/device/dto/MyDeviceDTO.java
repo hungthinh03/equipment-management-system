@@ -15,5 +15,5 @@ public class MyDeviceDTO {
     private String type;
     private String serialNumber;
     private String manufacturer;
-    private Instant decommissionAt;
+    private Instant retiredAt;
 }

@@ -216,7 +216,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(device -> {
                     device.setStatus("RETIRED");
-                    device.setDecommissionAt(Instant.now());
+                    device.setRetiredAt(Instant.now());
                     device.setUpdatedBy(Integer.valueOf(userId));
                     return deviceRepo.save(device);
                 })
@@ -290,7 +290,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(device -> {
                     device.setStatus("RETIRED");
-                    device.setDecommissionAt(Instant.now());
+                    device.setRetiredAt(Instant.now());
                     device.setUpdatedBy(Integer.valueOf(userId));
                     return deviceRepo.save(device);
                 })

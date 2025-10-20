@@ -64,13 +64,13 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
 
     Mono<Device> findBySerialNumber(String serialNumber);
 
-    @Query("SELECT d.uuid, d.name, dt.name AS type, d.serial_number, d.manufacturer, d.decommission_at " +
+    @Query("SELECT d.uuid, d.name, dt.name AS type, d.serial_number, d.manufacturer, d.retired_at " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "WHERE d.owned_by = :userId")
     Flux<MyDeviceDTO> findAllMyDevicesByOwnedBy(Integer userId);
 
-    @Query("SELECT d.uuid, d.name, dt.name AS type, d.serial_number, d.manufacturer, d.decommission_at " +
+    @Query("SELECT d.uuid, d.name, dt.name AS type, d.serial_number, d.manufacturer, d.retired_at " +
             "FROM devices d " +
             "JOIN device_types dt ON d.type_id = dt.id " +
             "WHERE d.owned_by = :userId " +
