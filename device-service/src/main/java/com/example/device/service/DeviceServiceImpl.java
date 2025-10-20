@@ -88,8 +88,7 @@ public class DeviceServiceImpl implements DeviceService {
                         )
                 )
                 .flatMap(deviceRepo::save)
-                .flatMap(saved -> deviceRepo.findById(saved.getId())) // Reload to fetch DB-generated UUID
-                .map(saved -> new ApiResponse(saved.getId(), saved.getUuid()));
+                .map(saved -> new ApiResponse(saved.getId()));
     }
 
     private Mono<Void> validateUpdatedSerialNumber(String newSerial, String oldSerial) {
@@ -261,7 +260,8 @@ public class DeviceServiceImpl implements DeviceService {
                 .flatMap(response -> deviceTypeRepo.findByName(dto.getType()))
                 .flatMap(deviceType ->
                         deviceRepo.save(new Device(dto, deviceType.getId(), Integer.valueOf(userId))))
-                .map(savedDevice -> new ApiResponse(savedDevice.getId()));
+                .flatMap(saved -> deviceRepo.findById(saved.getId())) // Reload to fetch DB-generated UUID
+                .map(saved -> new ApiResponse(saved.getId(), saved.getUuid()));
     }
 
     public Mono<MyDeviceResponse> viewAllMyDevices(String userId) {
@@ -286,7 +286,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .flatMap(device -> deviceRepo.findDeviceByIdAndManagedBy(device.getId(), role)
                         .switchIfEmpty(Mono.error(new AppException(ErrorCode.INACCESSIBLE))))
-                .filter(device -> "BOYD".equalsIgnoreCase(device.getOwnershipType()))
+                .filter(device -> "BYOD".equalsIgnoreCase(device.getOwnershipType()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(device -> {
                     device.setStatus("DECOMMISSIONED");
