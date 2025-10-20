@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 public interface RegistryRepository extends ReactiveCrudRepository<Registry, Integer> {
 
     @Query("SELECT r.id AS request_id, " +
-            "rg.name, rg.type, rg.serial_number, rg.manufacturer, " +
+            "r.device_uuid, rg.name, rg.type, rg.serial_number, rg.manufacturer, " +
             "r.reason, r.status, r.created_at, r.updated_at, r.return_submitted_at " +
             "FROM requests r " +
             "JOIN registries rg " +
@@ -23,7 +23,7 @@ public interface RegistryRepository extends ReactiveCrudRepository<Registry, Int
     Flux<MyRegistryDTO> findAllRegistryByRequesterId(Integer requesterId);
 
     @Query("SELECT r.id AS request_id, " +
-            "rg.name, rg.type, rg.serial_number, rg.manufacturer, " +
+            "r.device_uuid, rg.name, rg.type, rg.serial_number, rg.manufacturer, " +
             "r.reason, r.status, r.created_at, r.updated_at, r.return_submitted_at " +
             "FROM requests r " +
             "JOIN registries rg " +

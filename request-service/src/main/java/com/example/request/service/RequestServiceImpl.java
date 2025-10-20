@@ -185,6 +185,29 @@ public class RequestServiceImpl implements RequestService {
         });
     }
 
+    private Mono<Void> validateDevice(CreateRegistryDTO dto, String authHeader) {
+        return webClient.post()
+                .uri("http://localhost:8081/device/registration/validate")
+                .header("Authorization", authHeader)
+                .header("X-Service-Source", "request-service")
+                .bodyValue(dto)
+                .retrieve()
+                .onStatus(status -> status.value() == 400,
+                        response ->
+                                Mono.error(new AppException(ErrorCode.MISSING_FIELDS))
+                )
+                .onStatus(status -> status.value() == 404,
+                        response ->
+                                Mono.error(new AppException(ErrorCode.TYPE_NOT_FOUND))
+                )
+                .onStatus(status -> status.value() == 409,
+                        response ->
+                                Mono.error(new AppException(ErrorCode.DUPLICATE_SERIAL))
+                )
+                .toBodilessEntity() // don't retrieve response
+                .then();
+    }
+
     private Mono<List<String>> getAllDeviceTypesManagedByRole(String authHeader) {
         return webClient.get()
                 .uri("http://localhost:8081/device/type")
@@ -198,15 +221,15 @@ public class RequestServiceImpl implements RequestService {
                 });
     }
 
-    private Mono<Void> addRegisterDevice(CreateRegistryDTO dto, String authHeader) {
+    private Mono<UUID> addRegisterDevice(CreateRegistryDTO dto, String authHeader) {
         return webClient.post()
                 .uri("http://localhost:8081/device/registration")
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "request-service")
                 .bodyValue(dto)
                 .retrieve()
-                .toBodilessEntity() // don't retrieve response
-                .then();
+                .bodyToMono(JsonNode.class)
+                .map(json -> UUID.fromString(json.get("uuid").asText()));
     }
 
     private Mono<Request> approveRegistry(Request request, String role, String userId,
@@ -222,7 +245,10 @@ public class RequestServiceImpl implements RequestService {
                                             return addRegisterDevice(
                                                     new CreateRegistryDTO(device, request.getRequesterId()),
                                                     authHeader
-                                            ).thenReturn(request);
+                                            ).map(uuid -> {
+                                                request.setDeviceUuid(uuid);
+                                                return request;
+                                            });
                                         }
                                         return Mono.just(request); // stays PENDING
                                     });
@@ -232,7 +258,10 @@ public class RequestServiceImpl implements RequestService {
                         return addRegisterDevice(
                                 new CreateRegistryDTO(device, request.getRequesterId()),
                                 authHeader
-                        ).thenReturn(request);
+                        ).map(uuid -> {
+                            request.setDeviceUuid(uuid);
+                            return request;
+                        });
                 }));
     }
 
@@ -392,29 +421,6 @@ public class RequestServiceImpl implements RequestService {
                 .map(RequestResponse::new);
     }
 
-    private Mono<Void> validateDevice(CreateRegistryDTO dto, String authHeader) {
-        return webClient.post()
-                .uri("http://localhost:8081/device/registration/validate")
-                .header("Authorization", authHeader)
-                .header("X-Service-Source", "request-service")
-                .bodyValue(dto)
-                .retrieve()
-                .onStatus(status -> status.value() == 400,
-                        response ->
-                                Mono.error(new AppException(ErrorCode.MISSING_FIELDS))
-                )
-                .onStatus(status -> status.value() == 404,
-                        response ->
-                                Mono.error(new AppException(ErrorCode.TYPE_NOT_FOUND))
-                )
-                .onStatus(status -> status.value() == 409,
-                        response ->
-                                Mono.error(new AppException(ErrorCode.DUPLICATE_SERIAL))
-                )
-                .toBodilessEntity() // don't retrieve response
-                .then();
-    }
-
     public Mono<ApiResponse> createRegistry(CreateRegistryDTO dto, String userId, String authHeader) {
         return validateDevice(dto, authHeader)
                 .then(requestRepository.save(
@@ -482,6 +488,16 @@ public class RequestServiceImpl implements RequestService {
                 .map(req -> new RequestResponse(List.of(req)));
     }
 
+    private Mono<Void> unenrollDevice(Request request, String authHeader) {
+        return webClient.delete()
+                .uri("http://localhost:8081/device/by-uuid/{uuid}", request.getDeviceUuid())
+                .header("Authorization", authHeader)
+                .header("X-Service-Source", "request-service")
+                .retrieve()
+                .toBodilessEntity() // don't retrieve response
+                .then();
+    }
+
     public Mono<ApiResponse> confirmUnenrollNotice(Integer id, String userId, String role, String authHeader) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
@@ -492,10 +508,11 @@ public class RequestServiceImpl implements RequestService {
                 .filter(dto -> canCloseRequest(dto, role))
                 .filter(dto -> !dto.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
-                .map(request -> {
+                .flatMap(request -> {
                     request.setStatus("CLOSED");
                     request.setClosedBy(Integer.valueOf(userId));
-                    return request;
+                    return unenrollDevice(request, authHeader)
+                            .thenReturn(request);
                 })
                 .flatMap(requestRepository::save)
                 .map(saved -> new ApiResponse(saved.getId()));

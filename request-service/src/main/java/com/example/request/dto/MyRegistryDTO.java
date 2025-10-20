@@ -3,11 +3,13 @@ package com.example.request.dto;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Data
 public class MyRegistryDTO {
     private Integer requestId;
-    private String name;                    // register device
+    private UUID deviceUuid;
+    private String name;      // register device
     private String type;
     private String serialNumber;
     private String manufacturer;
