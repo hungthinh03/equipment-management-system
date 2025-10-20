@@ -27,7 +27,7 @@ public class RequestDTO {
     private String itComment;
     private Integer deliveredBy;
     private Instant deliveredAt;
-    private Instant returnSubmittedAt;
+    private Instant releaseSubmittedAt;
     private Integer closedBy;
 
 }

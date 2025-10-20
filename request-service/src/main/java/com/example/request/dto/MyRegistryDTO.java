@@ -17,5 +17,5 @@ public class MyRegistryDTO {
     private String status;
     private Instant createdAt;
     private Instant UpdatedAt;
-    private Instant returnSubmittedAt;
+    private Instant releaseSubmittedAt;
 }

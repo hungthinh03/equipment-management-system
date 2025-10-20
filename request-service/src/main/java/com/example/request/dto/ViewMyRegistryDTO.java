@@ -16,7 +16,7 @@ public class ViewMyRegistryDTO {
     private String status;                  // PENDING, APPROVED, REJECTED, CLOSED
     private Instant createdAt;
     private Instant UpdatedAt;
-    private Instant returnSubmittedAt;
+    private Instant releaseSubmittedAt;
 
     public ViewMyRegistryDTO(MyRegistryDTO dto) {
         this.id = dto.getRequestId();
@@ -31,6 +31,6 @@ public class ViewMyRegistryDTO {
         this.status = dto.getStatus();
         this.createdAt = dto.getCreatedAt();
         this.UpdatedAt = dto.getUpdatedAt();
-        this.returnSubmittedAt = dto.getReturnSubmittedAt();
+        this.releaseSubmittedAt = dto.getReleaseSubmittedAt();
     }
 }

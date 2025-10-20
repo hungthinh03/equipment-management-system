@@ -65,8 +65,8 @@ public class Request {
     @Column("delivered_at")
     private Instant deliveredAt;
 
-    @Column("return_submitted_at")
-    private Instant returnSubmittedAt;
+    @Column("release_submitted_at")
+    private Instant releaseSubmittedAt;
 
     @Column("closed_by")
     private Integer closedBy;
@@ -102,7 +102,7 @@ public class Request {
         this.itComment = dto.getItComment();
         this.deliveredBy = dto.getDeliveredBy();
         this.deliveredAt = dto.getDeliveredAt();
-        this.returnSubmittedAt = dto.getReturnSubmittedAt();
+        this.releaseSubmittedAt = dto.getReleaseSubmittedAt();
         this.closedBy = dto.getClosedBy();
     }
 }

@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 public interface RequestRepository extends ReactiveCrudRepository<Request, Integer> {
     Flux<Request> findByRequesterId(Integer integer);
 
-    Flux<Request> findByReturnSubmittedAtIsNotNullAndStatus(String status);
+    Flux<Request> findByReleaseSubmittedAtIsNotNullAndStatus(String status);
 
     Flux<Request> findAllByStatus(String status);
 
@@ -46,7 +46,7 @@ public interface RequestRepository extends ReactiveCrudRepository<Request, Integ
     @Query("SELECT r.*, rg.* " +
             "FROM requests r " +
             "LEFT JOIN registries rg ON r.id = rg.request_id " +
-            "WHERE r.return_submitted_at IS NOT NULL " +
+            "WHERE r.release_submitted_at IS NOT NULL " +
             "AND r.status = :status")
-    Flux<RequestDTO> findRequestByReturnSubmittedAtIsNotNullAndStatus(String status);
+    Flux<RequestDTO> findRequestByReleaseSubmittedAtIsNotNullAndStatus(String status);
 }

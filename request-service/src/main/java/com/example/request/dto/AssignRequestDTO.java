@@ -27,7 +27,7 @@ public class AssignRequestDTO {
     private String itComment;
     private Integer deliveredBy;
     private Instant deliveredAt;
-    private Instant returnSubmittedAt;
+    private Instant releaseSubmittedAt;
     private Integer closedBy;
 
     public AssignRequestDTO(Request request)
@@ -47,7 +47,7 @@ public class AssignRequestDTO {
         this.itComment = request.getItComment();
         this.deliveredBy = request.getDeliveredBy();
         this.deliveredAt = request.getDeliveredAt();
-        this.returnSubmittedAt = request.getReturnSubmittedAt();
+        this.releaseSubmittedAt = request.getReleaseSubmittedAt();
         this.closedBy = request.getClosedBy();
     }
 
@@ -68,7 +68,7 @@ public class AssignRequestDTO {
         this.itComment = request.getItComment();
         this.deliveredBy = request.getDeliveredBy();
         this.deliveredAt = request.getDeliveredAt();
-        this.returnSubmittedAt = request.getReturnSubmittedAt();
+        this.releaseSubmittedAt = request.getReleaseSubmittedAt();
         this.closedBy = request.getClosedBy();
     }
 }

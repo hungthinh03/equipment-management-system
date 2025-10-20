@@ -345,10 +345,10 @@ public class RequestServiceImpl implements RequestService {
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED))) // Can only submit for own requests
                 .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
-                .filter(req -> req.getReturnSubmittedAt() == null)
+                .filter(req -> req.getReleaseSubmittedAt() == null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.ALREADY_REQUESTED_CLOSE)))
                 .flatMap(req -> {
-                    req.setReturnSubmittedAt(Instant.now());
+                    req.setReleaseSubmittedAt(Instant.now());
                     return requestRepository.save(req);
                 })
                 .map(req -> new ApiResponse(req.getId()));
@@ -362,7 +362,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public Mono<RequestResponse> viewAllReturnNotices(String userId, String role) {
-        return requestRepository.findByReturnSubmittedAtIsNotNullAndStatus("DELIVERED")
+        return requestRepository.findByReleaseSubmittedAtIsNotNullAndStatus("DELIVERED")
                 .filter(req -> canCloseRequest(req, role))
                 .filter(req -> !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
                 .map(AssignRequestDTO::new)
@@ -373,7 +373,7 @@ public class RequestServiceImpl implements RequestService {
     public Mono<RequestResponse> viewReturnNotice(Integer id, String userId, String role) {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
-                .filter(req -> req.getReturnSubmittedAt() != null
+                .filter(req -> req.getReleaseSubmittedAt() != null
                         && "DELIVERED".equalsIgnoreCase(req.getStatus()))  // is closable
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(req -> canCloseRequest(req, role))      // role check
@@ -387,7 +387,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(req -> "DELIVERED".equalsIgnoreCase(req.getStatus())
-                        && req.getReturnSubmittedAt() != null)
+                        && req.getReleaseSubmittedAt() != null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(req -> canCloseRequest(req, role)
                         && !req.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
@@ -456,17 +456,17 @@ public class RequestServiceImpl implements RequestService {
                         "REGISTER".equalsIgnoreCase(req.getRequestType()) &&
                         "APPROVED".equalsIgnoreCase(req.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
-                .filter(req -> req.getReturnSubmittedAt() == null)
+                .filter(req -> req.getReleaseSubmittedAt() == null)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.ALREADY_REQUESTED_CLOSE)))
                 .flatMap(req -> {
-                    req.setReturnSubmittedAt(Instant.now());
+                    req.setReleaseSubmittedAt(Instant.now());
                     return requestRepository.save(req);
                 })
                 .map(req -> new ApiResponse(req.getId()));
     }
 
     public Mono<RequestResponse> viewAllUnenrollNotices(String userId, String role) {
-        return requestRepository.findRequestByReturnSubmittedAtIsNotNullAndStatus("APPROVED")
+        return requestRepository.findRequestByReleaseSubmittedAtIsNotNullAndStatus("APPROVED")
                 .filter(dto -> canCloseRequest(new Request(dto), role))
                 .filter(dto -> !dto.getRequesterId().equals(Integer.valueOf(userId))) // exclude own requests
                 .map(RegisterRequestDTO::new)
@@ -478,7 +478,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findRequestById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(dto ->
-                        dto.getReturnSubmittedAt() != null &&
+                        dto.getReleaseSubmittedAt() != null &&
                         "APPROVED".equalsIgnoreCase(dto.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(dto -> canCloseRequest(new Request(dto), role))
@@ -502,7 +502,7 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(dto ->
-                        dto.getReturnSubmittedAt() != null &&
+                        dto.getReleaseSubmittedAt() != null &&
                                 "APPROVED".equalsIgnoreCase(dto.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .filter(dto -> canCloseRequest(dto, role))
