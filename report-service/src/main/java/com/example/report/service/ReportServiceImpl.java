@@ -56,11 +56,7 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
-    private List<DeviceDTO> getAllDevices(String authHeader) {
-        return deviceClient.getAllDevices(authHeader).block();
-    }
-
-    public byte[] generateAllDevicesReportPDF(boolean landscape, String authHeader) {
+    private byte[] buildDevicesReportPDF(List<DeviceDTO> devices, boolean landscape, String authHeader) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         Document document = new Document(landscape ? PageSize.A4.rotate() : PageSize.A4);
@@ -84,7 +80,6 @@ public class ReportServiceImpl implements ReportService {
         table.setWidthPercentage(100);
 
         addTableHeader(table);
-        List<DeviceDTO> devices = getAllDevices(authHeader);
         addRows(table, devices);
 
         document.add(table);
@@ -93,5 +88,13 @@ public class ReportServiceImpl implements ReportService {
         return outputStream.toByteArray();
     }
 
+    public byte[] generateDevicesReportPDF(boolean landscape, String authHeader) {
+        List<DeviceDTO> devices = deviceClient.getAllDevices(authHeader).block();
+        return buildDevicesReportPDF(devices, landscape, authHeader);
+    }
 
+    public byte[] generateActiveDevicesReportPDF(boolean landscape, String authHeader) {
+        List<DeviceDTO> devices = deviceClient.getAllActiveDevices(authHeader).block();
+        return buildDevicesReportPDF(devices, landscape, authHeader);
+    }
 }
