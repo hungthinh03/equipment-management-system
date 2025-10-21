@@ -16,9 +16,11 @@ public class DeviceClient {
                 .build();
     }
 
-    public Mono<List<DeviceDTO>> getAllDevices() {
+    public Mono<List<DeviceDTO>> getAllDevices(String authHeader) {
         return webClient.get()
                 .uri("http://localhost:8081/device/")
+                .header("Authorization", authHeader)
+                .header("X-Service-Source", "report-service")
                 .retrieve()
                 .bodyToFlux(DeviceDTO.class)
                 .collectList();
