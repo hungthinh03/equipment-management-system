@@ -16,7 +16,7 @@ public class ReportController {
 
     @GetMapping("/device")
     public ResponseEntity<byte[]> generateAllDevicesReportPDF(@RequestHeader("Authorization") String authHeader) {
-        byte[] pdfBytes = reportService.generateDevicesReportPDF(false, authHeader);
+        byte[] pdfBytes = reportService.generateDevicesReportPDF(true, authHeader);
         return ResponseEntity.ok()
                 .header("Content-Disposition",
                         "attachment; filename=devices_report.pdf")
@@ -25,7 +25,7 @@ public class ReportController {
 
     @GetMapping("/device/active")
     public ResponseEntity<byte[]> generateActiveDevicesReportPDF(@RequestHeader("Authorization") String authHeader) {
-        byte[] pdfBytes = reportService.generateActiveDevicesReportPDF(false, authHeader);
+        byte[] pdfBytes = reportService.generateActiveDevicesReportPDF(true, authHeader);
         return ResponseEntity.ok()
                 .header("Content-Disposition",
                         "attachment; filename=active_devices_report.pdf")

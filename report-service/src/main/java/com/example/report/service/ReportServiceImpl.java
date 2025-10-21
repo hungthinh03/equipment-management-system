@@ -6,6 +6,7 @@ import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import java.awt.Color;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,8 @@ import java.util.stream.Stream;
 public class ReportServiceImpl implements ReportService {
     private final DeviceClient deviceClient;
 
+    Color background = new Color(48, 144, 255, 173);
+
     @Autowired
     public ReportServiceImpl(DeviceClient deviceClient) {
         this.deviceClient = deviceClient;
@@ -28,11 +31,13 @@ public class ReportServiceImpl implements ReportService {
 
     private void addTableHeader(PdfPTable table) {
         Stream.of("ID", "Name", "Type", "Serial", "Manufacturer", "Ownership", "Created At", "Status")
-                .forEach(column -> {
-                    PdfPCell header = new PdfPCell(new Phrase(column,
-                            FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
-                    header.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    table.addCell(header);
+                .forEach(header -> {
+                    PdfPCell cell = new PdfPCell(new Phrase(
+                            header, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE)));
+                    cell.setBackgroundColor(background);
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    cell.setBorderColor(background); // border same color
+                    table.addCell(cell);
                 });
     }
 
@@ -44,19 +49,27 @@ public class ReportServiceImpl implements ReportService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 .withZone(ZoneId.systemDefault());
 
-        for (DeviceDTO d : devices) {
-            table.addCell(String.valueOf(d.getId()));
-            table.addCell(safe(d.getName()));
-            table.addCell(safe(d.getType()));
-            table.addCell(safe(d.getSerialNumber()));
-            table.addCell(safe(d.getManufacturer()));
-            table.addCell(safe(d.getOwnershipType()));
-            table.addCell(d.getCreatedAt() != null ? formatter.format(d.getCreatedAt()) : "-");
-            table.addCell(safe(d.getStatus()));
+        for (DeviceDTO device : devices) {
+            Stream.of(
+                    String.valueOf(device.getId()),
+                    device.getName(),
+                    device.getType(),
+                    device.getSerialNumber(),
+                    device.getManufacturer(),
+                    device.getOwnershipType(),
+                    device.getCreatedAt() != null ? formatter.format(device.getCreatedAt()) : "-",
+                    device.getStatus()
+            ).forEach(value -> {
+                PdfPCell cell = new PdfPCell(new Phrase(value));
+                cell.setBorderColor(background); // light blue border
+                table.addCell(cell);
+            });
         }
     }
 
-    private byte[] buildDevicesReportPDF(List<DeviceDTO> devices, boolean landscape, String authHeader) {
+
+
+    private byte[] buildDevicesReportPDF(List<DeviceDTO> devices, boolean landscape) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         Document document = new Document(landscape ? PageSize.A4.rotate() : PageSize.A4);
@@ -68,12 +81,15 @@ public class ReportServiceImpl implements ReportService {
         Paragraph title = new Paragraph(
                 "Device Inventory Report",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
-        title.setAlignment(Element.ALIGN_CENTER);
+        //title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
 
         // Metadata
-        document.add(new Paragraph("Generated on: " + LocalDate.now()));
-        document.add(Chunk.NEWLINE);
+        Paragraph meta = new Paragraph();
+        meta.add("Generated on:\t" + LocalDate.now() + "\n");
+        meta.add("Record count:\t" + (devices == null ? 0 : devices.size() + 1));
+        document.add(meta);
+        //document.add(Chunk.NEWLINE);
 
         // Table
         PdfPTable table = new PdfPTable(8);
@@ -90,11 +106,11 @@ public class ReportServiceImpl implements ReportService {
 
     public byte[] generateDevicesReportPDF(boolean landscape, String authHeader) {
         List<DeviceDTO> devices = deviceClient.getAllDevices(authHeader).block();
-        return buildDevicesReportPDF(devices, landscape, authHeader);
+        return buildDevicesReportPDF(devices, landscape);
     }
 
     public byte[] generateActiveDevicesReportPDF(boolean landscape, String authHeader) {
         List<DeviceDTO> devices = deviceClient.getAllActiveDevices(authHeader).block();
-        return buildDevicesReportPDF(devices, landscape, authHeader);
+        return buildDevicesReportPDF(devices, landscape);
     }
 }
