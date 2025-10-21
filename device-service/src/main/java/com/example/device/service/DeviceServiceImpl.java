@@ -296,4 +296,16 @@ public class DeviceServiceImpl implements DeviceService {
                 })
                 .map(updated -> new ApiResponse(updated.getId()));
     }
+
+    public Mono<DeviceResponse> getAllDevicesReport() {
+        return deviceRepo.findAllDevices()
+                .collectList()
+                .map(DeviceResponse::new);
+    }
+
+    public Mono<DeviceResponse> getAllActiveDevicesReport() {
+        return deviceRepo.findAllActiveDevices()
+                .collectList()
+                .map(DeviceResponse::new);
+    }
 }

@@ -131,4 +131,22 @@ public class DeviceController {
                                             @PathVariable String uuid) {
         return deviceService.unenrollDevice(userId, role, uuid);
     }
+
+    @GetMapping("/report")
+    public Mono<DeviceResponse> getAllDevicesReport(@RequestHeader(value = "X-Service-Source", required = false)
+                                                        String source) {
+        return Mono.justOrEmpty(source)
+                .filter("report-service"::equalsIgnoreCase)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .flatMap(r -> deviceService.getAllDevicesReport());
+    }
+
+    @GetMapping("/report/active")
+    public Mono<DeviceResponse> getAllActiveDevicesReport(@RequestHeader(value = "X-Service-Source", required = false)
+                                                    String source) {
+        return Mono.justOrEmpty(source)
+                .filter("report-service"::equalsIgnoreCase)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))
+                .flatMap(r -> deviceService.getAllActiveDevicesReport());
+    }
 }

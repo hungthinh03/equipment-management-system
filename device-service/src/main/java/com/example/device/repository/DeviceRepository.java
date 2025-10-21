@@ -39,6 +39,21 @@ public interface DeviceRepository extends ReactiveCrudRepository<Device, Integer
             "ORDER BY CASE WHEN d.status = 'RETIRED' THEN 1 ELSE 0 END, d.updated_at DESC")
     Flux<ViewDeviceDTO> findAllByManagedBy(String role);
 
+    @Query("SELECT d.*, dt.name AS type " +
+            "FROM devices d " +
+            "JOIN device_types dt ON d.type_id = dt.id " +
+            "JOIN device_categories dc ON dt.category_id = dc.id " +
+            "ORDER BY CASE WHEN d.status = 'RETIRED' THEN 1 ELSE 0 END, d.id ASC")
+    Flux<ViewDeviceDTO> findAllDevices();
+
+    @Query("SELECT d.*, dt.name AS type " +
+            "FROM devices d " +
+            "JOIN device_types dt ON d.type_id = dt.id " +
+            "JOIN device_categories dc ON dt.category_id = dc.id " +
+            "WHERE d.status <> 'RETIRED' " +
+            "ORDER BY d.id ASC")
+    Flux<ViewDeviceDTO> findAllActiveDevices();
+
 
     @Query("SELECT d.uuid, d.name, dt.name AS type, dc.name AS category, d.manufacturer, d.status, d.updated_at " +
             "FROM devices d " +

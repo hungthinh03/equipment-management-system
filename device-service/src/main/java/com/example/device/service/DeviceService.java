@@ -36,4 +36,8 @@ public interface DeviceService {
     Mono<MyDeviceResponse> viewMyDevice(String userId, String uuid);
 
     Mono<ApiResponse> unenrollDevice(String userId, String role, String uuid);
+
+    Mono<DeviceResponse> getAllDevicesReport();
+
+    Mono<DeviceResponse> getAllActiveDevicesReport();
 }
