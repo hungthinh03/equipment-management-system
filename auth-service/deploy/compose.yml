@@ -1,0 +1,41 @@
+name: auth-service
+version: "3.9"
+
+services:
+  db:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.db
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: AuthServiceDB
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.app
+    container_name: auth-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8082
+      SPRING_R2DBC_URL: r2dbc:postgresql://db:5432/AuthServiceDB
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: 12345678
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8082:8082"
+
+volumes:
+  auth_data:
