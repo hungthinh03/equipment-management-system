@@ -904,7 +904,46 @@ The following diagram illustrates the complete equipment request lifecycle, from
 <img src="assets/request_diagram.png" style="width:65%;"/>
 
 
-## 7. Technical Specifications
+## 7. Setup & Testing
+
+1. **Build the Application**
+
+Run the following command in the root folder of each of the services to build the Spring Boot JAR file:
+
+```bash
+./gradlew build
+```
+
+> Use `-x test` to skip running tests for faster image build
+
+2. **Create the Network**
+
+Run the following command in the terminal to create the network used by the containers:
+
+```bash
+docker network create equipment-management-net
+```
+
+To stop and remove the network:
+```bash
+docker network rm equipment-management-net
+```
+
+3. **Start the Application**
+
+Run the following command in the root folder of each of the service to start both the application and database:
+
+```bash
+docker compose -f deploy/compose.yml up
+```
+
+To stop the containers and remove associated volumes:
+```bash
+docker compose -f deploy/compose.yml down -v
+```
+
+
+## 8. Technical Specifications
 - **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
 - **Service Communication:** REST APIs with an API Gateway.  
 - **Containerization:** Each service runs in its own Docker container.  
