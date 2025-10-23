@@ -1,0 +1,20 @@
+name: api-gateway
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.app
+    container_name: api-gateway
+    environment:
+      SERVER_PORT: 8081
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8081:8081"
+    networks:
+      - equipment-management-net
+
+networks:
+  equipment-management-net:
+    external: true  # use the network
