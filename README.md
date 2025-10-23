@@ -12,7 +12,7 @@ The project will be composed of the following microservices:
 - **Request Service** - manages device requests and approval/rejection workflows.  
 - **Report Service** - generates monthly reports for Admins.  
 
-> All services will communicate via REST APIs.
+> All services will communicate via REST APIs and will be exposed through an API Gateway.
 
 ## 3. API Endpoints
 
@@ -906,9 +906,9 @@ The following diagram illustrates the complete equipment request lifecycle, from
 
 ## 7. Technical Specifications
 - **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
-- **Service Communication:** REST APIs (with an API Gateway).  
+- **Service Communication:** REST APIs with an API Gateway.  
 - **Containerization:** Each service runs in its own Docker container.  
-- **Persistence:** Shared PostgreSQL (or per-service schema separation).  
+- **Persistence:** Independent PostgreSQL databases per service.  
 - **Scalability:** Services can be scaled independently.  
 - **Frameworks:** Java / Spring Boot for each service.  
-- **Authentication:** Centralized Auth service with JWT tokens.  
+- **Authentication:** Centralized Auth service for JWT issuance, Gateway validates and routes requests. 
