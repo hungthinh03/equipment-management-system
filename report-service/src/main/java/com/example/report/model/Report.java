@@ -1,33 +1,45 @@
 package com.example.report.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("reports")
+@Entity
+@Table(name = "reports")
 public class Report {
     @Id
-    @Column("id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column("report_name")
+    @Column(name = "report_name")
     private String reportName;
 
-    @Column("generated_by")
+    @Column(name = "format")
+    private String format; // PDF, CSV, ect
+
+    @Column(name = "generated_by")
     private Integer generatedBy;
 
-    @Column("generated_at")
+    @Column(name = "generated_at", insertable = false, updatable = false) // auto gen by DB
     private Instant generatedAt;
 
-    @Column("notes")
+    @Column(name = "record_count")
+    private Integer recordCount;
+
+    @Column(name = "notes")
     private String notes;
 
+
+    public Report(String reportName, String format, Integer generatedBy, Integer recordCount) {
+        this.reportName = reportName;
+        this.format = format;
+        this.generatedBy = generatedBy;
+        this.recordCount = recordCount;
+    }
 }
