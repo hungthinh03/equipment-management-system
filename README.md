@@ -12,7 +12,7 @@ The project will be composed of the following microservices:
 - **Request Service** - manages device requests and approval/rejection workflows.  
 - **Report Service** - generates monthly reports for Admins.  
 
-> All services will communicate via REST APIs.
+> All services will communicate via REST APIs and will be exposed through an API Gateway.
 
 ## 3. API Endpoints
 
@@ -904,11 +904,52 @@ The following diagram illustrates the complete equipment request lifecycle, from
 <img src="assets/request_diagram.png" style="width:65%;"/>
 
 
-## 7. Technical Specifications
+## 7. Setup & Testing
+
+1. **Build the Application**
+
+Run the following command in the root folder of each of the services to build the Spring Boot JAR file:
+
+```bash
+./gradlew build
+```
+
+> Use `-x test` to skip running tests for faster image build
+
+2. **Create the Network**
+
+Run the following command in the terminal to create the network used by the containers:
+
+```bash
+docker network create equipment-management-net
+```
+
+To stop and remove the network:
+```bash
+docker network rm equipment-management-net
+```
+
+3. **Start the Application**
+
+Run the following command in the root folder of each of the service to start both the application and database:
+
+```bash
+docker compose -f deploy/compose.yml up
+```
+
+> Use `--no-cache` if there are any changes to the code or configs
+
+To stop the containers and remove associated volumes:
+```bash
+docker compose -f deploy/compose.yml down -v
+```
+
+
+## 8. Technical Specifications
 - **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
-- **Service Communication:** REST APIs (with an API Gateway).  
+- **Service Communication:** REST APIs with an API Gateway.  
 - **Containerization:** Each service runs in its own Docker container.  
-- **Persistence:** Shared PostgreSQL (or per-service schema separation).  
+- **Persistence:** Independent PostgreSQL databases per service.  
 - **Scalability:** Services can be scaled independently.  
 - **Frameworks:** Java / Spring Boot for each service.  
-- **Authentication:** Centralized Auth service with JWT tokens.  
+- **Authentication:** Centralized Auth service for JWT issuance, Gateway validates and routes requests. 

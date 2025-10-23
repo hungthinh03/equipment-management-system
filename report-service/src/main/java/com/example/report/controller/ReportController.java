@@ -16,8 +16,9 @@ public class ReportController {
     private ReportService reportService;
 
     @GetMapping("/device/pdf")
-    public ResponseEntity<byte[]> generateAllDevicesReportPDF(@RequestHeader("Authorization") String authHeader) {
-        byte[] pdfBytes = reportService.generateDevicesReportPDF(true, authHeader);
+    public ResponseEntity<byte[]> generateAllDevicesReportPDF(@RequestHeader("X-User-Id") String userId,
+                                                              @RequestHeader("Authorization") String authHeader) {
+        byte[] pdfBytes = reportService.generateDevicesReportPDF(true, userId, authHeader);
         return ResponseEntity.ok()
                 .header("Content-Disposition",
                         "attachment; filename=devices_report.pdf")
@@ -26,8 +27,9 @@ public class ReportController {
     }
 
     @GetMapping("/device/active/pdf")
-    public ResponseEntity<byte[]> generateActiveDevicesReportPDF(@RequestHeader("Authorization") String authHeader) {
-        byte[] pdfBytes = reportService.generateActiveDevicesReportPDF(true, authHeader);
+    public ResponseEntity<byte[]> generateActiveDevicesReportPDF(@RequestHeader("X-User-Id") String userId,
+                                                                 @RequestHeader("Authorization") String authHeader) {
+        byte[] pdfBytes = reportService.generateActiveDevicesReportPDF(true, userId, authHeader);
         return ResponseEntity.ok()
                 .header("Content-Disposition",
                         "attachment; filename=active_devices_report.pdf")
@@ -36,8 +38,9 @@ public class ReportController {
     }
 
     @GetMapping("/device/csv")
-    public ResponseEntity<byte[]> generateDevicesReportCSV(@RequestHeader("Authorization") String authHeader) {
-        byte[] csvBytes = reportService.generateDevicesReportCSV(authHeader);
+    public ResponseEntity<byte[]> generateDevicesReportCSV(@RequestHeader("X-User-Id") String userId,
+                                                           @RequestHeader("Authorization") String authHeader) {
+        byte[] csvBytes = reportService.generateDevicesReportCSV(userId, authHeader);
         return ResponseEntity.ok()
                 .header("Content-Disposition",
                         "attachment; filename=devices_report.csv")
@@ -46,11 +49,12 @@ public class ReportController {
     }
 
     @GetMapping("/device/active/csv")
-    public ResponseEntity<byte[]> generateActiveDevicesReportCSV(@RequestHeader("Authorization") String authHeader) {
-        byte[] csvBytes = reportService.generateActiveDevicesReportCSV(authHeader);
+    public ResponseEntity<byte[]> generateActiveDevicesReportCSV(@RequestHeader("X-User-Id") String userId,
+                                                                 @RequestHeader("Authorization") String authHeader) {
+        byte[] csvBytes = reportService.generateActiveDevicesReportCSV(userId, authHeader);
         return ResponseEntity.ok()
                 .header("Content-Disposition",
-                        "attachment; filename=devices_report.csv")
+                        "attachment; filename=active_devices_report.csv")
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(csvBytes);
     }

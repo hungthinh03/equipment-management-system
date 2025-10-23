@@ -2,6 +2,8 @@ package com.example.report.service;
 
 import com.example.report.client.DeviceClient;
 import com.example.report.dto.DeviceDTO;
+import com.example.report.model.Report;
+import com.example.report.repository.ReportRepository;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
@@ -26,6 +28,9 @@ import java.util.stream.Stream;
 
 @Service
 public class ReportServiceImpl implements ReportService {
+    @Autowired
+    private ReportRepository reportRepo;
+
     private final DeviceClient deviceClient;
 
     Color background = new Color(48, 144, 255, 173);
@@ -85,7 +90,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     public List<DeviceDTO> getAllActiveDevices(String authHeader) {
-        return deviceClient.getAllDevices(authHeader).block();
+        return deviceClient.getAllActiveDevices(authHeader).block();
     }
 
     private byte[] buildDevicesReportPDF(List<DeviceDTO> devices, boolean landscape) {
@@ -125,12 +130,27 @@ public class ReportServiceImpl implements ReportService {
         return outputStream.toByteArray();
     }
 
-    public byte[] generateDevicesReportPDF(boolean landscape, String authHeader) {
-        return buildDevicesReportPDF(getAllDevices(authHeader), landscape);
+    private void saveReport(String name, String format, String userId, List<DeviceDTO> devices) {
+        reportRepo.save(new Report(
+                name,
+                format,
+                Integer.valueOf(userId),
+                devices.size() + 1
+        ));
     }
 
-    public byte[] generateActiveDevicesReportPDF(boolean landscape, String authHeader) {
-        return buildDevicesReportPDF(getAllActiveDevices(authHeader), landscape);
+    public byte[] generateDevicesReportPDF(boolean landscape,  String userId, String authHeader) {
+        List<DeviceDTO> devices = getAllDevices(authHeader);
+        byte[] pdfBytes = buildDevicesReportPDF(devices, landscape);
+        saveReport("All Devices Report", "PDF", userId, devices);
+        return pdfBytes;
+    }
+
+    public byte[] generateActiveDevicesReportPDF(boolean landscape,  String userId, String authHeader) {
+        List<DeviceDTO> devices = getAllActiveDevices(authHeader);
+        byte[] pdfBytes = buildDevicesReportPDF(devices, landscape);
+        saveReport("All Active Devices Report", "PDF", userId, devices);
+        return pdfBytes;
     }
 
     private byte[] buildDevicesReportCSV(List<DeviceDTO> devices) {
@@ -167,11 +187,17 @@ public class ReportServiceImpl implements ReportService {
         return outputStream.toByteArray();
     }
 
-    public byte[] generateDevicesReportCSV(String authHeader) {
-        return buildDevicesReportCSV(getAllDevices(authHeader));
+    public byte[] generateDevicesReportCSV(String userId, String authHeader) {
+        List<DeviceDTO> devices = getAllDevices(authHeader);
+        byte[] csvBytes = buildDevicesReportCSV(devices);
+        saveReport("All Devices Report", "CSV", userId, devices);
+        return csvBytes;
     }
 
-    public byte[] generateActiveDevicesReportCSV(String authHeader) {
-        return buildDevicesReportCSV(getAllActiveDevices(authHeader));
+    public byte[] generateActiveDevicesReportCSV(String userId, String authHeader) {
+        List<DeviceDTO> devices = getAllActiveDevices(authHeader);
+        byte[] csvBytes = buildDevicesReportCSV(devices);
+        saveReport("All Active Devices Report", "CSV", userId, devices);
+        return csvBytes;
     }
 }
