@@ -1,0 +1,5 @@
+# Use official Postgres image as base
+FROM postgres:17
+
+# Copy SQL initialization scripts into the default init directory
+COPY deploy/sql /docker-entrypoint-initdb.d

@@ -1,0 +1,48 @@
+name: report-service
+version: "3.9"
+
+services:
+  db:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.db
+    container_name: report-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: ReportServiceDB
+    volumes:
+      - report_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - equipment-management-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.app
+    container_name: report-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8085
+      SPRING_R2DBC_URL: r2dbc:postgresql://report-db:5432/ReportServiceDB #Still connect to 5432
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: 12345678
+    ports:
+      - "8085:8085"
+    networks:
+      - equipment-management-net
+
+networks:
+  equipment-management-net:
+    external: true  # use the network
+
+volumes:
+  report_data:
