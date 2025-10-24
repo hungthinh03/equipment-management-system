@@ -916,6 +916,12 @@ Run the following command in the root folder of each of the services to build th
 
 > Use `-x test` to skip running tests for faster image build
 
+If there are any changes to the code or configs, rerun the command above then the following: 
+
+```bash
+docker compose -f deploy/compose.yml build --no-cache
+```
+
 2. **Create the Network**
 
 Run the following command in the terminal to create the network used by the containers:
@@ -936,8 +942,6 @@ Run the following command in the root folder of each of the service to start bot
 ```bash
 docker compose -f deploy/compose.yml up
 ```
-
-> Use `--no-cache` if there are any changes to the code or configs
 
 To stop the containers and remove associated volumes:
 ```bash
