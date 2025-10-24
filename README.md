@@ -937,6 +937,8 @@ Run the following command in the root folder of each of the service to start bot
 docker compose -f deploy/compose.yml up
 ```
 
+> Use `--no-cache` if there are any changes to the code or configs
+
 To stop the containers and remove associated volumes:
 ```bash
 docker compose -f deploy/compose.yml down -v
