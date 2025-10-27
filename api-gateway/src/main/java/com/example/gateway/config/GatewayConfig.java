@@ -15,7 +15,7 @@ public class GatewayConfig {
     public RouteLocator customRoutes(RouteLocatorBuilder builder, JwtAuthFilter jwtAuthFilter) {
         return builder.routes()
                 .route("auth-service", r -> r.path("/auth/**")
-                        .uri("http://auth-app:8082"))  // Replace with localhost for local run
+                        .uri("http://auth-app:8082"))
                 .route("device-service-external-request", r -> r.path("/device/**")
                         .and().header("X-Service-Source", ".*") // if is from another service
                         .and().not(h -> h.header("X-Processed-Route", "true"))

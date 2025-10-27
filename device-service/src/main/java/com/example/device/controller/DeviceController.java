@@ -143,7 +143,7 @@ public class DeviceController {
 
     @GetMapping("/report/active")
     public Mono<DeviceResponse> getAllActiveDevicesReport(@RequestHeader(value = "X-Service-Source", required = false)
-                                                    String source) {
+                                                              String source) {
         return Mono.justOrEmpty(source)
                 .filter("report-service"::equalsIgnoreCase)
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED)))

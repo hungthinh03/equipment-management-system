@@ -13,13 +13,13 @@ public class DeviceClient {
     private final WebClient webClient;
     public DeviceClient(WebClient.Builder builder) {
         this.webClient = builder
-                .baseUrl("http://device-service")
+                .baseUrl("http://api-gateway:8081")
                 .build();
     }
 
     public Mono<List<DeviceDTO>> getAllDevices(String authHeader) {
         return webClient.get()
-                .uri("http://localhost:8081/device/report")
+                .uri("/device/report")
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "report-service")
                 .retrieve()
@@ -29,7 +29,7 @@ public class DeviceClient {
 
     public Mono<List<DeviceDTO>> getAllActiveDevices(String authHeader) {
         return webClient.get()
-                .uri("http://localhost:8081/device/report/active")
+                .uri("/device/report/active")
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "report-service")
                 .retrieve()

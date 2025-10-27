@@ -111,7 +111,7 @@ public class ReportServiceImpl implements ReportService {
         // Metadata
         Paragraph meta = new Paragraph();
         meta.add("Generated on:\t" + LocalDate.now() + "\n");
-        meta.add("Record count:\t" + (devices == null ? 0 : devices.size() + 1));
+        meta.add("Record count:\t" + (devices == null ? 0 : devices.size()));
         document.add(meta);
         document.add(Chunk.NEWLINE);
 
@@ -135,7 +135,7 @@ public class ReportServiceImpl implements ReportService {
                 name,
                 format,
                 Integer.valueOf(userId),
-                devices.size() + 1
+                devices.size()
         ));
     }
 
