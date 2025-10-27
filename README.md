@@ -906,6 +906,16 @@ The following diagram illustrates the complete equipment request lifecycle, from
 
 ## 7. Setup & Testing
 
+1. **Environment Configuration**
+
+Define the `JWT_SECRET` variable in the global environment or in a `.env` file within the `/deploy` folder of the API Gateway and Auth Service, for example:
+
+```bash
+JWT_SECRET=my-jwt-secret
+```
+
+> Both the Auth Service and API Gateway must use the same `JWT_SECRET` to correctly validate authentication tokens.
+
 1. **Build the Application**
 
 Run the following command in the root folder of each of the services to build the Spring Boot JAR file:
