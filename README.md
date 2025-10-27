@@ -960,7 +960,11 @@ To stop the containers and remove associated volumes:
 docker compose -f deploy/compose.yml down -v
 ```
 
+## 8. API Testing
 
+Use the following Postman collection to test the API endpoints with the predefined requests:
+
+[equipment-management-system.postman_collection.json](./postman/equipment-management-system.postman_collection.json)
 
 ## 9. Technical Specifications
 - **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
