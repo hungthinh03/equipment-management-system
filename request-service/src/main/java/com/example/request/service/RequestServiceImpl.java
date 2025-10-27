@@ -28,7 +28,7 @@ public class RequestServiceImpl implements RequestService {
     public RequestServiceImpl(RequestRepository requestRepository, RegistryRepository registryRepository, WebClient.Builder webClientBuilder) {
         this.requestRepository = requestRepository;
         this.registryRepository = registryRepository;
-        this.webClient = webClientBuilder.baseUrl("http://device-service").build();
+        this.webClient = webClientBuilder.baseUrl("http://api-gateway:8081").build();
     }
 
     private Mono<UUID> validateUuid(String uuid) {
@@ -43,7 +43,7 @@ public class RequestServiceImpl implements RequestService {
         return validateUuid(uuid)
                 .flatMap(validUuid ->
                         webClient.get() //web request service
-                                .uri("http://localhost:8081/device/by-uuid/{uuid}", validUuid)
+                                .uri("/device/by-uuid/{uuid}", validUuid)
                                 .header("Authorization", authHeader)
                                 .header("X-Service-Source", "request-service")
                                 .retrieve()
@@ -144,7 +144,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Mono<Void> updateDeviceAssignment(Request request, UpdateAssignmentDTO dto, String authHeader) {
         return webClient.put()
-                .uri("http://localhost:8081/device/by-uuid/{uuid}", request.getDeviceUuid())
+                .uri("/device/by-uuid/{uuid}", request.getDeviceUuid())
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "request-service")
                 .bodyValue(dto)
@@ -187,7 +187,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Mono<Void> validateDevice(CreateRegistryDTO dto, String authHeader) {
         return webClient.post()
-                .uri("http://localhost:8081/device/registration/validate")
+                .uri("/device/registration/validate")
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "request-service")
                 .bodyValue(dto)
@@ -210,7 +210,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Mono<List<String>> getAllDeviceTypesManagedByRole(String authHeader) {
         return webClient.get()
-                .uri("http://localhost:8081/device/type")
+                .uri("/device/type")
                 .header("Authorization", authHeader)
                 .retrieve()
                 .bodyToMono(JsonNode.class)
@@ -223,7 +223,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Mono<UUID> addRegisterDevice(CreateRegistryDTO dto, String authHeader) {
         return webClient.post()
-                .uri("http://localhost:8081/device/registration")
+                .uri("/device/registration")
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "request-service")
                 .bodyValue(dto)
@@ -490,7 +490,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Mono<Void> unenrollDevice(Request request, String authHeader) {
         return webClient.delete()
-                .uri("http://localhost:8081/device/by-uuid/{uuid}", request.getDeviceUuid())
+                .uri("/device/by-uuid/{uuid}", request.getDeviceUuid())
                 .header("Authorization", authHeader)
                 .header("X-Service-Source", "request-service")
                 .retrieve()
