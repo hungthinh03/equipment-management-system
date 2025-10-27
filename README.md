@@ -916,7 +916,7 @@ JWT_SECRET=my-jwt-secret
 
 > Both the Auth Service and API Gateway must use the same `JWT_SECRET` to correctly validate authentication tokens.
 
-1. **Build the Application**
+2. **Build the Application**
 
 Run the following command in the root folder of each of the services to build the Spring Boot JAR file:
 
@@ -932,7 +932,7 @@ If there are any changes to the code or configs, rerun the command above then th
 docker compose -f deploy/compose.yml build --no-cache
 ```
 
-2. **Create the Network**
+3. **Create the Network**
 
 Run the following command in the terminal to create the network used by the containers:
 
@@ -945,7 +945,7 @@ To stop and remove the network:
 docker network rm equipment-management-net
 ```
 
-3. **Start the Application**
+4. **Start the Application**
 
 Run the following command in the root folder of each of the service to start both the application and database:
 
