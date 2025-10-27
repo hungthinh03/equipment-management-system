@@ -894,7 +894,9 @@ Each service will use its own database for storing and managing data related to 
 
   > Request status: 'PENDING', 'REJECTED', 'APPROVED', 'DELIVERED', 'CLOSED', 'CANCELLED'
 
-- **Report Service DB** - stores aggregated data and reporting snapshots.  
+- **Report Service DB** - stores aggregated data and reporting snapshots.
+ 
+<img src="assets/report.jpg" style="width:50%;"/>
 
 
 ## 6. Workflow Overview
@@ -906,7 +908,17 @@ The following diagram illustrates the complete equipment request lifecycle, from
 
 ## 7. Setup & Testing
 
-1. **Build the Application**
+1. **Environment Configuration**
+
+Define the `JWT_SECRET` variable in the global environment or in a `.env` file within the `/deploy` folder of the API Gateway and Auth Service, for example:
+
+```bash
+JWT_SECRET=my-jwt-secret
+```
+
+> Both the Auth Service and API Gateway must use the same `JWT_SECRET` to correctly validate authentication tokens.
+
+2. **Build the Application**
 
 Run the following command in the root folder of each of the services to build the Spring Boot JAR file:
 
@@ -916,7 +928,13 @@ Run the following command in the root folder of each of the services to build th
 
 > Use `-x test` to skip running tests for faster image build
 
-2. **Create the Network**
+If there are any changes to the code or configs, rerun the command above then the following: 
+
+```bash
+docker compose -f deploy/compose.yml build --no-cache
+```
+
+3. **Create the Network**
 
 Run the following command in the terminal to create the network used by the containers:
 
@@ -929,15 +947,13 @@ To stop and remove the network:
 docker network rm equipment-management-net
 ```
 
-3. **Start the Application**
+4. **Start the Application**
 
 Run the following command in the root folder of each of the service to start both the application and database:
 
 ```bash
 docker compose -f deploy/compose.yml up
 ```
-
-> Use `--no-cache` if there are any changes to the code or configs
 
 To stop the containers and remove associated volumes:
 ```bash
