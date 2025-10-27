@@ -894,7 +894,9 @@ Each service will use its own database for storing and managing data related to 
 
   > Request status: 'PENDING', 'REJECTED', 'APPROVED', 'DELIVERED', 'CLOSED', 'CANCELLED'
 
-- **Report Service DB** - stores aggregated data and reporting snapshots.  
+- **Report Service DB** - stores aggregated data and reporting snapshots.
+ 
+<img src="assets/report.jpg" style="width:50%;"/>
 
 
 ## 6. Workflow Overview
