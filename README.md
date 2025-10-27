@@ -854,20 +854,20 @@ The project will be composed of the following microservices:
 
 
 ## 4. Milestones & Time Frames
-- **Time Frame:** 4 weeks  
+- **Time Frame:** 8 weeks  
 - **Start Date:** 8 September, 2025  
 
 | Date Range | Milestone | Description |
 |------------|-----------|-------------|
 | 08/09 - 09/09 | Project Setup and Planning | Define microservice boundaries, create repositories |
-| 10/09 - 12/09 | Auth Service | Build authentication & authorization service with JWT. |
-| 13/09 - 16/09 | Device Service | Implement device CRUD microservice, expose REST endpoints. |
-| 17/09 - 20/09 | Request Service | Implement request handling microservice for employees and IT/Admin approvals. |
-| 21/09 - 23/09 | Report Service | Build reporting microservice for monthly device overview. |
-| 24/09 - 26/09 | Service Integration | Test inter-service communication, validate role-based flows. |
-| 27/09 - 30/09 | System Testing | End-to-end testing across all microservices. |
-| 01/10 - 03/10 | API Documentation | Document APIs of each service and prepare Postman collection. |
-| 04/10 - 05/10 | Deployment and Review | Deploy multi-service system with Docker Compose. |
+| 10/09 - 13/09 | Auth Service | Build authentication & authorization service with JWT. |
+| 14/09 - 22/09 | Device Service | Implement device CRUD microservice, expose REST endpoints. |
+| 23/09 - 08/10 | Request Service | Implement request handling microservice for employees and IT/Admin approvals. |
+| 09/10 - 13/10 | Report Service | Build reporting microservice for monthly device overview. |
+| 14/10 - 16/10 | Service Integration | Test inter-service communication, validate role-based flows. |
+| 17/10 - 20/10 | System Testing | End-to-end testing across all microservices. |
+| 21/10 - 24/10 | API Documentation | Document APIs of each service and prepare Postman collection. |
+| 25/10 - 29/10 | Deployment and Review | Deploy multi-service system with Docker Compose. |
 
 
 ## 5. Database Design
@@ -906,7 +906,7 @@ The following diagram illustrates the complete equipment request lifecycle, from
 <img src="assets/request_diagram.png" style="width:65%;"/>
 
 
-## 7. Setup & Testing
+## 7. Setup & Run
 
 1. **Environment Configuration**
 
@@ -961,7 +961,8 @@ docker compose -f deploy/compose.yml down -v
 ```
 
 
-## 8. Technical Specifications
+
+## 9. Technical Specifications
 - **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
 - **Service Communication:** REST APIs with an API Gateway.  
 - **Containerization:** Each service runs in its own Docker container.  
