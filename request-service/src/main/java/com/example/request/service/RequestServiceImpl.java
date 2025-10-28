@@ -450,6 +450,7 @@ public class RequestServiceImpl implements RequestService {
 
     public Mono<ApiResponse> submitUnenrollNotice(Integer id, String userId) {
         return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new AppException(ErrorCode.NOT_FOUND)))
                 .filter(req -> req.getRequesterId().equals(Integer.valueOf(userId)))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.UNAUTHORIZED))) // Can only submit for own requests
                 .filter(req ->
