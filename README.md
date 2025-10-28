@@ -67,8 +67,12 @@ The project will be composed of the following microservices:
     - **Request Body:**
     ```json
     {
-        "name": "Laptop Dell XPS 15",
-        "type": "Laptop"
+        "name": "Dell XPS 15",
+        "type": "Laptop",
+        "serialNumber": "SN-DEL-1001",
+        "manufacturer": "Dell",
+        "purchasePrice": 1800.00,
+        "purchaseDate": "2023-08-14"
     }
     ```
     - **Responses**:  
@@ -107,14 +111,42 @@ The project will be composed of the following microservices:
     }
      ```
 
-     - **Invalid type** - Returned when the input type is not found or inaccessible
+     - **Type not found** - Returned when the input type is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1016,
+        "message": "Device type not found"
+    }
+     ```
+
+     - **Type inaccessible** - Returned when the user is not authorized to access the input type
      ```json
     {
         "status": "error",
         "statusCode": 1006,
-        "message": "Device type not found or inaccessible"
+        "message": "You are not authorized to access this device type"
     }
      ```
+
+    - **Duplicate serial** - Returned when the input serial already exists
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1015,
+        "message": "Serial number already exists"
+    }
+     ```
+
+    - **Invalid date** - Returned when the input date is not the correct format
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1014,
+        "message": "Date must be in format yyyy-MM-dd"
+    }
+     ```
+    
 
 - **Update Device**
     - **Name:** `/updateDevice`  
@@ -124,8 +156,12 @@ The project will be composed of the following microservices:
     - **Request Body:**
     ```json
     {
-        "name": "Laptop Dell XPS 15",
-        "type": "Laptop"
+        "name": "Dell XPS 16 2024",
+        "type": "Laptop",
+        "serialNumber": "SN-DEL-1001",
+        "manufacturer": "Dell",
+        "purchasePrice": 1800.00,
+        "purchaseDate": "2023-08-14"
     }
     ```
     - **Responses**:  
@@ -164,6 +200,15 @@ The project will be composed of the following microservices:
     }
      ```
 
+    - **Invalid operation** - Returned when device status is not in a valid for this operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1017,
+        "message": "Device not in a valid state for this action"
+    }
+     ```
+
     - **Invalid input** - Returned when one or more fields of request body are blank or null
      ```json
     {
@@ -173,12 +218,39 @@ The project will be composed of the following microservices:
     }
      ```
 
-     - **Invalid type** - Returned when the input type is not found or inaccessible
+    - **Invalid type** - Returned when the input type is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1016,
+        "message": "Device type not found"
+    }
+     ```
+
+    - **Type inaccessible** - Returned when the user is not authorized to access the input type
      ```json
     {
         "status": "error",
         "statusCode": 1006,
-        "message": "Device type not found or inaccessible"
+        "message": "You are not authorized to access this device type"
+    }
+     ```
+
+    - **Duplicate serial** - Returned when the input serial already exists
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1015,
+        "message": "Serial number already exists"
+    }
+     ```
+
+    - **Invalid date** - Returned when the input date is not the correct format
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1014,
+        "message": "Date must be in format yyyy-MM-dd"
     }
      ```
 
@@ -194,11 +266,19 @@ The project will be composed of the following microservices:
         "status": "success",
         "device": {
             "id": 16,
-            "uuid": "d1e8f080-9bfc-4b9b-a65f-2c5a04a5616d",
-            "name": "Laptop Dell XPS 15",
+            "uuid": "b436a16d-4906-45a7-88a9-6d14d2148f2e",
+            "name": "Dell XPS 15",
             "type": "Laptop",
+            "ownershipType": "COMPANY",
+            "serialNumber": "SN-DEL-1001",
+            "manufacturer": "Dell",
+            "purchasePrice": 1800.00,
+            "purchaseDate": "2023-08-14T17:00:00Z",
             "status": "AVAILABLE",
-            "assignedTo": null
+            "createdAt": "2025-09-23T03:24:36.304667Z",
+            "createdBy": 1,
+            "updatedAt": "2025-10-23T03:19:20.724718Z",
+            "updatedBy": 1
         }
     }
     ```  
@@ -249,13 +329,18 @@ The project will be composed of the following microservices:
     ```json
     {
         "status": "success",
+        "page": 1,
+        "size": 10,
+        "totalItems": 1,
         "results": [
-
             {
-                "uuid": "745571f6-d52b-49ef-88cb-db0607853107",
-                "name": "Laptop Dell XPS 30",
+                "uuid": "b436a16d-4906-45a7-88a9-6d14d2148f2e",
+                "name": "Dell XPS 15",
                 "type": "Laptop",
-                "status": "AVAILABLE"
+                "category": "GENERAL",
+                "manufacturer": "Dell",
+                "status": "AVAILABLE",
+                "updatedAt": "2025-10-23T03:19:20.724718Z"
             }
         ]
     }
@@ -960,7 +1045,11 @@ To stop the containers and remove associated volumes:
 docker compose -f deploy/compose.yml down -v
 ```
 
+## 8. API Testing
 
+Use the following Postman collection to test the API endpoints with the predefined requests:
+
+[equipment-management-system.postman_collection.json](./postman/equipment-management-system.postman_collection.json)
 
 ## 9. Technical Specifications
 - **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
