@@ -7,22 +7,22 @@ To design, develop, and deliver a **microservices-based RESTful API** that enabl
 ## 2. Scope of Work
 The project will be composed of the following microservices:
 
-- **Auth Service** - handles user login, JWT generation, and role-based access.  
-- **Device Service** - manages CRUD operations on devices.  
-- **Request Service** - manages device requests and approval/rejection workflows.  
-- **Report Service** - generates monthly reports for Admins.  
+- **Auth Service** - handles user login, JWT generation, and role-based access.
+- **Device Service** - manages CRUD operations on devices.
+- **Request Service** - manages device requests and approval/rejection workflows.
+- **Report Service** - generates monthly reports for Admins.
 
 > All services will communicate via REST APIs and will be exposed through an API Gateway.
 
 ## 3. API Endpoints
 
-1. **Auth Service**
+### 1. **Auth Service**
 
 - **Login**
-    - **Name:** `/login`  
-    - **Endpoint:** `/auth/login`  
-    - **Method:** `POST`  
-    - **Description:** Authenticates a user and returns a JWT token on success.  
+    - **Name:** `/login`
+    - **Endpoint:** `/auth/login`
+    - **Method:** `POST`
+    - **Description:** Authenticates a user and returns a JWT token on success.
     - **Request Body:**
     ```json
     {
@@ -30,16 +30,16 @@ The project will be composed of the following microservices:
         "password": "12345678"
     }
     ```
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "token": "eyJhbGciOiJIUzI1NiJ9..."
     }
     ```  
-    - **Fail**:  
-    - **Invalid input** - Returned when email or password is null 
+    - **Fail**:
+    - **Invalid input** - Returned when email or password is null
      ```json
     {
         "status": "error",
@@ -57,12 +57,12 @@ The project will be composed of the following microservices:
     }
      ```
 
-2. **Device Service**
+### 2. **Device Service**
 
 - **Add Device**
-    - **Name:** `/addDevice`  
-    - **Endpoint:** `/device`  
-    - **Method:** `POST`  
+    - **Name:** `/addDevice`
+    - **Endpoint:** `/device`
+    - **Method:** `POST`
     - **Description:** Adds a new device to the system (admin/IT only).
     - **Request Body:**
     ```json
@@ -75,15 +75,15 @@ The project will be composed of the following microservices:
         "purchaseDate": "2023-08-14"
     }
     ```
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "id": 16
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -102,7 +102,7 @@ The project will be composed of the following microservices:
     }
      ``` 
 
-    - **Invalid input** - Returned when one or more fields of request body are blank or null
+    - **Missing fields** - Returned when one or more required fields of request body are blank or null
      ```json
     {
         "status": "error",
@@ -111,7 +111,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-     - **Type not found** - Returned when the input type is not found
+    - **Type not found** - Returned when the input type is not found
      ```json
     {
         "status": "error",
@@ -120,7 +120,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-     - **Type inaccessible** - Returned when the user is not authorized to access the input type
+    - **Type inaccessible** - Returned when the user is not authorized to access the input type
      ```json
     {
         "status": "error",
@@ -146,12 +146,12 @@ The project will be composed of the following microservices:
         "message": "Date must be in format yyyy-MM-dd"
     }
      ```
-    
+
 
 - **Update Device**
-    - **Name:** `/updateDevice`  
-    - **Endpoint:** `/device/{id}`  
-    - **Method:** `PUT`  
+    - **Name:** `/updateDevice`
+    - **Endpoint:** `/device/{id}`
+    - **Method:** `PUT`
     - **Description:** Update a device in the system (admin/IT only).
     - **Request Body:**
     ```json
@@ -164,15 +164,15 @@ The project will be composed of the following microservices:
         "purchaseDate": "2023-08-14"
     }
     ```
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "id": 16
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -209,7 +209,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Invalid input** - Returned when one or more fields of request body are blank or null
+    - **Missing fields** - Returned when one or more required fields of request body are blank or null
      ```json
     {
         "status": "error",
@@ -255,12 +255,12 @@ The project will be composed of the following microservices:
      ```
 
 - **View Device**
-    - **Name:** `/viewDevice`  
-    - **Endpoint:** `/device/{id}`  
-    - **Method:** `GET`  
+    - **Name:** `/viewDevice`
+    - **Endpoint:** `/device/{id}`
+    - **Method:** `GET`
     - **Description:** View a device in the system (admin/IT only).
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
@@ -282,7 +282,7 @@ The project will be composed of the following microservices:
         }
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -315,17 +315,17 @@ The project will be composed of the following microservices:
     {
         "status": "error",
         "statusCode": 1008,
-        "message": "Device inaccessible"
+        "message": "You are not authorized to access this device"
     }
      ```
 
 - **Search devices**
-    - **Name:** `/searchDevices`  
-    - **Endpoint:** `/device/search`  
-    - **Method:** `GET`  
+    - **Name:** `/searchDevices`
+    - **Endpoint:** `/device/search`
+    - **Method:** `GET`
     - **Description:** Search devices based on device name or type.
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
@@ -345,7 +345,7 @@ The project will be composed of the following microservices:
         ]
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -355,20 +355,94 @@ The project will be composed of the following microservices:
     }
      ```
 
-- **Decommission device**
-    - **Name:** `/decommissionDevice`  
-    - **Endpoint:** `/device/{id}`  
-    - **Method:** `DELETE`  
-    - **Description:** Update a device's status to be 'DECOMMISSION' in the system (admin/IT only).
-    - **Responses**:  
-    - **Success**:  
+- **Update device maintenance**
+    - **Name:** `/updateDeviceMaintenance`
+    - **Endpoint:** `/device/maintenance/{id}`
+    - **Method:** `PUT`
+    - **Description:** Update a device's status to be 'MAINTENANCE' in the system (admin/IT only).
+    - **Request Body:**
+    ```json
+    {
+        "maintenance": true
+    }
+    ```
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "id": 16
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Not found** - Returned when device ID is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1007,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Missing fields** - Returned when one or more required fields of request body are blank or null
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1003,
+        "message": "Missing required fields"
+    }
+     ```
+
+    - **Inaccessible** - Returned when the user does not have permission to access the specified device
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1008,
+        "message": "You are not authorized to access this device"
+    }
+     ```
+
+    - **Invalid operation** - Returned when device status is not in a valid for this operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1017,
+        "message": "Device not in a valid state for this action"
+    }
+     ```
+
+- **Decommission device**
+    - **Name:** `/decommissionDevice`
+    - **Endpoint:** `/device/{id}`
+    - **Method:** `DELETE`
+    - **Description:** Update a device's status to be 'RETIRED' in the system (admin/IT only).
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "id": 16
+    }
+    ```  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -401,33 +475,155 @@ The project will be composed of the following microservices:
     {
         "status": "error",
         "statusCode": 1008,
-        "message": "Device inaccessible"
+        "message": "You are not authorized to access this device"
     }
      ```
-     
-3. **Request Service**
+
+- **View my device**
+    - **Name:** `/viewMyDevice`
+    - **Endpoint:** `/device/my/{uuid}`
+    - **Method:** `GET`
+    - **Description:** View a registered BYOD device of the user.
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "name": "Dell XPS 16 Laptop",
+        "type": "Laptop",
+        "serialNumber": "SN-LA-1002",
+        "manufacturer": "Dell"
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Invalid UUID** - Returned when request UUID is invalid
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1012,
+        "message": "Invalid UUID"
+    }
+     ```
+
+    - **Not found** - Returned when device ID is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1007,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+- **Unenroll device**
+    - **Name:** `/unenrollDevice`
+    - **Endpoint:** `/device/by-uuid/{uuid}`
+    - **Method:** `DELETE`
+    - **Description:** Update the status of a BYOD device to 'RETIRED' (admin/IT only).
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "name": "Dell XPS 16 Laptop",
+        "type": "Laptop",
+        "serialNumber": "SN-LA-1002",
+        "manufacturer": "Dell"
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Invalid UUID** - Returned when request UUID is invalid
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1012,
+        "message": "Invalid UUID"
+    }
+     ```
+
+    - **Not found** - Returned when device ID is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1007,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Inaccessible** - Returned when the user does not have permission to access the specified device
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1008,
+        "message": "You are not authorized to access this device"
+    }
+     ```
+
+    - **Invalid operation** - Returned when device status is not in a valid for this operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1017,
+        "message": "Device not in a valid state for this action"
+    }
+     ```
+
+### 3. **Request Service**
 
 - **Create Request**
-    - **Name:** `/createRequest`  
-    - **Endpoint:** `/request`  
-    - **Method:** `POST`  
+    - **Name:** `/createRequest`
+    - **Endpoint:** `/request`
+    - **Method:** `POST`
     - **Description:** Create a new request for a device.
     - **Request Body:**
     ```json
     {
         "uuid": "745571f6-d52b-49ef-88cb-db0607853107",
-        "reason": "Laptop broke"
+        "reason": "Need new laptop for work"
     }
     ```
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "requestId": 1
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -455,7 +651,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Device unavailable** - Returned when request device is in use or unavailable 
+    - **Device unavailable** - Returned when request device is in use or unavailable
      ```json
     {
         "status": "error",
@@ -465,12 +661,12 @@ The project will be composed of the following microservices:
      ```
 
 - **View My Requests**
-    - **Name:** `/viewMyRequests`  
-    - **Endpoint:** `/request`  
-    - **Method:** `GET`  
+    - **Name:** `/viewMyRequests`
+    - **Endpoint:** `/request`
+    - **Method:** `GET`
     - **Description:** View all requests submitted by the user.
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
@@ -486,7 +682,7 @@ The project will be composed of the following microservices:
         ]
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -496,20 +692,354 @@ The project will be composed of the following microservices:
     }
      ```
 
+- **Submit Return Notice**
+    - **Name:** `/submitReturnNotice`
+    - **Endpoint:** `/request/return/{id}`
+    - **Method:** `POST`
+    - **Description:** Submit a return notice for admin/IT to confirm.
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requestId": 1
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Request not found** - Returned when request is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user attempts to submit a close notice on a request they did not create.
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
+    - **Already requested close** - Returned when a close notice has already been submitted for the request.
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1013,
+        "message": "Notice has already been submitted"
+    }
+     ```
+
+- **Create Registry**
+    - **Name:** `/createRegistry`
+    - **Endpoint:** `/request/register`
+    - **Method:** `POST`
+    - **Description:** Create a register request for a BYOD device.
+    - **Request Body:**
+    ```json
+    {
+        "name": "Dell XPS 16 Laptop",
+        "type": "Laptop",
+        "serialNumber": "SN-LA-1002",
+        "manufacturer": "Dell",
+        "reason": "I use this laptop for work"
+    }
+    ```
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requestId": 3
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Invalid input** - Returned when one or more fields of request body are blank or null
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1003,
+        "message": "Missing required fields"
+    }
+     ```
+
+    - **Type not found** - Returned when the input type is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1016,
+        "message": "Device type not found"
+    }
+     ```
+
+    - **Duplicate serial** - Returned when the input serial already exists
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1015,
+        "message": "Serial number already exists"
+    }
+     ```
+
+- **View All My Registries**
+    - **Name:** `/viewAllMyRegistries`
+    - **Endpoint:** `/request/register`
+    - **Method:** `GET`
+    - **Description:** View all registries submitted by the user.
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 3,
+                "device": [
+                    {
+                        "name": "Dell XPS 16 Laptop",
+                        "type": "Laptop",
+                        "serialNumber": "SN-LA-1002",
+                        "manufacturer": "Dell"
+                    }
+                ],
+                "reason": "I use this laptop for work",
+                "status": "PENDING",
+                "createdAt": "2025-09-26T07:20:43.324779Z",
+                "updatedAt": "2025-09-26T07:20:43.324779Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+- **View My Registry**
+    - **Name:** `/viewMyRegistry`
+    - **Endpoint:** `/request/register/{id}`
+    - **Method:** `GET`
+    - **Description:** View a registry submitted by the user.
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 3,
+                "device": [
+                    {
+                        "name": "Dell XPS 16 Laptop",
+                        "type": "Laptop",
+                        "serialNumber": "SN-LA-1002",
+                        "manufacturer": "Dell"
+                    }
+                ],
+                "reason": "I use this laptop for work",
+                "status": "PENDING",
+                "createdAt": "2025-09-26T07:20:43.324779Z",
+                "updatedAt": "2025-09-26T07:20:43.324779Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Not found** - Returned when device is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1006,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Registry not found** - Returned when request type is not 'REGISTER'
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1018,
+        "message": "Request is not a registry"
+    }
+     ```
+
+- **Submit Unenroll Notice**
+    - **Name:** `/submitUnenrollNotice`
+    - **Endpoint:** `/request/register/{id}/unenroll`
+    - **Method:** `POST`
+    - **Description:** Submit an unenroll notice for the user BYOD device.
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requestId": 3
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Request not found** - Returned when request is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user attempts to submit a close notice on a request they did not create.
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
+    - **Already requested close** - Returned when a close notice has already been submitted for the request.
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1013,
+        "message": "Notice has already been submitted"
+    }
+     ```
+
+- **Cancel My Request**
+    - **Name:** `/cancelMyRequest`
+    - **Endpoint:** `/request/{id}/cancel`
+    - **Method:** `POST`
+    - **Description:** Cancel a 'PENDING' request of the user.
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requestId": 1
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Not found** - Returned when device is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1006,
+        "message": "Device not found"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
 - **View Pending Request**
-    - **Name:** `/viewPendingRequest`  
-    - **Endpoint:** `/pending/{id}`  
-    - **Method:** `GET`  
+    - **Name:** `/viewPendingRequest`
+    - **Endpoint:** `/pending/{id}`
+    - **Method:** `GET`
     - **Description:** View a pending request that require the user approval (admin/IT only).
     - **Request Body:**
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "requests": [
             {
                 "id": 1,
+                "requestType": "ASSIGN",
                 "deviceUuid": "745571f6-d52b-49ef-88cb-db0607853107",
                 "requesterId": 3,
                 "reason": "Laptop broke",
@@ -519,7 +1049,7 @@ The project will be composed of the following microservices:
         ]
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -557,28 +1087,29 @@ The project will be composed of the following microservices:
      ```
 
 - **View All Pending Requests**
-    - **Name:** `/viewAllPendingRequests`  
-    - **Endpoint:** `/request/pending`  
-    - **Method:** `GET`  
+    - **Name:** `/viewAllPendingRequests`
+    - **Endpoint:** `/request/pending`
+    - **Method:** `GET`
     - **Description:** View all pending requests that require the user approval (admin/IT only).
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "requests": [
             {
                 "id": 1,
+                "requestType": "ASSIGN",
                 "deviceUuid": "745571f6-d52b-49ef-88cb-db0607853107",
                 "requesterId": 3,
-                "reason": "Laptop broke",
+                "reason": "Need new laptop for work",
                 "status": "PENDING",
                 "createdAt": "2025-09-26T07:20:43.324779Z"
             }
         ]
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -598,9 +1129,9 @@ The project will be composed of the following microservices:
      ``` 
 
 - **Resolve Request**
-    - **Name:** `/resolveRequest`  
-    - **Endpoint:** `/request/pending/{id}`  
-    - **Method:** `POST`  
+    - **Name:** `/resolveRequest`
+    - **Endpoint:** `/request/pending/{id}`
+    - **Method:** `POST`
     - **Description:** Approve or deny a pending request and update device status accordingly (admin/IT only).
     - **Request Body:**
     ```json
@@ -609,15 +1140,15 @@ The project will be composed of the following microservices:
         "comment": "Approved"
     }
     ```
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "requestId": 1
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -636,7 +1167,7 @@ The project will be composed of the following microservices:
     }
      ``` 
 
-    - **Request not found** - Returned when request is not found 
+    - **Request not found** - Returned when request is not found
      ```json
     {
         "status": "error",
@@ -654,7 +1185,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Device unavailable** - Returned when request device is in use or unavailable 
+    - **Device unavailable** - Returned when request device is in use or unavailable
      ```json
     {
         "status": "error",
@@ -663,78 +1194,20 @@ The project will be composed of the following microservices:
     }
      ```
 
-- **Submit Close Request**
-    - **Name:** `/submitCloseRequest`  
-    - **Endpoint:** `/request/request-close/{id}`  
-    - **Method:** `POST`  
-    - **Description:** Submit a request to close an approved request.
-    - **Responses**:  
-    - **Success**:  
-    ```json
-    {
-        "status": "success",
-        "requestId": 1
-    }
-    ```  
-    - **Fail**:  
-    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
-     ```json
-    {
-        "status": "error",
-        "statusCode": 1004,
-        "message": "Token is invalid or expired"
-    }
-     ```
-
-    - **Request not found** - Returned when request is not found 
-     ```json
-    {
-        "status": "error",
-        "statusCode": 1009,
-        "message": "Request not found"
-    }
-     ```
-
-    - **Unauthorized** - Returned when the user attempts to submit a close notice on a request they did not create.
-     ```json
-    {
-        "status": "error",
-        "statusCode": 1005,
-        "message": "Insufficient permissions"
-    }
-     ``` 
-
-    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
-     ```json
-    {
-        "status": "error",
-        "statusCode": 1010,
-        "message": "Request not in a valid state for this action"
-    }
-     ```
-
-    - **Already requested close** - Returned when a close notice has already been submitted for the request.
-     ```json
-    {
-        "status": "error",
-        "statusCode": 1013,
-        "message": "Request not in a valid state for this action"
-    }
-     ```
-    
-- **View Closable Request**
-    - **Name:** `/viewClosableRequest`  
-    - **Endpoint:** `/request/close/{id}`  
-    - **Method:** `GET`  
-    - **Description:** View a request that is eligible for closure by the user (admin/IT only).
-    - **Responses**:  
-    - **Success**:  
+- **View All Pending Assignments**
+    - **Name:** `/viewAllPendingAssignments`
+    - **Endpoint:** `/request/assign`
+    - **Method:** `GET`
+    - **Description:** View all approved assignment requests where the device hasn't been delivered to the user.
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "requests": [
             {
-                "id": 13,
+                "id": 2,
+                "requestType": "ASSIGN",
                 "deviceUuid": "35766d0a-f35b-466a-b112-2bc86e874200",
                 "requesterId": 3,
                 "reason": "Need new switch",
@@ -744,14 +1217,13 @@ The project will be composed of the following microservices:
                 "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
                 "managerComment": "Approved",
                 "processedByIt": 5,
-                "itProcessedAt": "2025-10-02T03:45:01.482864Z",
-                "itComment": "IT approved",
-                "requestedToCloseAt": "2025-10-02T08:20:06.752053Z"
+                "itProcessedAt": "2025-10-01T03:45:01.482864Z",
+                "itComment": "Approved"
             }
         ]
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -770,7 +1242,39 @@ The project will be composed of the following microservices:
     }
      ``` 
 
-    - **Request not found** - Returned when request is not found 
+- **Confirm Device Assignment**
+    - **Name:** `/confirmDeviceAssignment`
+    - **Endpoint:** `/request/assign/{id}`
+    - **Method:** `POST`
+    - **Description:** Confirm the device has been assigned and update request status to 'DELIVERED' (admin/IT only).
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requestId": 2
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Request not found** - Returned when request is not found
      ```json
     {
         "status": "error",
@@ -788,36 +1292,214 @@ The project will be composed of the following microservices:
     }
      ```
 
-- **View All Closable Requests**
-    - **Name:** `/viewAllClosableRequests`  
-    - **Endpoint:** `/request/close`  
-    - **Method:** `GET`  
-    - **Description:** View all requests that are eligible for closure by the user (admin/IT only).
-    - **Responses**:  
-    - **Success**:  
+- **View All Return Notices**
+    - **Name:** `/viewAllReturnNotices`
+    - **Endpoint:** `/request/return`
+    - **Method:** `GET`
+    - **Description:** View all return notices (admin/IT only).
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "requests": [
             {
-                "id": 13,
+                "id": 2,
+                "requestType": "ASSIGN",
                 "deviceUuid": "35766d0a-f35b-466a-b112-2bc86e874200",
                 "requesterId": 3,
                 "reason": "Need new switch",
+                "status": "DELIVERED",
+                "createdAt": "2025-09-30T06:37:05.252951Z",
+                "processedByManager": 1,
+                "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
+                "managerComment": "Approved",
+                "processedByIt": 5,
+                "itProcessedAt": "2025-10-01T03:45:01.482864Z",
+                "itComment": "Approved",
+                "deliveredBy": 5,
+                "deliveredAt": "2025-10-01T06:45:01.482864Z",
+                "releaseSubmittedAt": "2025-10-02T08:20:06.752053Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+- **View Return Notice**
+    - **Name:** `/viewReturnNotice`
+    - **Endpoint:** `/request/return/{id}`
+    - **Method:** `GET`
+    - **Description:** View a return notice (admin/IT only).
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 2,
+                "requestType": "ASSIGN",
+                "deviceUuid": "35766d0a-f35b-466a-b112-2bc86e874200",
+                "requesterId": 3,
+                "reason": "Need new switch",
+                "status": "DELIVERED",
+                "createdAt": "2025-09-30T06:37:05.252951Z",
+                "processedByManager": 1,
+                "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
+                "managerComment": "Approved",
+                "processedByIt": 5,
+                "itProcessedAt": "2025-10-01T03:45:01.482864Z",
+                "itComment": "Approved",
+                "deliveredBy": 5,
+                "deliveredAt": "2025-10-01T06:45:01.482864Z",
+                "releaseSubmittedAt": "2025-10-02T08:20:06.752053Z"
+            }
+        ]
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Request not found** - Returned when request is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
+- **Confirm Return Notice**
+    - **Name:** `/viewAllUnenrollNotices`
+    - **Endpoint:** `/request/return/{id}/confirm`
+    - **Method:** `POST`
+    - **Description:** Confirm a return notice and set request status as 'CLOSED' (admin/IT only).
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requestId": 2
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+    - **Request not found** - Returned when request is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
+- **View All Unenroll Notices**
+    - **Name:** `/viewAllUnenrollNotices`
+    - **Endpoint:** `/request/unenroll`
+    - **Method:** `GET`
+    - **Description:** View all unenroll notices (admin/IT only).
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requests": [
+            {
+                "id": 3,
+                "requestType": "REGISTER",
+                "device": [
+                    {
+                        "name": "Dell XPS 16 Laptop",
+                        "type": "Laptop",
+                        "serialNumber": "SN-LA-1002",
+                        "manufacturer": "Dell"
+                    }
+                ],
+                "requesterId": 3,
+                "reason": "I use this laptop for work",
                 "status": "APPROVED",
                 "createdAt": "2025-09-30T06:37:05.252951Z",
                 "processedByManager": 1,
                 "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
                 "managerComment": "Approved",
                 "processedByIt": 5,
-                "itProcessedAt": "2025-10-02T03:45:01.482864Z",
-                "itComment": "IT approved",
-                "requestedToCloseAt": "2025-10-02T08:20:06.752053Z"
+                "itProcessedAt": "2025-10-01T03:45:01.482864Z",
+                "itComment": "Approved",
+                "releaseSubmittedAt": "2025-10-02T08:20:06.752053Z"
             }
         ]
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -836,22 +1518,44 @@ The project will be composed of the following microservices:
     }
      ``` 
 
-
-
-- **Close Request**
-    - **Name:** `/closeRequest`  
-    - **Endpoint:** `/request/close/{id}`  
-    - **Method:** `GET`  
-    - **Description:** Close a request that has been marked for closure (admin/IT only).
-    - **Responses**:  
-    - **Success**:  
+- **View Unenroll Notice**
+    - **Name:** `/viewUnenrollNotice`
+    - **Endpoint:** `/request/unenroll/{id}`
+    - **Method:** `GET`
+    - **Description:** View an unenroll notice (admin/IT only).
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
-        "requestId": 13
+        "requests": [
+            {
+                "id": 3,
+                "requestType": "REGISTER",
+                "device": [
+                    {
+                        "name": "Dell XPS 16 Laptop",
+                        "type": "Laptop",
+                        "serialNumber": "SN-LA-1002",
+                        "manufacturer": "Dell"
+                    }
+                ],
+                "requesterId": 3,
+                "reason": "I use this laptop for work",
+                "status": "APPROVED",
+                "createdAt": "2025-09-30T06:37:05.252951Z",
+                "processedByManager": 1,
+                "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
+                "managerComment": "Approved",
+                "processedByIt": 5,
+                "itProcessedAt": "2025-10-01T03:45:01.482864Z",
+                "itComment": "Approved",
+                "releaseSubmittedAt": "2025-10-02T08:20:06.752053Z"
+            }
+        ]
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -861,16 +1565,7 @@ The project will be composed of the following microservices:
     }
      ```
 
-    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
-     ```json
-    {
-        "status": "error",
-        "statusCode": 1005,
-        "message": "Insufficient permissions"
-    }
-     ``` 
-
-    - **Request not found** - Returned when request is not found 
+    - **Request not found** - Returned when request is not found
      ```json
     {
         "status": "error",
@@ -887,20 +1582,80 @@ The project will be composed of the following microservices:
         "message": "Request not in a valid state for this action"
     }
      ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+- **Confirm Unenroll Notice**
+    - **Name:** `/confirmUnenrollNotice`
+    - **Endpoint:** `/request/unenroll/{id}`
+    - **Method:** `POST`
+    - **Description:** Confirm an unenroll notice and update request status to 'CLOSED' (admin/IT only).
+    - **Responses**:
+    - **Success**:
+    ```json
+    {
+        "status": "success",
+        "requestId": 3
+    }
+    ```  
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Request not found** - Returned when request is not found
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1009,
+        "message": "Request not found"
+    }
+     ```
+
+    - **Invalid operation** - Returned when the request is in a state that does not allow the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1010,
+        "message": "Request not in a valid state for this action"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
 
 - **View My Processed Requests**
-    - **Name:** `/viewMyProcessedRequests`  
-    - **Endpoint:** `/request/processed`  
-    - **Method:** `GET`  
+    - **Name:** `/viewMyProcessedRequests`
+    - **Endpoint:** `/request/processed`
+    - **Method:** `GET`
     - **Description:** View all requests that the user has processed or closed (admin/IT only).
-    - **Responses**:  
-    - **Success**:  
+    - **Responses**:
+    - **Success**:
     ```json
     {
         "status": "success",
         "requests": [
             {
-                "id": 13,
+                "id": 2,
+                "requestType": "ASSIGN",
                 "deviceUuid": "35766d0a-f35b-466a-b112-2bc86e874200",
                 "requesterId": 3,
                 "reason": "Need new switch",
@@ -910,15 +1665,17 @@ The project will be composed of the following microservices:
                 "managerProcessedAt": "2025-09-30T06:38:05.263316Z",
                 "managerComment": "Approved",
                 "processedByIt": 5,
-                "itProcessedAt": "2025-10-02T03:45:01.482864Z",
-                "itComment": "IT approved",
-                "requestedToCloseAt": "2025-10-02T08:20:06.752053Z",
-                "closeAt": "2025-10-02T08:44:32.066074Z"
+                "itProcessedAt": "2025-10-01T03:45:01.482864Z",
+                "itComment": "Approved",
+                "deliveredBy": 5,
+                "deliveredAt": "2025-10-01T06:45:01.482864Z",
+                "releaseSubmittedAt": "2025-10-02T08:20:06.752053Z",
+                "closedBy": 5
             }
         ]
     }
     ```  
-    - **Fail**:  
+    - **Fail**:
     - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
      ```json
     {
@@ -937,10 +1694,139 @@ The project will be composed of the following microservices:
     }
      ``` 
 
+### 4. **Report Service**
+
+- **Generate All Devices Report PDF**
+    - **Name:** `/generateAllDevicesReportPDF`
+    - **Endpoint:** `/report/device/pdf`
+    - **Method:** `GET`
+    - **Description:** Generate a PDF report of all devices (admin only).
+    - **Responses**:
+    - **Success**:
+        - **Body:** Binary PDF data
+        - **Headers:**
+            ```
+            Content-Type: application/pdf
+            Content-Disposition: attachment; filename="all_devices_report.pdf"
+            ```
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+- **Generate All Devices Report PDF**
+    - **Name:** `/generateAllDevicesReportPDF`
+    - **Endpoint:** `/report/device/pdf`
+    - **Method:** `GET`
+    - **Description:** Generate a PDF report of all devices (admin only).
+    - **Responses**:
+    - **Success**:
+        - **Body:** Binary PDF data
+        - **Headers:**
+            ```
+            Content-Type: application/pdf
+            Content-Disposition: attachment; filename="devices_report.pdf"
+            ```
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+- **Generate All Devices Report CSV**
+    - **Name:** `/generateAllDevicesReportCSV`
+    - **Endpoint:** `/report/device/csv`
+    - **Method:** `GET`
+    - **Description:** Generate a CSV report of all devices (admin only).
+    - **Responses**:
+    - **Success**:
+        - **Body:** CSV file stream
+        - **Headers:**
+            ```
+            Content-Type: text/csv
+            Content-Disposition: attachment; filename="devices_report.csv"
+            ```
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
+
+- **Generate Active Devices Report CSV**
+    - **Name:** `/generateActiveDevicesReportCSV`
+    - **Endpoint:** `/report/device/active/csv`
+    - **Method:** `GET`
+    - **Description:** Generate a CSV report of active devices (admin only).
+    - **Responses**:
+    - **Success**:
+        - **Body:** CSV file stream
+        - **Headers:**
+            ```
+            Content-Type: text/csv
+            Content-Disposition: attachment; filename="active_devices_report.csv"
+            ```
+    - **Fail**:
+    - **Invalid token** - Returned when the JWT token is missing, invalid, or expired
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1004,
+        "message": "Token is invalid or expired"
+    }
+     ```
+
+    - **Unauthorized** - Returned when the user does not have permission to perform the requested operation
+     ```json
+    {
+        "status": "error",
+        "statusCode": 1005,
+        "message": "Insufficient permissions"
+    }
+     ``` 
 
 ## 4. Milestones & Time Frames
-- **Time Frame:** 8 weeks  
-- **Start Date:** 8 September, 2025  
+- **Time Frame:** 8 weeks
+- **Start Date:** 8 September, 2025
 
 | Date Range | Milestone | Description |
 |------------|-----------|-------------|
@@ -956,44 +1842,54 @@ The project will be composed of the following microservices:
 
 
 ## 5. Database Design
-Each service will use its own database for storing and managing data related to its responsibilities.  
+Each service will use its own database for storing and managing data related to its responsibilities.
 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
-<img src="assets/auth.jpg" style="width:50%;"/>
+  <img src="assets/auth.jpg" style="width:50%;"/>
 
   > User role: 'ADMIN', 'EMPLOYEE', 'IT'
 
 - **Device Service DB** - manages all device records, status, and assignment information.
-<img src="assets/device.jpg" style="width:100%;"/>
+  <img src="assets/device.jpg" style="width:100%;"/>
 
   > Device category: 'GENERAL', 'NETWORK'
-  
+
   > Device status: 'AVAILABLE', 'RESERVED', 'ASSIGNED', 'MAINTENANCE', 'RETIRED'
-  
+
   > Device ownership type: 'COMPANY', 'BYOD'
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.
-<img src="assets/request.jpg" style="width:80%;"/>
+  <img src="assets/request.jpg" style="width:80%;"/>
 
   > Request type: 'ASSIGN', 'REGISTER'
 
   > Request status: 'PENDING', 'REJECTED', 'APPROVED', 'DELIVERED', 'CLOSED', 'CANCELLED'
 
 - **Report Service DB** - stores aggregated data and reporting snapshots.
- 
+
 <img src="assets/report.jpg" style="width:50%;"/>
 
 
 ## 6. Workflow Overview
 
-The following diagram illustrates the complete equipment request lifecycle, from submission and approval to device delivery and closure, involving interactions between multiple services.
+### 1. Assign requests
+The following diagram shows the complete lifecycle of an assign request, from submission and approval to device delivery and closure.
 
-<img src="assets/request_diagram.png" style="width:65%;"/>
+> Network-related devices require additional IT approval before the request can proceed.
+
+<img src="assets/assignment_request.png" style="width:100%;"/>
+
+### 2. Register requests
+The following diagram shows the complete lifecycle of a register request, from submission to approval and closure.
+
+> Network-related devices require additional IT approval before the request can proceed.
+
+<img src="assets/registry_request.png" style="width:100%;"/>
 
 
 ## 7. Setup & Run
 
-1. **Environment Configuration**
+### 1. **Environment Configuration**
 
 Define the `JWT_SECRET` variable in the global environment or in a `.env` file within the `/deploy` folder of the API Gateway and Auth Service, for example:
 
@@ -1003,7 +1899,7 @@ JWT_SECRET=my-jwt-secret
 
 > Both the Auth Service and API Gateway must use the same `JWT_SECRET` to correctly validate authentication tokens.
 
-2. **Build the Application**
+### 2. **Build the Application**
 
 Run the following command in the root folder of each of the services to build the Spring Boot JAR file:
 
@@ -1013,13 +1909,13 @@ Run the following command in the root folder of each of the services to build th
 
 > Use `-x test` to skip running tests for faster image build
 
-If there are any changes to the code or configs, rerun the command above then the following: 
+If there are any changes to the code or configs, rerun the command above then the following:
 
 ```bash
 docker compose -f deploy/compose.yml build --no-cache
 ```
 
-3. **Create the Network**
+### 3. **Create the Network**
 
 Run the following command in the terminal to create the network used by the containers:
 
@@ -1032,7 +1928,7 @@ To stop and remove the network:
 docker network rm equipment-management-net
 ```
 
-4. **Start the Application**
+### 4. **Start the Application**
 
 Run the following command in the root folder of each of the service to start both the application and database:
 
@@ -1052,10 +1948,10 @@ Use the following Postman collection to test the API endpoints with the predefin
 [equipment-management-system.postman_collection.json](./postman/equipment-management-system.postman_collection.json)
 
 ## 9. Technical Specifications
-- **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).  
-- **Service Communication:** REST APIs with an API Gateway.  
-- **Containerization:** Each service runs in its own Docker container.  
-- **Persistence:** Independent PostgreSQL databases per service.  
-- **Scalability:** Services can be scaled independently.  
-- **Frameworks:** Java / Spring Boot for each service.  
+- **Architecture:** Microservices architecture with independent services (Auth, Device, Request, Report).
+- **Service Communication:** REST APIs with an API Gateway.
+- **Containerization:** Each service runs in its own Docker container.
+- **Persistence:** Independent PostgreSQL databases per service.
+- **Scalability:** Services can be scaled independently.
+- **Frameworks:** Java / Spring Boot for each service.
 - **Authentication:** Centralized Auth service for JWT issuance, Gateway validates and routes requests. 
