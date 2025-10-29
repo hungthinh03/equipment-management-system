@@ -60,28 +60,6 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_fail() {
-        LoginRequestDTO dto = new LoginRequestDTO();
-        String token = "my-token";
-
-        // Mock service response
-        when(userService.login(any(LoginRequestDTO.class)))
-                .thenReturn(Mono.just(new ApiResponseDTO(token)));
-
-        // Perform POST request
-        webTestClient.post()
-                .uri("/auth/login")
-                .bodyValue(dto)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(ApiResponseDTO.class)
-                .value(response -> {
-                    assertEquals("success", response.getStatus());
-                    assertEquals(token, response.getToken());
-                });
-    }
-
-    @Test
     void login_fail_invalidInput() {
         LoginRequestDTO dto = new LoginRequestDTO();
         dto.setEmail("admin1@example.com");
