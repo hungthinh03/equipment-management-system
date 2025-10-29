@@ -1845,12 +1845,14 @@ The project will be composed of the following microservices:
 Each service will use its own database for storing and managing data related to its responsibilities.
 
 - **Auth Service DB** - manages user accounts, credentials, and roles.
-  <img src="assets/auth.jpg" style="width:50%;"/>
+
+<img src="assets/auth.jpg" style="width:50%;"/>
 
   > User role: 'ADMIN', 'EMPLOYEE', 'IT'
 
 - **Device Service DB** - manages all device records, status, and assignment information.
-  <img src="assets/device.jpg" style="width:100%;"/>
+
+<img src="assets/device.jpg" style="width:100%;"/>
 
   > Device category: 'GENERAL', 'NETWORK'
 
@@ -1859,7 +1861,8 @@ Each service will use its own database for storing and managing data related to 
   > Device ownership type: 'COMPANY', 'BYOD'
 
 - **Request Service DB** - manages device requests, approvals, rejections, and workflow history.
-  <img src="assets/request.jpg" style="width:80%;"/>
+
+<img src="assets/request.jpg" style="width:80%;"/>
 
   > Request type: 'ASSIGN', 'REGISTER'
 
@@ -1897,7 +1900,7 @@ Define the `JWT_SECRET` variable in the global environment or in a `.env` file w
 JWT_SECRET=my-jwt-secret
 ```
 
-> Both the Auth Service and API Gateway must use the same `JWT_SECRET` to correctly validate authentication tokens.
+> Both the Auth Service and API Gateway must use the same `JWT_SECRET` to correctly validate authentication tokens
 
 ### 2. **Build the Application**
 
