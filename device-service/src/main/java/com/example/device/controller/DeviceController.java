@@ -125,7 +125,7 @@ public class DeviceController {
     }
 
     @DeleteMapping("/by-uuid/{uuid}")
-    @RequireRole({"ADMIN", "IT"}) // needs @RequestHeader("X-User-Role")
+    @RequireRole({"ADMIN", "IT"})
     public Mono<ApiResponse> unenrollDevice(@RequestHeader("X-User-Id") String userId,
                                             @RequestHeader("X-User-Role") String role,
                                             @PathVariable String uuid) {

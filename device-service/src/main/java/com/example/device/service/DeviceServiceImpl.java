@@ -154,7 +154,6 @@ public class DeviceServiceImpl implements DeviceService {
                 (type == null || type.isBlank());
     }
 
-
     public Mono<SearchResponse> searchDevices(String name, String type, int page) {
         int size = 10; // results per page
         int pageIndex = Math.max(page, 0); // min page = 0

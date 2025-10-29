@@ -3,10 +3,12 @@ package com.example.device.response;
 import com.example.device.dto.ViewDeviceDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeviceResponse {
     private String status;
