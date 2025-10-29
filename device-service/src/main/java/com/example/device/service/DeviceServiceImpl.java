@@ -107,6 +107,8 @@ public class DeviceServiceImpl implements DeviceService {
                         "MAINTENANCE".equalsIgnoreCase(device.getStatus()))
                 .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_OPERATION)))
                 .flatMap(existing -> validateDevice(dto)
+                        .filter(d -> isValidPurchaseDate(dto.getPurchaseDate()))
+                        .switchIfEmpty(Mono.error(new AppException(ErrorCode.INVALID_DATE)))
                         .flatMap(d -> validateDeviceType(d.getType(), role)
                                 .flatMap(deviceType ->
                                         validateUpdatedSerialNumber(d.getSerialNumber(), existing.getSerialNumber())
