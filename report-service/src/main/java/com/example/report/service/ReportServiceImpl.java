@@ -28,17 +28,17 @@ import java.util.stream.Stream;
 
 @Service
 public class ReportServiceImpl implements ReportService {
-    @Autowired
     private ReportRepository reportRepo;
 
     private final DeviceClient deviceClient;
 
-    Color background = new Color(48, 144, 255, 173);
-
     @Autowired
-    public ReportServiceImpl(DeviceClient deviceClient) {
+    public ReportServiceImpl(ReportRepository reportRepo, DeviceClient deviceClient) {
+        this.reportRepo = reportRepo;
         this.deviceClient = deviceClient;
     }
+
+    Color background = new Color(48, 144, 255, 173);
 
     private void addTableHeader(PdfPTable table) {
         Stream.of("ID", "Name", "Type", "Serial", "Manufacturer", "Ownership", "Created At", "Status")
@@ -85,11 +85,11 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
-    public List<DeviceDTO> getAllDevices(String authHeader) {
+    public List<DeviceDTO> fetchAllDevices(String authHeader) {
         return deviceClient.getAllDevices(authHeader).block();
     }
 
-    public List<DeviceDTO> getAllActiveDevices(String authHeader) {
+    public List<DeviceDTO> fetchAllActiveDevices(String authHeader) {
         return deviceClient.getAllActiveDevices(authHeader).block();
     }
 
@@ -140,14 +140,14 @@ public class ReportServiceImpl implements ReportService {
     }
 
     public byte[] generateDevicesReportPDF(boolean landscape,  String userId, String authHeader) {
-        List<DeviceDTO> devices = getAllDevices(authHeader);
+        List<DeviceDTO> devices = fetchAllDevices(authHeader);
         byte[] pdfBytes = buildDevicesReportPDF(devices, landscape);
         saveReport("All Devices Report", "PDF", userId, devices);
         return pdfBytes;
     }
 
     public byte[] generateActiveDevicesReportPDF(boolean landscape,  String userId, String authHeader) {
-        List<DeviceDTO> devices = getAllActiveDevices(authHeader);
+        List<DeviceDTO> devices = fetchAllActiveDevices(authHeader);
         byte[] pdfBytes = buildDevicesReportPDF(devices, landscape);
         saveReport("All Active Devices Report", "PDF", userId, devices);
         return pdfBytes;
@@ -158,8 +158,7 @@ public class ReportServiceImpl implements ReportService {
         OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
 
         CSVFormat format = CSVFormat.DEFAULT.builder()
-                .setHeader("ID", "Name", "Type", "Serial Number", "Manufacturer",
-                        "Ownership", "Created At", "Status")
+                .setHeader("ID", "Name", "Type", "Serial Number", "Manufacturer", "Ownership", "Created At", "Status")
                 .setSkipHeaderRecord(false)
                 .build();
 
@@ -188,14 +187,14 @@ public class ReportServiceImpl implements ReportService {
     }
 
     public byte[] generateDevicesReportCSV(String userId, String authHeader) {
-        List<DeviceDTO> devices = getAllDevices(authHeader);
+        List<DeviceDTO> devices = fetchAllDevices(authHeader);
         byte[] csvBytes = buildDevicesReportCSV(devices);
         saveReport("All Devices Report", "CSV", userId, devices);
         return csvBytes;
     }
 
     public byte[] generateActiveDevicesReportCSV(String userId, String authHeader) {
-        List<DeviceDTO> devices = getAllActiveDevices(authHeader);
+        List<DeviceDTO> devices = fetchAllActiveDevices(authHeader);
         byte[] csvBytes = buildDevicesReportCSV(devices);
         saveReport("All Active Devices Report", "CSV", userId, devices);
         return csvBytes;
