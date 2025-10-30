@@ -1878,14 +1878,14 @@ Each service will use its own database for storing and managing data related to 
 ### 1. Assign requests
 The following diagram shows the complete lifecycle of an assign request, from submission and approval to device delivery and closure.
 
-> Network-related devices require additional IT approval before the request can proceed.
+> Network-related devices require additional IT approval before the request can proceed
 
 <img src="assets/assignment_request.png" style="width:100%;"/>
 
 ### 2. Register requests
 The following diagram shows the complete lifecycle of a register request, from submission to approval and closure.
 
-> Network-related devices require additional IT approval before the request can proceed.
+> Network-related devices require additional IT approval before the request can proceed
 
 <img src="assets/registry_request.png" style="width:100%;"/>
 
